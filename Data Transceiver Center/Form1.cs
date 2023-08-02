@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Threading;
 
 
-
 namespace Data_Transceiver_Center
 {
     public partial class Form1 : Form
@@ -32,26 +31,22 @@ namespace Data_Transceiver_Center
         static string printApi2 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=print&par=800D2AL71YN201A17,id";
         static string printApi3 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=printCallBack&par=800D2AL71YN201A17";
 
-/*        Task t1 = new Task(() =>
-        {
-            if (File.Exists(filePathZPL))
-            {
-                MessageBox.Show(filePathZPL);
-                //SendFileToPrinter(filePathZPL, mPrintName);
-            }
-            else
-            {
-                MessageBox.Show("file not exist");
-            }
-            Thread.Sleep(500);
-        });*/
-        
+        static string apiToken = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
+
+
+        // 通信和流程标志位，0为初始化，1为完成，2为异常
+        private int mesComunication1Flag = 0;
+        private int mesComunication2Flag = 0;
+        private int mesComunication3Flag = 0;
+        private int sendFileToPrtFlag = 0;
+        private int readCsvFlag = 0;
+
 
         // 生成ZPL文档
         private void button1_Click(object sender, EventArgs e)
         {
             string filePathZPL = this.zplPathBox.Text + "\\zpl.txt";
-            string line = cmdTextBox.Text;
+            string line = prtCodeBox.Text;
             CmdToTxt(filePathZPL,line);
         }
 
@@ -88,7 +83,7 @@ namespace Data_Transceiver_Center
             //传入我们的实体类还有需要解析的JSON字符串这样就OK了。然后就可以通过实体类使用数据了。
             Root rt = JsonConvert.DeserializeObject<Root>(getJson);
 
-            this.label2.Text = rt.data[0].context;
+            this.label2.Text = rt.nu;
 
             //这样就可以取出json数据里面的值
             MessageBox.Show("com=" + rt.com + "\r\n" + "condition=" + rt.condition + "\r\n" + "ischeck=" + rt.ischeck + "\r\n" + "state=" + rt.state + "\r\n" + "status=" + rt.status);
@@ -98,7 +93,7 @@ namespace Data_Transceiver_Center
                 this.label1.Text = rt.data[i].context;
                 MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
             }
-          
+
         }
 
         // 生成Json数据
@@ -108,35 +103,137 @@ namespace Data_Transceiver_Center
         }
 
         // Mes通信1
-        private void button6_Click(object sender, EventArgs e)
+        private void mesCmd1Button_Click(object sender, EventArgs e)
         {
-            // http 接口
-            //string url = printApi1;
+            MesRoot1 rt = new MesRoot1();
+            MesData1 dt = new MesData1();
+            rt.data = dt;
 
-            string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+            // http 接口
+            string url = mesApiBox.Text;
+            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+            string api_url= apiToken + "position&par="+ positionBox.Text;
+
+            if (positionBox.Text == "") { url = ex_url; }
+            else { url = api_url; }
+            // 通过接口，向MES发送通信，收到的回应存入getJson
+            string getJson = HttpUitls.Get(url);
+
+            if (getJson == "无法连接到远程服务器")
+            {
+                mesIdBox.Text = getJson;
+                this.mesComunication1Flag = 2;
+            }
+            else
+            {
+                // 解析 MES 回应的JSON数据，解析结果存入C#本地的MesRoot类中
+                //MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
+                try
+                {
+                    rt = JsonConvert.DeserializeObject<MesRoot1>(getJson);
+                    mesIdBox.Text = rt.data.id;
+                    this.mesComunication1Flag = 1;
+                }
+                catch (Exception)
+                {
+                    this.mesComunication1Flag = 2;
+                    MessageBox.Show("JsonConver解析出错");
+                    mesIdBox.Text = "##############";
+                }
+            }
+            
+        }
+
+        // Mes通信2
+        private void mesCmd2Button_Click(object sender, EventArgs e)
+        {
+            MesRoot2 rt = new MesRoot2();
+            MesData2 dt = new MesData2();
+            rt.data = dt;
+
+            // http 接口
+            string url = mesApiBox.Text;
+            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+            string api_url = apiToken + "print&par="+visionCodeBox.Text+","+mesIdBox.Text;
+
+            if (visionCodeBox.Text == "") { url = ex_url; }
+            else { url = api_url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             string getJson = HttpUitls.Get(url);
 
             if (getJson == "无法连接到远程服务器")
             {
-                mesIDBox.Text = getJson;
+                fogIdBox.Text = getJson;
+                this.mesComunication2Flag = 2;
             }
             else
             {
                 // 解析 MES 回应的JSON数据，解析结果存入C#本地的MesRoot类中
-                MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
-                this.label1.Text = rt.data.id;
+                //MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
+                try
+                {
+                    rt = JsonConvert.DeserializeObject<MesRoot2>(getJson);
+                    fogIdBox.Text = rt.data.fogId;
+                    this.mesComunication2Flag = 1;
+                }
+                catch (Exception)
+                {
+                    this.mesComunication2Flag = 2;
+                    MessageBox.Show("JsonConver解析出错");
+                    fogIdBox.Text = "##############";
+                }
             }
-            
         }
+
+        // Mes通信3
+        private void mesCmd3Button_Click(object sender, EventArgs e)
+        {
+            MesRoot3 rt = new MesRoot3();
+
+            // http 接口
+            string url = mesApiBox.Text;
+            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+            string api_url = apiToken + "printCallBack&par=" + mesIdBox.Text;
+
+            if (positionBox.Text == "") { url = ex_url; }
+            else { url = api_url; }
+
+            // 通过接口，向MES发送通信，收到的回应存入getJson
+            string getJson = HttpUitls.Get(url);
+
+            if (getJson == "无法连接到远程服务器")
+            {
+                mesIdBox.Text = getJson;
+                this.mesComunication3Flag = 2;
+            }
+            else
+            {
+                // 解析 MES 回应的JSON数据，解析结果存入C#本地的MesRoot类中
+                //MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
+                try
+                {
+                    rt = JsonConvert.DeserializeObject<MesRoot3>(getJson);
+                    printCallBackLable.Text = rt.data;
+                    this.mesComunication3Flag = 1;
+                }
+                catch (Exception)
+                {
+                    this.mesComunication3Flag = 2;
+                    MessageBox.Show("JsonConver解析出错");
+                    printCallBackLable.Text = "回调失败";
+                }
+            }
+        }
+
+
 
         // 读取CSV数据
         private void button7_Click(object sender, EventArgs e)
         {
             string csvPath = csvPathBox.Text+"\\barcode.csv";
             string barCode = ReadCsvFile(csvPath);
-            cmdTextBox.Text = barCode;
+            visionCodeBox.Text = barCode;
 
             if (checkBox2.Checked)
             {
@@ -236,35 +333,46 @@ namespace Data_Transceiver_Center
             {
                 // 将ZPL指令发送到打印机，filePathZPL为ZPL指令文件路径，mPrintName为打印机路径，例如：mPrintName = @"\\192.168.0.132\zt411"
                 File.Copy(filePathZPL, mPrintName, true);
+                this.sendFileToPrtFlag = 1;
+                this.mesComunication1Flag = 0;
+                this.mesComunication2Flag = 0;
+                this.mesComunication3Flag = 0;
                 label11.Text = "发送成功!";
             }
             catch (UnauthorizedAccessException)
             {
                 MessageBox.Show("无权限，或目标位置已存在同名只读文件\r\n" + filePathZPL+"\r\n"+ mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (ArgumentException)
             {
                 MessageBox.Show("路径长度为零，或包含无效字符\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (PathTooLongException)
             {
                 MessageBox.Show("指定的路径和/或文件名超过了系统定义的最大长度\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (DirectoryNotFoundException)
             {
                 MessageBox.Show("指定的文件或目标无效\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (FileNotFoundException)
             {
                 MessageBox.Show("未找到要发送的文件\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (IOException)
             {
                MessageBox.Show("发生了I/O错误，目标也应是文件\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
             catch (NotSupportedException)
             {
                 MessageBox.Show("文件格式或目标格式无效\r\n" + filePathZPL + "\r\n" + mPrintName);
+                this.sendFileToPrtFlag = 2;
             }
         }
 
@@ -337,127 +445,43 @@ namespace Data_Transceiver_Center
                 return retString;
             }
 
-
-            public static MesRoot JsonConvertToCSS(string getJson)
-            {
-                MesRoot rt= new MesRoot();
-
-
-
-                return rt;
-            }
-
         }
 
 
-        /// <summary>
-        /// 返回JSON包：{"message":"ok","nu":"367847964498","ischeck":"1","com":"shunfeng","status":"200","condition":"F00","state":"3","data":[{"time":"2023-07-20 13:19:55","context":"查无结果","ftime":"2023-07-20 13:19:55"}]}
-        /// 转换网址 https://www.bejson.com/convert/json2csharp/
-        /// JSON数据的实体类
-        /// </summary>
-        public class Root
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            public string message { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string nu { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ischeck { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string condition { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string com { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string status { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string state { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public List<DataItem> data { get; set; }
-        }
-        public class DataItem
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            public string time { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string ftime { get; set; }
-            /// <summary>
-            /// 已签收,感谢使用顺丰,期待再次为您服务
-            /// </summary>
-            public string context { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string location { get; set; }
-        }
-
-
-
-        /// <summary>
-        /// MES返回JSON包：{"data":{"id":"8A2Y1Y0229B7AA","lcdType":"MD"},"code":"200","msg":"成功"}
-        /// JSON数据的实体类(MES通信使用)
-        /// </summary>
-        public class MesData
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            public string id { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string lcdType { get; set; }
-        }
-
-        public class MesRoot
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            public MesData data { get; set; }
-            /// <summary>
-            /// 
-            /// </summary>
-            public string code { get; set; }
-            /// <summary>
-            /// 成功
-            /// </summary>
-            public string msg { get; set; }
-        }
-
+        // 自动功能：自动读csv文件，将csv数据存入visionCode。等待prtCode，有prtCode后，发送给打印机，并清除prtCode
         private void AutoSendFile(string filePathZPL,string mPrintName, string csvPath)
         {
             if (File.Exists(csvPath))
             {
-                string barCode = ReadCsvFile(csvPath);
-                cmdTextBox.Text = barCode;
-                label11.Text = barCode;
-                CmdToTxt(filePathZPL,barCode);
-                
-                SendFileToPrinter(filePathZPL, mPrintName);
-                if (checkBox2.Checked)
+                string visonCode = ReadCsvFile(csvPath);
+                visionCodeBox.Text = visonCode;
+
+                string prtCode = prtCodeBox.Text;
+
+                // 有打印码，才进行打印；打印完成后清楚prtCode
+                if (!(prtCode == ""))
                 {
-                    File.Delete(csvPath);
+                    CmdToTxt(filePathZPL, prtCode);
+
+                    SendFileToPrinter(filePathZPL, mPrintName);
+
+                    prtCodelabel.Text = prtCode;
+                    visionCodelabel.Text = visonCode;
+
+                    //if ((this.mesComunication1Flag ==1)&(this.mesComunication2Flag==1))
+                    {
+                        prtCodeBox.Text = "";//发送完成后清空
+                        visionCodeBox.Text = "";
+                        this.mesComunication1Flag = 0;
+                        this.mesComunication2Flag = 0;
+                    }
                 }
+                else
+                {
+                    label11.Text = "wait prtCode";
+                }
+
+                if (checkBox2.Checked)    {   File.Delete(csvPath);    }
             }
             else
             {
@@ -527,11 +551,11 @@ namespace Data_Transceiver_Center
                       // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
                       //textBox3.Text = serialPort1.ReadExisting(); // 读所有缓存数据
                       textBox3.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
-                                                                // 扫码枪通过串口发送过来的
-                                                                //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
+                      // 扫码枪通过串口发送过来的
+                      //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
 
                       //MessageBox.Show("收到条码："+ textBox3.Text);
-                      if (textBox3.Text == cmdTextBox.Text)
+                      if (textBox3.Text == visionCodeBox.Text)
                       {
                           textBox4.Text = "校验OK：扫描码与打印码一致";
                       }
@@ -548,6 +572,7 @@ namespace Data_Transceiver_Center
                 MessageBox.Show(ex.Message);
             }
         }
+
 
         // 串口收到hexString = "46 32 33 36 31 35 30 36 37 39 35 0D"的数，转换成byte[]形式返回
         // 通过System.Text.Encoding.ASCII.GetString(byte[] buf)，可以将buf按ascii转换成string
@@ -577,6 +602,7 @@ namespace Data_Transceiver_Center
 
             AutoSendFile(filePathZPL,  mPrintName,  csvPath);
         }
+
 
     }
 }
