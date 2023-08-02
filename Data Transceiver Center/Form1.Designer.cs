@@ -31,8 +31,8 @@ namespace Data_Transceiver_Center
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.cmdTextBox = new System.Windows.Forms.TextBox();
-            this.mesIDBox = new System.Windows.Forms.TextBox();
+            this.visionCodeBox = new System.Windows.Forms.TextBox();
+            this.mesIdBox = new System.Windows.Forms.TextBox();
             this.makeZplButton = new System.Windows.Forms.Button();
             this.sendToPrtButton = new System.Windows.Forms.Button();
             this.getJsonButton = new System.Windows.Forms.Button();
@@ -63,22 +63,38 @@ namespace Data_Transceiver_Center
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label11 = new System.Windows.Forms.Label();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.positionBox = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.fogIdBox = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.typrBox = new System.Windows.Forms.TextBox();
+            this.mesCmd2Button = new System.Windows.Forms.Button();
+            this.mesCmd3Button = new System.Windows.Forms.Button();
+            this.mesApiBox = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.printCallBackLable = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.prtCodeBox = new System.Windows.Forms.TextBox();
+            this.prtCodelabel = new System.Windows.Forms.Label();
+            this.visionCodelabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
-            // cmdTextBox
+            // visionCodeBox
             // 
-            this.cmdTextBox.Location = new System.Drawing.Point(24, 88);
-            this.cmdTextBox.Name = "cmdTextBox";
-            this.cmdTextBox.Size = new System.Drawing.Size(142, 21);
-            this.cmdTextBox.TabIndex = 0;
+            this.visionCodeBox.Location = new System.Drawing.Point(24, 88);
+            this.visionCodeBox.Name = "visionCodeBox";
+            this.visionCodeBox.Size = new System.Drawing.Size(142, 21);
+            this.visionCodeBox.TabIndex = 0;
             // 
-            // mesIDBox
+            // mesIdBox
             // 
-            this.mesIDBox.Location = new System.Drawing.Point(183, 452);
-            this.mesIDBox.Name = "mesIDBox";
-            this.mesIDBox.Size = new System.Drawing.Size(142, 21);
-            this.mesIDBox.TabIndex = 1;
+            this.mesIdBox.Location = new System.Drawing.Point(24, 439);
+            this.mesIdBox.Name = "mesIdBox";
+            this.mesIdBox.Size = new System.Drawing.Size(142, 21);
+            this.mesIdBox.TabIndex = 1;
             // 
             // makeZplButton
             // 
@@ -102,9 +118,9 @@ namespace Data_Transceiver_Center
             // 
             // getJsonButton
             // 
-            this.getJsonButton.Location = new System.Drawing.Point(24, 426);
+            this.getJsonButton.Location = new System.Drawing.Point(590, 230);
             this.getJsonButton.Name = "getJsonButton";
-            this.getJsonButton.Size = new System.Drawing.Size(116, 44);
+            this.getJsonButton.Size = new System.Drawing.Size(82, 44);
             this.getJsonButton.TabIndex = 4;
             this.getJsonButton.Text = "get JSON";
             this.getJsonButton.UseVisualStyleBackColor = true;
@@ -112,9 +128,9 @@ namespace Data_Transceiver_Center
             // 
             // convertJsonButton
             // 
-            this.convertJsonButton.Location = new System.Drawing.Point(24, 489);
+            this.convertJsonButton.Location = new System.Drawing.Point(590, 291);
             this.convertJsonButton.Name = "convertJsonButton";
-            this.convertJsonButton.Size = new System.Drawing.Size(116, 44);
+            this.convertJsonButton.Size = new System.Drawing.Size(83, 44);
             this.convertJsonButton.TabIndex = 5;
             this.convertJsonButton.Text = "解析 JSON";
             this.convertJsonButton.UseVisualStyleBackColor = true;
@@ -122,19 +138,19 @@ namespace Data_Transceiver_Center
             // 
             // mesCmd1Button
             // 
-            this.mesCmd1Button.Location = new System.Drawing.Point(183, 489);
+            this.mesCmd1Button.Location = new System.Drawing.Point(183, 420);
             this.mesCmd1Button.Name = "mesCmd1Button";
-            this.mesCmd1Button.Size = new System.Drawing.Size(116, 44);
+            this.mesCmd1Button.Size = new System.Drawing.Size(73, 44);
             this.mesCmd1Button.TabIndex = 7;
             this.mesCmd1Button.Text = "MES通信1";
             this.mesCmd1Button.UseVisualStyleBackColor = true;
-            this.mesCmd1Button.Click += new System.EventHandler(this.button6_Click);
+            this.mesCmd1Button.Click += new System.EventHandler(this.mesCmd1Button_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(24, 362);
+            this.label1.Location = new System.Drawing.Point(590, 201);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 14);
             this.label1.TabIndex = 8;
@@ -144,7 +160,7 @@ namespace Data_Transceiver_Center
             // 
             this.label2.AutoSize = true;
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(24, 394);
+            this.label2.Location = new System.Drawing.Point(590, 174);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 14);
             this.label2.TabIndex = 9;
@@ -158,7 +174,7 @@ namespace Data_Transceiver_Center
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 14);
             this.label3.TabIndex = 10;
-            this.label3.Text = "打印内容";
+            this.label3.Text = "视觉读码";
             // 
             // label4
             // 
@@ -219,7 +235,7 @@ namespace Data_Transceiver_Center
             this.dataGridView1.Location = new System.Drawing.Point(24, 174);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(388, 150);
+            this.dataGridView1.Size = new System.Drawing.Size(388, 133);
             this.dataGridView1.TabIndex = 17;
             // 
             // readCsvButton
@@ -235,7 +251,7 @@ namespace Data_Transceiver_Center
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(438, 93);
+            this.checkBox1.Location = new System.Drawing.Point(514, 30);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(126, 16);
             this.checkBox1.TabIndex = 19;
@@ -246,7 +262,7 @@ namespace Data_Transceiver_Center
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(366, 474);
+            this.label7.Location = new System.Drawing.Point(458, 474);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(53, 12);
             this.label7.TabIndex = 25;
@@ -254,7 +270,7 @@ namespace Data_Transceiver_Center
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(422, 471);
+            this.textBox3.Location = new System.Drawing.Point(514, 471);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(167, 21);
             this.textBox3.TabIndex = 24;
@@ -262,7 +278,7 @@ namespace Data_Transceiver_Center
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(366, 424);
+            this.label8.Location = new System.Drawing.Point(458, 424);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(41, 12);
             this.label8.TabIndex = 22;
@@ -271,7 +287,7 @@ namespace Data_Transceiver_Center
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(366, 386);
+            this.label9.Location = new System.Drawing.Point(458, 386);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(41, 12);
             this.label9.TabIndex = 21;
@@ -283,9 +299,9 @@ namespace Data_Transceiver_Center
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(466, 394);
+            this.button1.Location = new System.Drawing.Point(557, 401);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(95, 44);
+            this.button1.Size = new System.Drawing.Size(83, 44);
             this.button1.TabIndex = 26;
             this.button1.Text = "打开串口";
             this.button1.UseVisualStyleBackColor = true;
@@ -294,7 +310,7 @@ namespace Data_Transceiver_Center
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(368, 401);
+            this.comboBox1.Location = new System.Drawing.Point(460, 401);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(77, 20);
             this.comboBox1.TabIndex = 27;
@@ -302,7 +318,7 @@ namespace Data_Transceiver_Center
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(368, 439);
+            this.comboBox2.Location = new System.Drawing.Point(460, 439);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(76, 20);
             this.comboBox2.TabIndex = 28;
@@ -310,7 +326,7 @@ namespace Data_Transceiver_Center
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(366, 505);
+            this.label10.Location = new System.Drawing.Point(458, 505);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(53, 12);
             this.label10.TabIndex = 29;
@@ -318,7 +334,7 @@ namespace Data_Transceiver_Center
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(422, 502);
+            this.textBox4.Location = new System.Drawing.Point(514, 502);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(167, 21);
             this.textBox4.TabIndex = 30;
@@ -332,7 +348,7 @@ namespace Data_Transceiver_Center
             // 
             this.label11.AutoSize = true;
             this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label11.Location = new System.Drawing.Point(438, 140);
+            this.label11.Location = new System.Drawing.Point(514, 77);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(73, 14);
             this.label11.TabIndex = 31;
@@ -341,18 +357,175 @@ namespace Data_Transceiver_Center
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(438, 115);
+            this.checkBox2.Location = new System.Drawing.Point(514, 52);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(102, 16);
             this.checkBox2.TabIndex = 32;
             this.checkBox2.Text = "打印后删除csv";
             this.checkBox2.UseVisualStyleBackColor = true;
             // 
+            // positionBox
+            // 
+            this.positionBox.Location = new System.Drawing.Point(24, 394);
+            this.positionBox.Name = "positionBox";
+            this.positionBox.Size = new System.Drawing.Size(55, 21);
+            this.positionBox.TabIndex = 33;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(22, 379);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(29, 12);
+            this.label12.TabIndex = 34;
+            this.label12.Text = "线别";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(22, 424);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(41, 12);
+            this.label13.TabIndex = 35;
+            this.label13.Text = "MES ID";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(22, 470);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(41, 12);
+            this.label14.TabIndex = 36;
+            this.label14.Text = "FOG ID";
+            // 
+            // fogIdBox
+            // 
+            this.fogIdBox.Location = new System.Drawing.Point(24, 485);
+            this.fogIdBox.Name = "fogIdBox";
+            this.fogIdBox.Size = new System.Drawing.Size(142, 21);
+            this.fogIdBox.TabIndex = 37;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(85, 379);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(29, 12);
+            this.label15.TabIndex = 39;
+            this.label15.Text = "Type";
+            // 
+            // typrBox
+            // 
+            this.typrBox.Location = new System.Drawing.Point(85, 394);
+            this.typrBox.Name = "typrBox";
+            this.typrBox.Size = new System.Drawing.Size(55, 21);
+            this.typrBox.TabIndex = 38;
+            // 
+            // mesCmd2Button
+            // 
+            this.mesCmd2Button.Location = new System.Drawing.Point(183, 474);
+            this.mesCmd2Button.Name = "mesCmd2Button";
+            this.mesCmd2Button.Size = new System.Drawing.Size(73, 44);
+            this.mesCmd2Button.TabIndex = 40;
+            this.mesCmd2Button.Text = "MES通信2";
+            this.mesCmd2Button.UseVisualStyleBackColor = true;
+            this.mesCmd2Button.Click += new System.EventHandler(this.mesCmd2Button_Click);
+            // 
+            // mesCmd3Button
+            // 
+            this.mesCmd3Button.Location = new System.Drawing.Point(273, 474);
+            this.mesCmd3Button.Name = "mesCmd3Button";
+            this.mesCmd3Button.Size = new System.Drawing.Size(73, 44);
+            this.mesCmd3Button.TabIndex = 41;
+            this.mesCmd3Button.Text = "MES通信3";
+            this.mesCmd3Button.UseVisualStyleBackColor = true;
+            this.mesCmd3Button.Click += new System.EventHandler(this.mesCmd3Button_Click);
+            // 
+            // mesApiBox
+            // 
+            this.mesApiBox.Location = new System.Drawing.Point(24, 346);
+            this.mesApiBox.Name = "mesApiBox";
+            this.mesApiBox.Size = new System.Drawing.Size(657, 21);
+            this.mesApiBox.TabIndex = 42;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(22, 331);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(47, 12);
+            this.label16.TabIndex = 43;
+            this.label16.Text = "MES api";
+            // 
+            // printCallBackLable
+            // 
+            this.printCallBackLable.AutoSize = true;
+            this.printCallBackLable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.printCallBackLable.Font = new System.Drawing.Font("宋体", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.printCallBackLable.Location = new System.Drawing.Point(273, 424);
+            this.printCallBackLable.Name = "printCallBackLable";
+            this.printCallBackLable.Size = new System.Drawing.Size(122, 29);
+            this.printCallBackLable.TabIndex = 44;
+            this.printCallBackLable.Text = "回调结果";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label17.Location = new System.Drawing.Point(183, 71);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(43, 14);
+            this.label17.TabIndex = 46;
+            this.label17.Text = "打印码";
+            // 
+            // prtCodeBox
+            // 
+            this.prtCodeBox.Location = new System.Drawing.Point(183, 88);
+            this.prtCodeBox.Name = "prtCodeBox";
+            this.prtCodeBox.Size = new System.Drawing.Size(142, 21);
+            this.prtCodeBox.TabIndex = 45;
+            // 
+            // prtCodelabel
+            // 
+            this.prtCodelabel.AutoSize = true;
+            this.prtCodelabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.prtCodelabel.Location = new System.Drawing.Point(339, 95);
+            this.prtCodelabel.Name = "prtCodelabel";
+            this.prtCodelabel.Size = new System.Drawing.Size(67, 14);
+            this.prtCodelabel.TabIndex = 47;
+            this.prtCodelabel.Text = "上次打印码";
+            // 
+            // visionCodelabel
+            // 
+            this.visionCodelabel.AutoSize = true;
+            this.visionCodelabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.visionCodelabel.Location = new System.Drawing.Point(339, 71);
+            this.visionCodelabel.Name = "visionCodelabel";
+            this.visionCodelabel.Size = new System.Drawing.Size(67, 14);
+            this.visionCodelabel.TabIndex = 48;
+            this.visionCodelabel.Text = "上次视觉码";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(601, 569);
+            this.ClientSize = new System.Drawing.Size(704, 538);
+            this.Controls.Add(this.visionCodelabel);
+            this.Controls.Add(this.prtCodelabel);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.prtCodeBox);
+            this.Controls.Add(this.printCallBackLable);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.mesApiBox);
+            this.Controls.Add(this.mesCmd3Button);
+            this.Controls.Add(this.mesCmd2Button);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.typrBox);
+            this.Controls.Add(this.fogIdBox);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.positionBox);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.textBox4);
@@ -381,8 +554,8 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.getJsonButton);
             this.Controls.Add(this.sendToPrtButton);
             this.Controls.Add(this.makeZplButton);
-            this.Controls.Add(this.mesIDBox);
-            this.Controls.Add(this.cmdTextBox);
+            this.Controls.Add(this.mesIdBox);
+            this.Controls.Add(this.visionCodeBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "Data Transceiver Center";
@@ -395,8 +568,8 @@ namespace Data_Transceiver_Center
 
         #endregion
 
-        private System.Windows.Forms.TextBox cmdTextBox;
-        private System.Windows.Forms.TextBox mesIDBox;
+        private System.Windows.Forms.TextBox visionCodeBox;
+        private System.Windows.Forms.TextBox mesIdBox;
         private System.Windows.Forms.Button makeZplButton;
         private System.Windows.Forms.Button sendToPrtButton;
         private System.Windows.Forms.Button getJsonButton;
@@ -427,6 +600,22 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.TextBox positionBox;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox fogIdBox;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox typrBox;
+        private System.Windows.Forms.Button mesCmd2Button;
+        private System.Windows.Forms.Button mesCmd3Button;
+        private System.Windows.Forms.TextBox mesApiBox;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label printCallBackLable;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox prtCodeBox;
+        private System.Windows.Forms.Label prtCodelabel;
+        private System.Windows.Forms.Label visionCodelabel;
     }
 }
 
