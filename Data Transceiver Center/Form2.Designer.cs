@@ -54,32 +54,32 @@ namespace Data_Transceiver_Center
             this.rd_CamAllow = new System.Windows.Forms.RadioButton();
             this.rd_CamOK = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.label9 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.rd_ScannerStart = new System.Windows.Forms.RadioButton();
+            this.rd_checkOK = new System.Windows.Forms.RadioButton();
             this.rd_ScannerComplete = new System.Windows.Forms.RadioButton();
             this.rd_checkNG = new System.Windows.Forms.RadioButton();
-            this.rd_checkOK = new System.Windows.Forms.RadioButton();
-            this.rd_ScannerStart = new System.Windows.Forms.RadioButton();
-            this.rd_PrtReady = new System.Windows.Forms.RadioButton();
+            this.txt_Timer1Interval = new System.Windows.Forms.TextBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.rd_PrtComplete = new System.Windows.Forms.RadioButton();
+            this.rd_PrtReady = new System.Windows.Forms.RadioButton();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.rd_CamNG = new System.Windows.Forms.RadioButton();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.label14 = new System.Windows.Forms.Label();
-            this.txt_Timer1Interval = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).BeginInit();
             this.groupBox2.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_ReadDeviceRandom2
@@ -303,6 +303,37 @@ namespace Data_Transceiver_Center
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "PLC控制台";
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(135, 138);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(89, 12);
+            this.label14.TabIndex = 28;
+            this.label14.Text = "刷新间隔（ms）";
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.label9);
+            this.panel3.Controls.Add(this.label13);
+            this.panel3.Controls.Add(this.rd_ScannerStart);
+            this.panel3.Controls.Add(this.rd_checkOK);
+            this.panel3.Controls.Add(this.rd_ScannerComplete);
+            this.panel3.Controls.Add(this.rd_checkNG);
+            this.panel3.Location = new System.Drawing.Point(134, 20);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(107, 100);
+            this.panel3.TabIndex = 29;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(5, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(59, 12);
+            this.label9.TabIndex = 26;
+            this.label9.Text = "扫码D1002";
+            // 
             // label13
             // 
             this.label13.AutoSize = true;
@@ -314,54 +345,29 @@ namespace Data_Transceiver_Center
             this.label13.TabIndex = 34;
             this.label13.Text = "D1002";
             // 
-            // label12
+            // rd_ScannerStart
             // 
-            this.label12.AutoSize = true;
-            this.label12.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label12.Location = new System.Drawing.Point(71, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(35, 12);
-            this.label12.TabIndex = 33;
-            this.label12.Text = "D1001";
+            this.rd_ScannerStart.AutoSize = true;
+            this.rd_ScannerStart.Location = new System.Drawing.Point(7, 15);
+            this.rd_ScannerStart.Name = "rd_ScannerStart";
+            this.rd_ScannerStart.Size = new System.Drawing.Size(71, 16);
+            this.rd_ScannerStart.TabIndex = 27;
+            this.rd_ScannerStart.TabStop = true;
+            this.rd_ScannerStart.Text = "扫码开始";
+            this.rd_ScannerStart.UseVisualStyleBackColor = true;
+            this.rd_ScannerStart.CheckedChanged += new System.EventHandler(this.rd_ScannerStart_CheckedChanged);
             // 
-            // label11
+            // rd_checkOK
             // 
-            this.label11.AutoSize = true;
-            this.label11.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.label11.Location = new System.Drawing.Point(59, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(35, 12);
-            this.label11.TabIndex = 32;
-            this.label11.Text = "D1000";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(59, 12);
-            this.label5.TabIndex = 25;
-            this.label5.Text = "拍码D1000";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(71, 12);
-            this.label10.TabIndex = 31;
-            this.label10.Text = "打印机D1001";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(5, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(59, 12);
-            this.label9.TabIndex = 26;
-            this.label9.Text = "扫码D1002";
+            this.rd_checkOK.AutoSize = true;
+            this.rd_checkOK.Location = new System.Drawing.Point(7, 59);
+            this.rd_checkOK.Name = "rd_checkOK";
+            this.rd_checkOK.Size = new System.Drawing.Size(83, 16);
+            this.rd_checkOK.TabIndex = 28;
+            this.rd_checkOK.TabStop = true;
+            this.rd_checkOK.Text = "判定数据OK";
+            this.rd_checkOK.UseVisualStyleBackColor = true;
+            this.rd_checkOK.CheckedChanged += new System.EventHandler(this.rd_checkOK_CheckedChanged);
             // 
             // rd_ScannerComplete
             // 
@@ -387,29 +393,55 @@ namespace Data_Transceiver_Center
             this.rd_checkNG.UseVisualStyleBackColor = true;
             this.rd_checkNG.CheckedChanged += new System.EventHandler(this.rd_checkNG_CheckedChanged);
             // 
-            // rd_checkOK
+            // txt_Timer1Interval
             // 
-            this.rd_checkOK.AutoSize = true;
-            this.rd_checkOK.Location = new System.Drawing.Point(7, 59);
-            this.rd_checkOK.Name = "rd_checkOK";
-            this.rd_checkOK.Size = new System.Drawing.Size(83, 16);
-            this.rd_checkOK.TabIndex = 28;
-            this.rd_checkOK.TabStop = true;
-            this.rd_checkOK.Text = "判定数据OK";
-            this.rd_checkOK.UseVisualStyleBackColor = true;
-            this.rd_checkOK.CheckedChanged += new System.EventHandler(this.rd_checkOK_CheckedChanged);
+            this.txt_Timer1Interval.Location = new System.Drawing.Point(134, 153);
+            this.txt_Timer1Interval.Name = "txt_Timer1Interval";
+            this.txt_Timer1Interval.Size = new System.Drawing.Size(83, 21);
+            this.txt_Timer1Interval.TabIndex = 27;
             // 
-            // rd_ScannerStart
+            // panel2
             // 
-            this.rd_ScannerStart.AutoSize = true;
-            this.rd_ScannerStart.Location = new System.Drawing.Point(7, 15);
-            this.rd_ScannerStart.Name = "rd_ScannerStart";
-            this.rd_ScannerStart.Size = new System.Drawing.Size(71, 16);
-            this.rd_ScannerStart.TabIndex = 27;
-            this.rd_ScannerStart.TabStop = true;
-            this.rd_ScannerStart.Text = "扫码开始";
-            this.rd_ScannerStart.UseVisualStyleBackColor = true;
-            this.rd_ScannerStart.CheckedChanged += new System.EventHandler(this.rd_ScannerStart_CheckedChanged);
+            this.panel2.Controls.Add(this.label10);
+            this.panel2.Controls.Add(this.label12);
+            this.panel2.Controls.Add(this.rd_PrtComplete);
+            this.panel2.Controls.Add(this.rd_PrtReady);
+            this.panel2.Location = new System.Drawing.Point(15, 138);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(107, 69);
+            this.panel2.TabIndex = 29;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(3, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(71, 12);
+            this.label10.TabIndex = 31;
+            this.label10.Text = "打印机D1001";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label12.Location = new System.Drawing.Point(71, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(35, 12);
+            this.label12.TabIndex = 33;
+            this.label12.Text = "D1001";
+            // 
+            // rd_PrtComplete
+            // 
+            this.rd_PrtComplete.AutoSize = true;
+            this.rd_PrtComplete.Location = new System.Drawing.Point(5, 46);
+            this.rd_PrtComplete.Name = "rd_PrtComplete";
+            this.rd_PrtComplete.Size = new System.Drawing.Size(83, 16);
+            this.rd_PrtComplete.TabIndex = 25;
+            this.rd_PrtComplete.TabStop = true;
+            this.rd_PrtComplete.Text = "标打印完成";
+            this.rd_PrtComplete.UseVisualStyleBackColor = true;
+            this.rd_PrtComplete.CheckedChanged += new System.EventHandler(this.rd_PrtComplete_CheckedChanged);
             // 
             // rd_PrtReady
             // 
@@ -423,17 +455,37 @@ namespace Data_Transceiver_Center
             this.rd_PrtReady.UseVisualStyleBackColor = true;
             this.rd_PrtReady.CheckedChanged += new System.EventHandler(this.rd_PrtReady_CheckedChanged);
             // 
-            // rd_PrtComplete
+            // panel1
             // 
-            this.rd_PrtComplete.AutoSize = true;
-            this.rd_PrtComplete.Location = new System.Drawing.Point(5, 46);
-            this.rd_PrtComplete.Name = "rd_PrtComplete";
-            this.rd_PrtComplete.Size = new System.Drawing.Size(83, 16);
-            this.rd_PrtComplete.TabIndex = 25;
-            this.rd_PrtComplete.TabStop = true;
-            this.rd_PrtComplete.Text = "标打印完成";
-            this.rd_PrtComplete.UseVisualStyleBackColor = true;
-            this.rd_PrtComplete.CheckedChanged += new System.EventHandler(this.rd_PrtComplete_CheckedChanged);
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.rd_CamOK);
+            this.panel1.Controls.Add(this.label11);
+            this.panel1.Controls.Add(this.rd_CamAllow);
+            this.panel1.Controls.Add(this.rd_CamNG);
+            this.panel1.Location = new System.Drawing.Point(15, 20);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(106, 100);
+            this.panel1.TabIndex = 29;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 12);
+            this.label5.TabIndex = 25;
+            this.label5.Text = "拍码D1000";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.label11.Location = new System.Drawing.Point(59, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(35, 12);
+            this.label11.TabIndex = 32;
+            this.label11.Text = "D1000";
             // 
             // rd_CamNG
             // 
@@ -463,63 +515,12 @@ namespace Data_Transceiver_Center
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.rd_CamOK);
-            this.panel1.Controls.Add(this.label11);
-            this.panel1.Controls.Add(this.rd_CamAllow);
-            this.panel1.Controls.Add(this.rd_CamNG);
-            this.panel1.Location = new System.Drawing.Point(15, 20);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(106, 100);
-            this.panel1.TabIndex = 29;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.label10);
-            this.panel2.Controls.Add(this.label12);
-            this.panel2.Controls.Add(this.rd_PrtComplete);
-            this.panel2.Controls.Add(this.rd_PrtReady);
-            this.panel2.Location = new System.Drawing.Point(15, 138);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(107, 69);
-            this.panel2.TabIndex = 29;
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.label9);
-            this.panel3.Controls.Add(this.label13);
-            this.panel3.Controls.Add(this.rd_ScannerStart);
-            this.panel3.Controls.Add(this.rd_checkOK);
-            this.panel3.Controls.Add(this.rd_ScannerComplete);
-            this.panel3.Controls.Add(this.rd_checkNG);
-            this.panel3.Location = new System.Drawing.Point(134, 20);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(107, 100);
-            this.panel3.TabIndex = 29;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(135, 138);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(89, 12);
-            this.label14.TabIndex = 28;
-            this.label14.Text = "刷新间隔（ms）";
-            // 
-            // txt_Timer1Interval
-            // 
-            this.txt_Timer1Interval.Location = new System.Drawing.Point(134, 153);
-            this.txt_Timer1Interval.Name = "txt_Timer1Interval";
-            this.txt_Timer1Interval.Size = new System.Drawing.Size(83, 21);
-            this.txt_Timer1Interval.TabIndex = 27;
-            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(567, 316);
+            this.ControlBox = false;
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.txt_DeviceDataRandom);
@@ -539,7 +540,13 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.txt_DeviceSizeRandom);
             this.Controls.Add(this.btn_WriteDeviceRandom2);
             this.Controls.Add(this.btn_ReadDeviceRandom2);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form2";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form2";
             this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox1.ResumeLayout(false);
@@ -547,12 +554,12 @@ namespace Data_Transceiver_Center
             ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

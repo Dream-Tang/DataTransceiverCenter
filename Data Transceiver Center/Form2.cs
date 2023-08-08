@@ -544,65 +544,89 @@ namespace Data_Transceiver_Center
         #region "redioButton 控制按钮，点击写入数据"
         private void rd_CamAllow_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_CamAllow.Checked = true; 
-            WriteDeviceRandom(camRegister, camAllow);
-            label12.Text = ReadDeviceRandom(camRegister);
+            if (rd_CamAllow.Checked)
+            {
+                WriteDeviceRandom(camRegister, camAllow);
+                label11.Text = ReadDeviceRandom(camRegister);
+            }
         }
 
         private void rd_CamOK_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_CamOK.Checked = true;
-            WriteDeviceRandom(camRegister, camOK);
-            label12.Text = ReadDeviceRandom(camRegister);
+            if (rd_CamOK.Checked)
+            {
+                WriteDeviceRandom(camRegister, camOK);
+                label11.Text = ReadDeviceRandom(camRegister);
+            }
+           
         }
 
         private void rd_CamNG_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_CamNG.Checked = true;
-            WriteDeviceRandom(camRegister, camNG);
-            label12.Text = ReadDeviceRandom(camRegister);
+            if (rd_CamNG.Checked)
+            {
+                WriteDeviceRandom(camRegister, camNG);
+                label11.Text = ReadDeviceRandom(camRegister);
+            }
+            
         }
 
         private void rd_PrtReady_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_PrtReady.Checked = true;
-            WriteDeviceRandom(prtRegister, prtReady);
-            label12.Text = ReadDeviceRandom(prtRegister);
+            if (rd_PrtReady.Checked)
+            {
+                WriteDeviceRandom(prtRegister, prtReady);
+                label12.Text = ReadDeviceRandom(prtRegister);
+            }
         }
 
         private void rd_PrtComplete_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_PrtComplete.Checked = true;
-            WriteDeviceRandom(prtRegister, prtComplete);
-            label12.Text = ReadDeviceRandom(prtRegister);
+            if (rd_PrtComplete.Checked)
+            {
+                WriteDeviceRandom(prtRegister, prtComplete);
+                label12.Text = ReadDeviceRandom(prtRegister);
+            }
         }
 
         private void rd_ScannerStart_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_ScannerStart.Checked = true;
-            WriteDeviceRandom(scannerRegister, scannerStart);
-            label13.Text = ReadDeviceRandom(scannerRegister);
+            if (rd_ScannerStart.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, scannerStart);
+                label13.Text = ReadDeviceRandom(scannerRegister);
+            }
+           
         }
 
         private void rd_ScannerComplete_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_ScannerComplete.Checked = true;
-            WriteDeviceRandom(scannerRegister, scannerComplete);
-            label13.Text = ReadDeviceRandom(scannerRegister);
+            if (rd_ScannerComplete.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, scannerComplete);
+                label13.Text = ReadDeviceRandom(scannerRegister);
+            }
+            
         }
 
         private void rd_checkOK_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_checkOK.Checked = true;
-            WriteDeviceRandom(scannerRegister, checkOK);
-            label13.Text = ReadDeviceRandom(scannerRegister);
+            if (rd_checkOK.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, checkOK);
+                label13.Text = ReadDeviceRandom(scannerRegister);
+            }
+            
         }
 
         private void rd_checkNG_CheckedChanged(object sender, EventArgs e)
         {
-            //rd_checkNG.Checked = true;
-            WriteDeviceRandom(scannerRegister, checkNG);
-            label13.Text = ReadDeviceRandom(scannerRegister);
+            if (rd_checkNG.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, checkNG);
+                label13.Text = ReadDeviceRandom(scannerRegister);
+            }
+            
         }
 
         #endregion
@@ -611,6 +635,12 @@ namespace Data_Transceiver_Center
         {
             if (this.checkBox1.Checked)
             {
+                if (txt_LogicalStationNumber.Enabled)
+                {
+                    MessageBox.Show("与PLC连接未打开，请先进行连接");
+                    checkBox1.Checked = false;
+                    return;
+                }
                 MessageBox.Show("自动刷新开启");
                 try
                 {

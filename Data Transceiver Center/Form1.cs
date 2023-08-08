@@ -111,11 +111,10 @@ namespace Data_Transceiver_Center
 
             // http 接口
             string url = mesApiBox.Text;
-            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
             string api_url= apiToken + "position&par="+ positionBox.Text;
 
-            if (positionBox.Text == "") { url = ex_url; }
-            else { url = api_url; }
+            if (positionBox.Text == "") {MessageBox.Show("线别未设置");return; }
+            else { url = api_url; mesApiBox.Text = url; }
             // 通过接口，向MES发送通信，收到的回应存入getJson
             string getJson = HttpUitls.Get(url);
 
@@ -153,11 +152,10 @@ namespace Data_Transceiver_Center
 
             // http 接口
             string url = mesApiBox.Text;
-            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
             string api_url = apiToken + "print&par="+visionCodeBox.Text+","+mesIdBox.Text;
 
-            if (visionCodeBox.Text == "") { url = ex_url; }
-            else { url = api_url; }
+            if (visionCodeBox.Text == "") { MessageBox.Show("视觉码未获取"); return; }
+            else { url = api_url; mesApiBox.Text = url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             string getJson = HttpUitls.Get(url);
@@ -193,11 +191,10 @@ namespace Data_Transceiver_Center
 
             // http 接口
             string url = mesApiBox.Text;
-            string ex_url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
             string api_url = apiToken + "printCallBack&par=" + mesIdBox.Text;
 
-            if (positionBox.Text == "") { url = ex_url; }
-            else { url = api_url; }
+            if (mesIdBox.Text == "") { MessageBox.Show("mesID未获取"); return; }
+            else { url = api_url; mesApiBox.Text = url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             string getJson = HttpUitls.Get(url);
@@ -249,7 +246,6 @@ namespace Data_Transceiver_Center
                 serialPort1.PortName = comboBox1.Text;
                 serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
                 serialPort1.Open();
-
             }
             catch (UnauthorizedAccessException)
             {
@@ -274,6 +270,19 @@ namespace Data_Transceiver_Center
             catch (FormatException)
             {
                 MessageBox.Show("波特率未设置");
+            }
+        }
+
+        // 关闭串口
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                serialPort1.Close();
+            }
+            catch(Exception exp)
+            {
+                MessageBox.Show(exp.Message);
             }
         }
 
@@ -599,7 +608,6 @@ namespace Data_Transceiver_Center
 
             AutoSendFile(filePathZPL,  mPrintName,  csvPath);
         }
-
 
     }
 }
