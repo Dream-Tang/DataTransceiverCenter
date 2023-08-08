@@ -118,22 +118,24 @@ namespace Data_Transceiver_Center
             // 
             // getJsonButton
             // 
-            this.getJsonButton.Location = new System.Drawing.Point(590, 230);
+            this.getJsonButton.Location = new System.Drawing.Point(589, 202);
             this.getJsonButton.Name = "getJsonButton";
             this.getJsonButton.Size = new System.Drawing.Size(82, 44);
             this.getJsonButton.TabIndex = 4;
             this.getJsonButton.Text = "get JSON";
             this.getJsonButton.UseVisualStyleBackColor = true;
+            this.getJsonButton.Visible = false;
             this.getJsonButton.Click += new System.EventHandler(this.button3_Click);
             // 
             // convertJsonButton
             // 
-            this.convertJsonButton.Location = new System.Drawing.Point(590, 291);
+            this.convertJsonButton.Location = new System.Drawing.Point(589, 263);
             this.convertJsonButton.Name = "convertJsonButton";
             this.convertJsonButton.Size = new System.Drawing.Size(83, 44);
             this.convertJsonButton.TabIndex = 5;
             this.convertJsonButton.Text = "解析 JSON";
             this.convertJsonButton.UseVisualStyleBackColor = true;
+            this.convertJsonButton.Visible = false;
             this.convertJsonButton.Click += new System.EventHandler(this.button4_Click);
             // 
             // mesCmd1Button
@@ -150,21 +152,23 @@ namespace Data_Transceiver_Center
             // 
             this.label1.AutoSize = true;
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(590, 201);
+            this.label1.Location = new System.Drawing.Point(589, 173);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 14);
             this.label1.TabIndex = 8;
             this.label1.Text = "解析内容";
+            this.label1.Visible = false;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(590, 174);
+            this.label2.Location = new System.Drawing.Point(589, 146);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 14);
             this.label2.TabIndex = 9;
             this.label2.Text = "取JSON中特定项";
+            this.label2.Visible = false;
             // 
             // label3
             // 

@@ -546,54 +546,63 @@ namespace Data_Transceiver_Center
         {
             //rd_CamAllow.Checked = true; 
             WriteDeviceRandom(camRegister, camAllow);
+            label12.Text = ReadDeviceRandom(camRegister);
         }
 
         private void rd_CamOK_CheckedChanged(object sender, EventArgs e)
         {
             //rd_CamOK.Checked = true;
             WriteDeviceRandom(camRegister, camOK);
+            label12.Text = ReadDeviceRandom(camRegister);
         }
 
         private void rd_CamNG_CheckedChanged(object sender, EventArgs e)
         {
             //rd_CamNG.Checked = true;
             WriteDeviceRandom(camRegister, camNG);
+            label12.Text = ReadDeviceRandom(camRegister);
         }
 
         private void rd_PrtReady_CheckedChanged(object sender, EventArgs e)
         {
             //rd_PrtReady.Checked = true;
             WriteDeviceRandom(prtRegister, prtReady);
+            label12.Text = ReadDeviceRandom(prtRegister);
         }
 
         private void rd_PrtComplete_CheckedChanged(object sender, EventArgs e)
         {
             //rd_PrtComplete.Checked = true;
             WriteDeviceRandom(prtRegister, prtComplete);
+            label12.Text = ReadDeviceRandom(prtRegister);
         }
 
         private void rd_ScannerStart_CheckedChanged(object sender, EventArgs e)
         {
             //rd_ScannerStart.Checked = true;
             WriteDeviceRandom(scannerRegister, scannerStart);
+            label13.Text = ReadDeviceRandom(scannerRegister);
         }
 
         private void rd_ScannerComplete_CheckedChanged(object sender, EventArgs e)
         {
             //rd_ScannerComplete.Checked = true;
             WriteDeviceRandom(scannerRegister, scannerComplete);
+            label13.Text = ReadDeviceRandom(scannerRegister);
         }
 
         private void rd_checkOK_CheckedChanged(object sender, EventArgs e)
         {
             //rd_checkOK.Checked = true;
             WriteDeviceRandom(scannerRegister, checkOK);
+            label13.Text = ReadDeviceRandom(scannerRegister);
         }
 
         private void rd_checkNG_CheckedChanged(object sender, EventArgs e)
         {
             //rd_checkNG.Checked = true;
             WriteDeviceRandom(scannerRegister, checkNG);
+            label13.Text = ReadDeviceRandom(scannerRegister);
         }
 
         #endregion
@@ -603,6 +612,15 @@ namespace Data_Transceiver_Center
             if (this.checkBox1.Checked)
             {
                 MessageBox.Show("自动刷新开启");
+                try
+                {
+                    int timer1Interval = Convert.ToInt32(txt_Timer1Interval.Text);
+                    timer1.Interval = timer1Interval;
+                }
+                catch(Exception exp)
+                {
+                    MessageBox.Show(exp.Message+"\r\n刷新间隔设置有误");
+                }
                 timer1.Enabled = true;
                 timer1.Start();
             }
@@ -610,6 +628,11 @@ namespace Data_Transceiver_Center
             {
                 timer1.Enabled = false;
             }
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            txt_Timer1Interval.Text = Convert.ToString(timer1.Interval);
         }
     }
 }
