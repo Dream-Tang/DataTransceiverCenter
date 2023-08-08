@@ -72,6 +72,8 @@ namespace Data_Transceiver_Center
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.label14 = new System.Windows.Forms.Label();
+            this.txt_Timer1Interval = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -174,7 +176,7 @@ namespace Data_Transceiver_Center
             // 
             // txt_ReturnCode
             // 
-            this.txt_ReturnCode.Location = new System.Drawing.Point(13, 315);
+            this.txt_ReturnCode.Location = new System.Drawing.Point(299, 25);
             this.txt_ReturnCode.Name = "txt_ReturnCode";
             this.txt_ReturnCode.Size = new System.Drawing.Size(100, 21);
             this.txt_ReturnCode.TabIndex = 14;
@@ -198,7 +200,7 @@ namespace Data_Transceiver_Center
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(11, 299);
+            this.label7.Location = new System.Drawing.Point(297, 9);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(53, 12);
             this.label7.TabIndex = 17;
@@ -240,7 +242,7 @@ namespace Data_Transceiver_Center
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(125, 318);
+            this.label8.Location = new System.Drawing.Point(411, 28);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(53, 12);
             this.label8.TabIndex = 19;
@@ -254,6 +256,7 @@ namespace Data_Transceiver_Center
             this.txt_DeviceNameRandom.Name = "txt_DeviceNameRandom";
             this.txt_DeviceNameRandom.Size = new System.Drawing.Size(100, 21);
             this.txt_DeviceNameRandom.TabIndex = 20;
+            this.txt_DeviceNameRandom.Text = "D1000";
             // 
             // txt_DeviceDataRandom
             // 
@@ -288,11 +291,12 @@ namespace Data_Transceiver_Center
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label14);
             this.groupBox2.Controls.Add(this.panel3);
-            this.groupBox2.Controls.Add(this.checkBox1);
+            this.groupBox2.Controls.Add(this.txt_Timer1Interval);
             this.groupBox2.Controls.Add(this.panel2);
             this.groupBox2.Controls.Add(this.panel1);
-            this.groupBox2.Location = new System.Drawing.Point(299, 12);
+            this.groupBox2.Location = new System.Drawing.Point(299, 61);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(256, 219);
             this.groupBox2.TabIndex = 24;
@@ -302,6 +306,8 @@ namespace Data_Transceiver_Center
             // label13
             // 
             this.label13.AutoSize = true;
+            this.label13.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label13.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label13.Location = new System.Drawing.Point(61, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(35, 12);
@@ -311,6 +317,8 @@ namespace Data_Transceiver_Center
             // label12
             // 
             this.label12.AutoSize = true;
+            this.label12.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label12.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label12.Location = new System.Drawing.Point(71, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(35, 12);
@@ -320,6 +328,8 @@ namespace Data_Transceiver_Center
             // label11
             // 
             this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label11.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label11.Location = new System.Drawing.Point(59, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(35, 12);
@@ -439,13 +449,13 @@ namespace Data_Transceiver_Center
             // 
             // timer1
             // 
-            this.timer1.Interval = 500;
+            this.timer1.Interval = 300;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(169, 191);
+            this.checkBox1.Location = new System.Drawing.Point(483, 46);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(72, 16);
             this.checkBox1.TabIndex = 26;
@@ -489,12 +499,29 @@ namespace Data_Transceiver_Center
             this.panel3.Size = new System.Drawing.Size(107, 100);
             this.panel3.TabIndex = 29;
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(135, 138);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(89, 12);
+            this.label14.TabIndex = 28;
+            this.label14.Text = "刷新间隔（ms）";
+            // 
+            // txt_Timer1Interval
+            // 
+            this.txt_Timer1Interval.Location = new System.Drawing.Point(134, 153);
+            this.txt_Timer1Interval.Name = "txt_Timer1Interval";
+            this.txt_Timer1Interval.Size = new System.Drawing.Size(83, 21);
+            this.txt_Timer1Interval.TabIndex = 27;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(567, 449);
+            this.ClientSize = new System.Drawing.Size(567, 316);
             this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.txt_DeviceDataRandom);
             this.Controls.Add(this.txt_DeviceNameRandom);
             this.Controls.Add(this.axActUtlType1);
@@ -514,6 +541,7 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.btn_ReadDeviceRandom2);
             this.Name = "Form2";
             this.Text = "Form2";
+            this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).EndInit();
@@ -574,5 +602,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox txt_Timer1Interval;
     }
 }

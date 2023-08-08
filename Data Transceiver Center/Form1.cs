@@ -293,9 +293,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
-
-
         // 将ZPL指令输出到txt文档
         private void CmdToTxt(string filePathZPL, string line)
         {
