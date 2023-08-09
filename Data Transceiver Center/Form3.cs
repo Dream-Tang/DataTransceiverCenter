@@ -24,8 +24,10 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
+            //f4 = new Form4();
             f1.TopLevel = false;
             f2.TopLevel = false;
+            //f4.TopLevel = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -38,8 +40,15 @@ namespace Data_Transceiver_Center
         private void button2_Click(object sender, EventArgs e)
         {
             panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f2);    // 将窗体1加入容器panel1
-            f2.Show();      // 将窗口1进行显示
+            panel1.Controls.Add(f2);    // 将窗体2加入容器panel1
+            f2.Show();      // 将窗口2进行显示
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            panel1.Controls.Clear();    // 清空原容器上的控件
+            //panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
+            //f4.Show();      // 将窗口4进行显示
         }
     }
 }
