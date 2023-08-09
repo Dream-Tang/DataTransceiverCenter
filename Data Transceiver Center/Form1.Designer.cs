@@ -120,7 +120,7 @@ namespace Data_Transceiver_Center
             // 
             // getJsonButton
             // 
-            this.getJsonButton.Location = new System.Drawing.Point(590, 230);
+            this.getJsonButton.Location = new System.Drawing.Point(479, 174);
             this.getJsonButton.Name = "getJsonButton";
             this.getJsonButton.Size = new System.Drawing.Size(82, 44);
             this.getJsonButton.TabIndex = 4;
@@ -131,7 +131,7 @@ namespace Data_Transceiver_Center
             // 
             // convertJsonButton
             // 
-            this.convertJsonButton.Location = new System.Drawing.Point(590, 291);
+            this.convertJsonButton.Location = new System.Drawing.Point(479, 235);
             this.convertJsonButton.Name = "convertJsonButton";
             this.convertJsonButton.Size = new System.Drawing.Size(83, 44);
             this.convertJsonButton.TabIndex = 5;
@@ -154,7 +154,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1.AutoSize = true;
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(590, 201);
+            this.label1.Location = new System.Drawing.Point(479, 145);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 14);
             this.label1.TabIndex = 8;
@@ -165,7 +165,7 @@ namespace Data_Transceiver_Center
             // 
             this.label2.AutoSize = true;
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(590, 174);
+            this.label2.Location = new System.Drawing.Point(479, 118);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 14);
             this.label2.TabIndex = 9;
@@ -241,7 +241,7 @@ namespace Data_Transceiver_Center
             this.dataGridView1.Location = new System.Drawing.Point(24, 174);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(388, 133);
+            this.dataGridView1.Size = new System.Drawing.Size(388, 86);
             this.dataGridView1.TabIndex = 17;
             // 
             // readCsvButton
@@ -449,15 +449,17 @@ namespace Data_Transceiver_Center
             // 
             // mesApiBox
             // 
-            this.mesApiBox.Location = new System.Drawing.Point(24, 346);
+            this.mesApiBox.Font = new System.Drawing.Font("ISOCPEUR", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mesApiBox.Location = new System.Drawing.Point(24, 304);
+            this.mesApiBox.Multiline = true;
             this.mesApiBox.Name = "mesApiBox";
-            this.mesApiBox.Size = new System.Drawing.Size(657, 21);
+            this.mesApiBox.Size = new System.Drawing.Size(657, 69);
             this.mesApiBox.TabIndex = 42;
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(22, 331);
+            this.label16.Location = new System.Drawing.Point(22, 289);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(47, 12);
             this.label16.TabIndex = 43;
