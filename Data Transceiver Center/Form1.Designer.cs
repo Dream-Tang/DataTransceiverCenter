@@ -79,6 +79,8 @@ namespace Data_Transceiver_Center
             this.prtCodeBox = new System.Windows.Forms.TextBox();
             this.prtCodelabel = new System.Windows.Forms.Label();
             this.visionCodelabel = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.rd_serialStatus = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -118,22 +120,24 @@ namespace Data_Transceiver_Center
             // 
             // getJsonButton
             // 
-            this.getJsonButton.Location = new System.Drawing.Point(590, 230);
+            this.getJsonButton.Location = new System.Drawing.Point(479, 174);
             this.getJsonButton.Name = "getJsonButton";
             this.getJsonButton.Size = new System.Drawing.Size(82, 44);
             this.getJsonButton.TabIndex = 4;
             this.getJsonButton.Text = "get JSON";
             this.getJsonButton.UseVisualStyleBackColor = true;
+            this.getJsonButton.Visible = false;
             this.getJsonButton.Click += new System.EventHandler(this.button3_Click);
             // 
             // convertJsonButton
             // 
-            this.convertJsonButton.Location = new System.Drawing.Point(590, 291);
+            this.convertJsonButton.Location = new System.Drawing.Point(479, 235);
             this.convertJsonButton.Name = "convertJsonButton";
             this.convertJsonButton.Size = new System.Drawing.Size(83, 44);
             this.convertJsonButton.TabIndex = 5;
             this.convertJsonButton.Text = "解析 JSON";
             this.convertJsonButton.UseVisualStyleBackColor = true;
+            this.convertJsonButton.Visible = false;
             this.convertJsonButton.Click += new System.EventHandler(this.button4_Click);
             // 
             // mesCmd1Button
@@ -150,21 +154,23 @@ namespace Data_Transceiver_Center
             // 
             this.label1.AutoSize = true;
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(590, 201);
+            this.label1.Location = new System.Drawing.Point(479, 145);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 14);
             this.label1.TabIndex = 8;
             this.label1.Text = "解析内容";
+            this.label1.Visible = false;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(590, 174);
+            this.label2.Location = new System.Drawing.Point(479, 118);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 14);
             this.label2.TabIndex = 9;
             this.label2.Text = "取JSON中特定项";
+            this.label2.Visible = false;
             // 
             // label3
             // 
@@ -235,7 +241,7 @@ namespace Data_Transceiver_Center
             this.dataGridView1.Location = new System.Drawing.Point(24, 174);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowTemplate.Height = 23;
-            this.dataGridView1.Size = new System.Drawing.Size(388, 133);
+            this.dataGridView1.Size = new System.Drawing.Size(388, 86);
             this.dataGridView1.TabIndex = 17;
             // 
             // readCsvButton
@@ -301,7 +307,7 @@ namespace Data_Transceiver_Center
             // 
             this.button1.Location = new System.Drawing.Point(557, 401);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(83, 44);
+            this.button1.Size = new System.Drawing.Size(59, 44);
             this.button1.TabIndex = 26;
             this.button1.Text = "打开串口";
             this.button1.UseVisualStyleBackColor = true;
@@ -443,15 +449,17 @@ namespace Data_Transceiver_Center
             // 
             // mesApiBox
             // 
-            this.mesApiBox.Location = new System.Drawing.Point(24, 346);
+            this.mesApiBox.Font = new System.Drawing.Font("ISOCPEUR", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mesApiBox.Location = new System.Drawing.Point(24, 304);
+            this.mesApiBox.Multiline = true;
             this.mesApiBox.Name = "mesApiBox";
-            this.mesApiBox.Size = new System.Drawing.Size(657, 21);
+            this.mesApiBox.Size = new System.Drawing.Size(657, 69);
             this.mesApiBox.TabIndex = 42;
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(22, 331);
+            this.label16.Location = new System.Drawing.Point(22, 289);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(47, 12);
             this.label16.TabIndex = 43;
@@ -505,11 +513,37 @@ namespace Data_Transceiver_Center
             this.visionCodelabel.TabIndex = 48;
             this.visionCodelabel.Text = "上次视觉码";
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(629, 401);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(52, 44);
+            this.button2.TabIndex = 49;
+            this.button2.Text = "关闭串口";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // rd_serialStatus
+            // 
+            this.rd_serialStatus.AutoSize = true;
+            this.rd_serialStatus.Location = new System.Drawing.Point(557, 379);
+            this.rd_serialStatus.Name = "rd_serialStatus";
+            this.rd_serialStatus.Size = new System.Drawing.Size(107, 16);
+            this.rd_serialStatus.TabIndex = 50;
+            this.rd_serialStatus.TabStop = true;
+            this.rd_serialStatus.Text = "串口状态指示灯";
+            this.rd_serialStatus.UseVisualStyleBackColor = true;
+            this.rd_serialStatus.Visible = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(704, 538);
+            this.ControlBox = false;
+            this.Controls.Add(this.rd_serialStatus);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.visionCodelabel);
             this.Controls.Add(this.prtCodelabel);
             this.Controls.Add(this.label17);
@@ -556,8 +590,13 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.makeZplButton);
             this.Controls.Add(this.mesIdBox);
             this.Controls.Add(this.visionCodeBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form1";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Data Transceiver Center";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
@@ -616,6 +655,8 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.TextBox prtCodeBox;
         private System.Windows.Forms.Label prtCodelabel;
         private System.Windows.Forms.Label visionCodelabel;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.RadioButton rd_serialStatus;
     }
 }
 
