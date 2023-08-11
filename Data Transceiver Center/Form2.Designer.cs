@@ -275,7 +275,7 @@ namespace Data_Transceiver_Center
             this.rd_CamAllow.TabStop = true;
             this.rd_CamAllow.Text = "允许相机拍照";
             this.rd_CamAllow.UseVisualStyleBackColor = true;
-            this.rd_CamAllow.CheckedChanged += new System.EventHandler(this.rd_CamAllow_CheckedChanged);
+            this.rd_CamAllow.Click += new System.EventHandler(this.rd_CamAllow_CheckedChanged);
             // 
             // rd_CamOK
             // 
@@ -287,7 +287,7 @@ namespace Data_Transceiver_Center
             this.rd_CamOK.TabStop = true;
             this.rd_CamOK.Text = "扫描OK放行";
             this.rd_CamOK.UseVisualStyleBackColor = true;
-            this.rd_CamOK.CheckedChanged += new System.EventHandler(this.rd_CamOK_CheckedChanged);
+            this.rd_CamOK.Click += new System.EventHandler(this.rd_CamOK_CheckedChanged);
             // 
             // groupBox2
             // 
@@ -355,7 +355,7 @@ namespace Data_Transceiver_Center
             this.rd_ScannerStart.TabStop = true;
             this.rd_ScannerStart.Text = "扫码开始";
             this.rd_ScannerStart.UseVisualStyleBackColor = true;
-            this.rd_ScannerStart.CheckedChanged += new System.EventHandler(this.rd_ScannerStart_CheckedChanged);
+            this.rd_ScannerStart.Click += new System.EventHandler(this.rd_ScannerStart_CheckedChanged);
             // 
             // rd_checkOK
             // 
@@ -367,7 +367,7 @@ namespace Data_Transceiver_Center
             this.rd_checkOK.TabStop = true;
             this.rd_checkOK.Text = "判定数据OK";
             this.rd_checkOK.UseVisualStyleBackColor = true;
-            this.rd_checkOK.CheckedChanged += new System.EventHandler(this.rd_checkOK_CheckedChanged);
+            this.rd_checkOK.Click += new System.EventHandler(this.rd_checkOK_CheckedChanged);
             // 
             // rd_ScannerComplete
             // 
@@ -379,7 +379,7 @@ namespace Data_Transceiver_Center
             this.rd_ScannerComplete.TabStop = true;
             this.rd_ScannerComplete.Text = "扫码完成";
             this.rd_ScannerComplete.UseVisualStyleBackColor = true;
-            this.rd_ScannerComplete.CheckedChanged += new System.EventHandler(this.rd_ScannerComplete_CheckedChanged);
+            this.rd_ScannerComplete.Click += new System.EventHandler(this.rd_ScannerComplete_CheckedChanged);
             // 
             // rd_checkNG
             // 
@@ -391,7 +391,7 @@ namespace Data_Transceiver_Center
             this.rd_checkNG.TabStop = true;
             this.rd_checkNG.Text = "判定数据NG";
             this.rd_checkNG.UseVisualStyleBackColor = true;
-            this.rd_checkNG.CheckedChanged += new System.EventHandler(this.rd_checkNG_CheckedChanged);
+            this.rd_checkNG.Click += new System.EventHandler(this.rd_checkNG_CheckedChanged);
             // 
             // txt_Timer1Interval
             // 
@@ -441,7 +441,7 @@ namespace Data_Transceiver_Center
             this.rd_PrtComplete.TabStop = true;
             this.rd_PrtComplete.Text = "标打印完成";
             this.rd_PrtComplete.UseVisualStyleBackColor = true;
-            this.rd_PrtComplete.CheckedChanged += new System.EventHandler(this.rd_PrtComplete_CheckedChanged);
+            this.rd_PrtComplete.Click += new System.EventHandler(this.rd_PrtComplete_CheckedChanged);
             // 
             // rd_PrtReady
             // 
@@ -453,7 +453,7 @@ namespace Data_Transceiver_Center
             this.rd_PrtReady.TabStop = true;
             this.rd_PrtReady.Text = "取标平台ready";
             this.rd_PrtReady.UseVisualStyleBackColor = true;
-            this.rd_PrtReady.CheckedChanged += new System.EventHandler(this.rd_PrtReady_CheckedChanged);
+            this.rd_PrtReady.Click += new System.EventHandler(this.rd_PrtReady_CheckedChanged);
             // 
             // panel1
             // 
@@ -497,7 +497,7 @@ namespace Data_Transceiver_Center
             this.rd_CamNG.TabStop = true;
             this.rd_CamNG.Text = "扫描NG报警";
             this.rd_CamNG.UseVisualStyleBackColor = true;
-            this.rd_CamNG.CheckedChanged += new System.EventHandler(this.rd_CamNG_CheckedChanged);
+            this.rd_CamNG.Click += new System.EventHandler(this.rd_CamNG_CheckedChanged);
             // 
             // timer1
             // 

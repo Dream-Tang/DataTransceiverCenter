@@ -1,16 +1,11 @@
-﻿using System;
-using System.Net.Http;
-using System.Text;
-using System.Windows.Forms;
-using Newtonsoft.Json;
-using System.Net;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
+using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
-using System.Threading;
-
+using System.Windows.Forms;
 
 namespace Data_Transceiver_Center
 {
@@ -21,26 +16,25 @@ namespace Data_Transceiver_Center
             InitializeComponent();
         }
 
-        StringBuilder cmd;     // 打印机指令内容，可变字符串类型
+        private StringBuilder cmd;     // 打印机指令内容，可变字符串类型
 
-        static string filePathZPL = @"F:\VS_prj\source\repos\Data Transceiver Center\Test.txt";  // 打印机配置txt文档
-        static string mPrintName = @"F:\VS_prj\source\repos\Data Transceiver Center\zt411\test1.txt";    // 打印机的网络位置
-        static string prtName = @"\XXXX\XXXX"; // 计算机名 + 打印机共享名
+        private static string filePathZPL = @"F:\VS_prj\source\repos\Data Transceiver Center\Test.txt";  // 打印机配置txt文档
+        private static string mPrintName = @"F:\VS_prj\source\repos\Data Transceiver Center\zt411\test1.txt";    // 打印机的网络位置
+        private static string prtName = @"\XXXX\XXXX"; // 计算机名 + 打印机共享名
 
-        static string printApi1 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=position&par=01";
-        static string printApi2 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=print&par=800D2AL71YN201A17,id";
-        static string printApi3 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=printCallBack&par=800D2AL71YN201A17";
+        private static string printApi1 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=position&par=01";
+        private static string printApi2 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=print&par=800D2AL71YN201A17,id";
+        private static string printApi3 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=printCallBack&par=800D2AL71YN201A17";
 
-        static string apiToken = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
-
+        private static string apiToken = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
 
         // 通信和流程标志位，0为初始化，1为完成，2为异常
         private int mesComunication1Flag = 0;
+
         private int mesComunication2Flag = 0;
         private int mesComunication3Flag = 0;
         private int sendFileToPrtFlag = 0;
         private int readCsvFlag = 0;
-
 
         // 生成ZPL文档
         private void button1_Click(object sender, EventArgs e)
@@ -93,13 +87,11 @@ namespace Data_Transceiver_Center
                 this.label1.Text = rt.data[i].context;
                 MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
             }
-
         }
 
         // 生成Json数据
         private void button5_Click(object sender, EventArgs e)
         {
-
         }
 
         // Mes通信1
@@ -115,7 +107,6 @@ namespace Data_Transceiver_Center
 
             if (positionBox.Text == "") { MessageBox.Show("线别未设置"); return; }
             else { url = api_url; mesApiBox.Text = url; }
-
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t1 = new Task(() =>
@@ -151,9 +142,7 @@ namespace Data_Transceiver_Center
                 this.BeginInvoke(mi);
             });
             t1.Start();
-
         }
-
 
         // Mes通信2
         private void mesCmd2Button_Click(object sender, EventArgs e)
@@ -249,10 +238,7 @@ namespace Data_Transceiver_Center
                 this.BeginInvoke(mi);
             });
             t3.Start();
-
         }
-
-
 
         // 读取CSV数据
         private void button7_Click(object sender, EventArgs e)
@@ -315,7 +301,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 后台监控csv文档选项，多线程
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -358,7 +343,6 @@ namespace Data_Transceiver_Center
             {
                 MessageBox.Show("zpl文件生成失败\r\n" + filePathZPL);
             }
-
         }
 
         // 给打印机发送文件
@@ -479,9 +463,7 @@ namespace Data_Transceiver_Center
                 }
                 return retString;
             }
-
         }
-
 
         // 自动功能：自动读csv文件，将csv数据存入visionCode。等待prtCode，有prtCode后，发送给打印机，并清除prtCode
         private void AutoSendFile(string filePathZPL, string mPrintName, string csvPath)
@@ -524,7 +506,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 读取csv文件
         private string ReadCsvFile(string csvPath)
         {
@@ -564,7 +545,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 窗口生成时，需要做的事情
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -573,7 +553,6 @@ namespace Data_Transceiver_Center
             comboBox2.Items.AddRange(baudRate);
             comboBox1.Items.AddRange(comPort);
         }
-
 
         // 串口中断事件：当有数据收到时执行。将收到的数据按ASCII转换显示
         private void SerialPort1_DataRecived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
@@ -608,7 +587,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 串口收到hexString = "46 32 33 36 31 35 30 36 37 39 35 0D"的数，转换成byte[]形式返回
         // 通过System.Text.Encoding.ASCII.GetString(byte[] buf)，可以将buf按ascii转换成string
         private byte[] ToBytesFromHexString(string hexString)
@@ -626,7 +604,6 @@ namespace Data_Transceiver_Center
             return returnBytes;
         }
 
-
         private void timer1_Tick(object sender, EventArgs e)
         {
             Console.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff:ffffff"));
@@ -637,6 +614,5 @@ namespace Data_Transceiver_Center
 
             AutoSendFile(filePathZPL, mPrintName, csvPath);
         }
-
     }
 }
