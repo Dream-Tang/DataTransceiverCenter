@@ -513,6 +513,8 @@ namespace Data_Transceiver_Center
             iSizeOfShortArray = lptxt_SourceOfShortArray.Lines.Length;
             lplpshShortArrayValue = new short[iSizeOfShortArray];
 
+            if (iSizeOfShortArray==0) { MessageBox.Show("写入数据为空，请设置数据");return false; };
+
             //Get each element of ShortType array.
             for (iNumber = 0; iNumber < iSizeOfShortArray; iNumber++)
             {
