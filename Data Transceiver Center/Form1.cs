@@ -614,5 +614,34 @@ namespace Data_Transceiver_Center
 
             AutoSendFile(filePathZPL, mPrintName, csvPath);
         }
+
+
+        public void ReflashSettingByIni(string iniFile)
+        {
+            var myIni = new IniFile(iniFile);
+
+            // string Read(string Key,string Section = null)
+            string filePathZPL = myIni.Read("filePathZPL","Form1");
+            string prtName = myIni.Read("prtName", "Form1");
+            string csvPath = myIni.Read("csvPath", "Form1");
+
+            zplPathBox.Text = filePathZPL;
+            prtPathBox.Text = prtName;
+            csvPathBox.Text = csvPath;
+        }
+
+        public void SaveSettingsToIni(string iniFile)
+        {
+            var myIni = new IniFile(iniFile);
+
+            string filePathZPL = zplPathBox.Text;
+            string prtName = prtPathBox.Text;
+            string csvPath = csvPathBox.Text;
+
+            myIni.Write("filePathZPL", filePathZPL,"Form1");
+            myIni.Write("prtName", prtName, "Form1");
+            myIni.Write("csvPath", csvPath, "Form1");
+        }
+
     }
 }

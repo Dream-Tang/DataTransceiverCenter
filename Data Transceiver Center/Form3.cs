@@ -17,6 +17,7 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
+            
             //f4 = new Form4();
             //f1.TopLevel = false;
             //f2.TopLevel = false;
@@ -44,6 +45,50 @@ namespace Data_Transceiver_Center
             panel1.Controls.Clear();    // 清空原容器上的控件
             //panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
             //f4.Show();      // 将窗口4进行显示
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // 选择文件夹路径
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            // 提示信息
+            dialog.Description = "请选择ini保存位置";
+            string iniPath = "";
+            if(dialog.ShowDialog() == DialogResult.OK)
+            {
+                iniPath = dialog.SelectedPath+ "\\settings.ini";
+            }
+            try
+            {
+                f1.SaveSettingsToIni(iniPath);
+                MessageBox.Show("已保存，文件位置：" + iniPath);
+            }
+            catch (Exception)
+            {
+                return ;
+            }
+           
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
+            dialog.Multiselect = false; // 是否可以选择多个 文件
+            dialog.Title = "请选择setting.ini文件";
+            dialog.Filter = "ini文件(*.ini)|*.ini";
+            string file = "";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                file = dialog.FileName;
+            }
+            try
+            {
+                f1.ReflashSettingByIni(file);
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
     }
 }
