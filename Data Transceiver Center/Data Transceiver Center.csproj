@@ -87,7 +87,6 @@
       <HintPath>..\packages\Microsoft.Extensions.DependencyModel.7.0.0\lib\net462\Microsoft.Extensions.DependencyModel.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualC" />
-    <Reference Include="MITSUBISHI.Component.DotUtlType, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6b44489e63a9c4bd, processorArchitecture=x86" />
     <Reference Include="MXLabelMemLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=556bdc7a56920026">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -165,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActDefine.cs" />
+    <Compile Include="IniFile.cs" />
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
