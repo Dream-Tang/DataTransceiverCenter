@@ -47,7 +47,7 @@ namespace Data_Transceiver_Center
             //f4.Show();      // 将窗口4进行显示
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void btnSaveIni_Click(object sender, EventArgs e)
         {
             // 选择文件夹路径
             FolderBrowserDialog dialog = new FolderBrowserDialog();
@@ -60,7 +60,7 @@ namespace Data_Transceiver_Center
             }
             try
             {
-                f1.SaveSettingsToIni(iniPath);
+                f1.SaveIniSettings(iniPath);
                 MessageBox.Show("已保存，文件位置：" + iniPath);
             }
             catch (Exception)
@@ -70,7 +70,7 @@ namespace Data_Transceiver_Center
            
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void btnLoadIni_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
             dialog.Multiselect = false; // 是否可以选择多个 文件
@@ -83,7 +83,7 @@ namespace Data_Transceiver_Center
             }
             try
             {
-                f1.ReflashSettingByIni(file);
+                f1.LoadIniSettings(file);
             }
             catch (Exception)
             {
