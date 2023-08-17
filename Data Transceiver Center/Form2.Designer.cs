@@ -230,6 +230,15 @@ namespace Data_Transceiver_Center
             this.rad_ActUtlType.Text = "ActUtlType";
             this.rad_ActUtlType.UseVisualStyleBackColor = true;
             // 
+            // axActUtlType1
+            // 
+            this.axActUtlType1.Enabled = true;
+            this.axActUtlType1.Location = new System.Drawing.Point(50, 50);
+            this.axActUtlType1.Name = "axActUtlType1";
+            this.axActUtlType1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axActUtlType1.OcxState")));
+            this.axActUtlType1.Size = new System.Drawing.Size(32, 32);
+            this.axActUtlType1.TabIndex = 0;
+            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -335,6 +344,7 @@ namespace Data_Transceiver_Center
             this.label13.Size = new System.Drawing.Size(35, 12);
             this.label13.TabIndex = 34;
             this.label13.Text = "D1002";
+            this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_ScannerStart
             // 
@@ -421,6 +431,7 @@ namespace Data_Transceiver_Center
             this.label12.Size = new System.Drawing.Size(35, 12);
             this.label12.TabIndex = 33;
             this.label12.Text = "D1001";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_PrtComplete
             // 
@@ -477,6 +488,7 @@ namespace Data_Transceiver_Center
             this.label11.Size = new System.Drawing.Size(35, 12);
             this.label11.TabIndex = 32;
             this.label11.Text = "D1000";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_CamNG
             // 
@@ -505,15 +517,6 @@ namespace Data_Transceiver_Center
             this.checkBox1.Text = "自动刷新";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // axActUtlType1
-            // 
-            this.axActUtlType1.Enabled = true;
-            this.axActUtlType1.Location = new System.Drawing.Point(50, 50);
-            this.axActUtlType1.Name = "axActUtlType1";
-            this.axActUtlType1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axActUtlType1.OcxState")));
-            this.axActUtlType1.Size = new System.Drawing.Size(32, 32);
-            this.axActUtlType1.TabIndex = 0;
             // 
             // Form2
             // 
