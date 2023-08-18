@@ -651,7 +651,8 @@ namespace Data_Transceiver_Center
             string filePathZPL = zplPathBox.Text;
             string prtName = prtPathBox.Text;
             string csvPath = csvPathBox.Text;
-            string testHttp = Convert.ToString(this.testHttpAPI);
+            //string testHttp = Convert.ToString(this.testHttpAPI);
+            string testHttp = "False"; // 确保每次保存ini后关闭调试模式
 
             myIni.Write("filePathZPL", filePathZPL,"Form1");
             myIni.Write("prtName", prtName, "Form1");
