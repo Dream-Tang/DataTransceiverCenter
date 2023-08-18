@@ -93,9 +93,9 @@ namespace Data_Transceiver_Center
             // 
             // btn_SaveIni
             // 
-            this.btn_SaveIni.Location = new System.Drawing.Point(27, 328);
+            this.btn_SaveIni.Location = new System.Drawing.Point(8, 524);
             this.btn_SaveIni.Name = "btn_SaveIni";
-            this.btn_SaveIni.Size = new System.Drawing.Size(81, 57);
+            this.btn_SaveIni.Size = new System.Drawing.Size(54, 39);
             this.btn_SaveIni.TabIndex = 4;
             this.btn_SaveIni.Text = "保存配置";
             this.btn_SaveIni.UseVisualStyleBackColor = true;
@@ -103,9 +103,9 @@ namespace Data_Transceiver_Center
             // 
             // btn_LoadIni
             // 
-            this.btn_LoadIni.Location = new System.Drawing.Point(27, 417);
+            this.btn_LoadIni.Location = new System.Drawing.Point(68, 524);
             this.btn_LoadIni.Name = "btn_LoadIni";
-            this.btn_LoadIni.Size = new System.Drawing.Size(81, 57);
+            this.btn_LoadIni.Size = new System.Drawing.Size(54, 39);
             this.btn_LoadIni.TabIndex = 5;
             this.btn_LoadIni.Text = "加载配置";
             this.btn_LoadIni.UseVisualStyleBackColor = true;

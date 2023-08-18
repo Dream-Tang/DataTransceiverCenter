@@ -6,7 +6,8 @@
 
 
 zpl.txt
-barcode.csv
+123.txt
+settings.ini
 
 # User-specific files
 *.rsuser
@@ -366,4 +367,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Data Transceiver Center/123.TXT
