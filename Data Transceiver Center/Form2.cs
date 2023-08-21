@@ -5,44 +5,43 @@ namespace Data_Transceiver_Center
 {
     public partial class Form2 : Form
     {
-        private const short camAllow = 1;
-
-        private const short camNG = 12;
-
-        // 允许相机拍照
-        private const short camOK = 11;
-
-        private const short checkNG = 13;
-
-        private const short checkOK = 12;
-
-        private const short prtComplete = 11;
-
-        private const short prtReady = 1;
-
-        private const short scannerComplete = 11;
-
-        private const short scannerStart = 1;
-
-        private static string camRegister = "D1000";
-
+        #region "定义PLC通信寄存器位置"
         // 相机动作交互寄存器
-        private static string prtRegister = "D1001";
-
+        private static string camRegister = "D1000";
         // 打印机动作交互寄存器
+        private static string prtRegister = "D1001";
+        // 扫码枪动作交互寄存器
         private static string scannerRegister = "D1002";
+        #endregion
 
-        // 定时刷新时，存储数据用，根绝数据改变rediobox
+        #region "定义PLC通信信号数值"
+        // 相机信号
+        //允许相机拍照 = 1
+        // 扫描OK放行 = 11
+        // 扫描NG报警 取料 = 12
+        private const short camAllow = 1;
+        private const short camOK = 11;
+        private const short camNG = 12;
+        // 打印机信号
+        // 取标平台准备好 = 1
+        // 标打印完成 = 11
+        private const short prtReady = 1;
+        private const short prtComplete = 11;
+        // 扫码枪信号
+        // 扫码开始 = 1
+        // 扫码完成，标头返回 = 11
+        private const short scannerStart = 1;
+        private const short scannerComplete = 11;
+        // 核验信号
+        // 判定数据OK，放行 = 12
+        // 判定数据NG，报警 = 13
+        private const short checkOK = 12;
+        private const short checkNG = 13;
+        #endregion
+
+         // 声明变量，存储信号值。定时刷新时，根据此变量设定rediobox
         private short rd_camRegisterValue;
-
-        // 扫码开始
-        // 扫码完成，标头返回
-        // 判定数据OK，放行
-        // 判定数据NG，报警
         private short rd_prtRegisterValue;
-
-        // 取标平台准备好
-        // 标打印完成
         private short rd_scannerRegisterValue;
 
         public Form2()
@@ -50,13 +49,7 @@ namespace Data_Transceiver_Center
             InitializeComponent();
         }
 
-        // 扫码枪动作交互寄存器
-
-        // 扫描OK 放行
-        // 扫描NG 报警
-
-        #region "刷新寄存器rediobutton"
-
+        #region "刷新ControlBox组件"
         private void ReflashControlBox()
         {
             rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(camRegister));
@@ -513,6 +506,8 @@ namespace Data_Transceiver_Center
             iSizeOfShortArray = lptxt_SourceOfShortArray.Lines.Length;
             lplpshShortArrayValue = new short[iSizeOfShortArray];
 
+            if (iSizeOfShortArray==0) { MessageBox.Show("写入数据为空，请设置数据");return false; };
+
             //Get each element of ShortType array.
             for (iNumber = 0; iNumber < iSizeOfShortArray; iNumber++)
             {
@@ -602,22 +597,13 @@ namespace Data_Transceiver_Center
             ReflashControlBox();
         }
 
-        #region "redioButton 控制按钮，点击写入数据"
+        #region "redioButton 控制按钮，点击则给PLC发送数据"
 
         private void rd_CamAllow_CheckedChanged(object sender, EventArgs e)
         {
             if (rd_CamAllow.Checked)
             {
                 WriteDeviceRandom(camRegister, camAllow);
-                label11.Text = ReadDeviceRandom(camRegister);
-            }
-        }
-
-        private void rd_CamNG_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rd_CamNG.Checked)
-            {
-                WriteDeviceRandom(camRegister, camNG);
                 label11.Text = ReadDeviceRandom(camRegister);
             }
         }
@@ -631,11 +617,47 @@ namespace Data_Transceiver_Center
             }
         }
 
-        private void rd_checkNG_CheckedChanged(object sender, EventArgs e)
+        private void rd_CamNG_CheckedChanged(object sender, EventArgs e)
         {
-            if (rd_checkNG.Checked)
+            if (rd_CamNG.Checked)
             {
-                WriteDeviceRandom(scannerRegister, checkNG);
+                WriteDeviceRandom(camRegister, camNG);
+                label11.Text = ReadDeviceRandom(camRegister);
+            }
+        }
+
+        private void rd_PrtReady_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rd_PrtReady.Checked)
+            {
+                WriteDeviceRandom(prtRegister, prtReady);
+                label12.Text = ReadDeviceRandom(prtRegister);
+            }
+        }
+
+        private void rd_PrtComplete_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rd_PrtComplete.Checked)
+            {
+                WriteDeviceRandom(prtRegister, prtComplete);
+                label12.Text = ReadDeviceRandom(prtRegister);
+            }
+        }
+
+        private void rd_ScannerStart_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rd_ScannerStart.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, scannerStart);
+                label13.Text = ReadDeviceRandom(scannerRegister);
+            }
+        }
+
+        private void rd_ScannerComplete_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rd_ScannerComplete.Checked)
+            {
+                WriteDeviceRandom(scannerRegister, scannerComplete);
                 label13.Text = ReadDeviceRandom(scannerRegister);
             }
         }
@@ -649,42 +671,22 @@ namespace Data_Transceiver_Center
             }
         }
 
-        private void rd_PrtComplete_CheckedChanged(object sender, EventArgs e)
+        private void rd_checkNG_CheckedChanged(object sender, EventArgs e)
         {
-            if (rd_PrtComplete.Checked)
+            if (rd_checkNG.Checked)
             {
-                WriteDeviceRandom(prtRegister, prtComplete);
-                label12.Text = ReadDeviceRandom(prtRegister);
-            }
-        }
-
-        private void rd_PrtReady_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rd_PrtReady.Checked)
-            {
-                WriteDeviceRandom(prtRegister, prtReady);
-                label12.Text = ReadDeviceRandom(prtRegister);
-            }
-        }
-
-        private void rd_ScannerComplete_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rd_ScannerComplete.Checked)
-            {
-                WriteDeviceRandom(scannerRegister, scannerComplete);
+                WriteDeviceRandom(scannerRegister, checkNG);
                 label13.Text = ReadDeviceRandom(scannerRegister);
             }
         }
 
-        private void rd_ScannerStart_CheckedChanged(object sender, EventArgs e)
+        #endregion 
+
+        // 发送数据
+        public void CrtToPlc(string D)
         {
-            if (rd_ScannerStart.Checked)
-            {
-                WriteDeviceRandom(scannerRegister, scannerStart);
-                label13.Text = ReadDeviceRandom(scannerRegister);
-            }
+
         }
 
-        #endregion "redioButton 控制按钮，点击写入数据"
     }
 }

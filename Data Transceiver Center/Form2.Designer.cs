@@ -344,6 +344,7 @@ namespace Data_Transceiver_Center
             this.label13.Size = new System.Drawing.Size(35, 12);
             this.label13.TabIndex = 34;
             this.label13.Text = "D1002";
+            this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_ScannerStart
             // 
@@ -430,6 +431,7 @@ namespace Data_Transceiver_Center
             this.label12.Size = new System.Drawing.Size(35, 12);
             this.label12.TabIndex = 33;
             this.label12.Text = "D1001";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_PrtComplete
             // 
@@ -486,6 +488,7 @@ namespace Data_Transceiver_Center
             this.label11.Size = new System.Drawing.Size(35, 12);
             this.label11.TabIndex = 32;
             this.label11.Text = "D1000";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // rd_CamNG
             // 

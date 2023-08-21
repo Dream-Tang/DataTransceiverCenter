@@ -18,157 +18,172 @@ namespace Data_Transceiver_Center
 
         private StringBuilder cmd;     // 打印机指令内容，可变字符串类型
 
-        private static string filePathZPL = @"F:\VS_prj\source\repos\Data Transceiver Center\Test.txt";  // 打印机配置txt文档
-        private static string mPrintName = @"F:\VS_prj\source\repos\Data Transceiver Center\zt411\test1.txt";    // 打印机的网络位置
-        private static string prtName = @"\XXXX\XXXX"; // 计算机名 + 打印机共享名
-
-        private static string printApi1 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=position&par=01";
-        private static string printApi2 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=print&par=800D2AL71YN201A17,id";
-        private static string printApi3 = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=printCallBack&par=800D2AL71YN201A17";
-
         private static string apiToken = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
+        private static string testHttpUrl = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
-        // 通信和流程标志位，0为初始化，1为完成，2为异常
-        private int mesComunication1Flag = 0;
+        private bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
 
-        private int mesComunication2Flag = 0;
-        private int mesComunication3Flag = 0;
-        private int sendFileToPrtFlag = 0;
-        private int readCsvFlag = 0;
+        // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
+        private int mesComunication1Flag = STATUS_WAIT;
+        private int mesComunication2Flag = STATUS_WAIT;
+        private int mesComunication3Flag = STATUS_WAIT;
+        private int sendFileToPrtFlag = STATUS_WAIT;
+        private int readCsvFlag = STATUS_WAIT;
+
+        // 通信标志位数值定义
+        private const int STATUS_WAIT = -1;
+        private const int STATUS_READY = 0;
+        private const int STATUS_WORKING = 1;
+        private const int STATUS_EXCEPTION = 2;
+        private const int CONNECT_EXCEPTION = 3;
+        private const int CONVERT_EXCEPTION = 4;
 
         // 生成ZPL文档
-        private void button1_Click(object sender, EventArgs e)
+        private void makeZpl_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.zplPathBox.Text + "\\zpl.txt";
-            string line = prtCodeBox.Text;
+            string filePathZPL = this.zplPath_txtBox.Text + "\\zpl.txt";
+            string line = prtCode_txtBox.Text;
             CmdToTxt(filePathZPL, line);
         }
 
         // 发送文件到打印机
-        private void button2_Click(object sender, EventArgs e)
+        private void sendToPrt_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.zplPathBox.Text + "\\zpl.txt";
-            string prtName = this.prtPathBox.Text;
+            string filePathZPL = this.zplPath_txtBox.Text + "\\zpl.txt";
+            string prtName = this.prtPath_txtBox.Text;
             SendFileToPrinter(filePathZPL, prtName);
         }
 
-        // 获取Json数据
-        private void button3_Click(object sender, EventArgs e)
-        {
-            // http的 Api 接口
-            string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+        //// 获取Json数据
+        //private void button3_Click(object sender, EventArgs e)
+        //{
+        //    // http的 Api 接口
+        //    string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
-            // 将接口传入 httpUitls的类
-            string getJson = HttpUitls.Get(url);
+        //    // 将接口传入 httpUitls的类
+        //    string getJson = HttpUitls.Get(url);
 
-            MessageBox.Show(getJson);
-        }
+        //    MessageBox.Show(getJson);
+        //}
 
-        // 解析Json数据
-        private void button4_Click(object sender, EventArgs e)
-        {
-            //我们的接口
-            string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+        //// 解析Json数据
+        //private void button4_Click(object sender, EventArgs e)
+        //{
+        //    //我们的接口
+        //    string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
-            //将接口传入，这个HttpUitls的类，有兴趣可以研究下，也可以直接用就可以，不用管如何实现。
-            string getJson = HttpUitls.Get(url);
+        //    //将接口传入，这个HttpUitls的类，有兴趣可以研究下，也可以直接用就可以，不用管如何实现。
+        //    string getJson = HttpUitls.Get(url);
 
-            //这个需要引入Newtonsoft.Json这个DLL并using
-            //传入我们的实体类还有需要解析的JSON字符串这样就OK了。然后就可以通过实体类使用数据了。
-            Root rt = JsonConvert.DeserializeObject<Root>(getJson);
+        //    //这个需要引入Newtonsoft.Json这个DLL并using
+        //    //传入我们的实体类还有需要解析的JSON字符串这样就OK了。然后就可以通过实体类使用数据了。
+        //    Root rt = JsonConvert.DeserializeObject<Root>(getJson);
 
-            this.label2.Text = rt.nu;
+        //    this.label2.Text = rt.nu;
 
-            //这样就可以取出json数据里面的值
-            MessageBox.Show("com=" + rt.com + "\r\n" + "condition=" + rt.condition + "\r\n" + "ischeck=" + rt.ischeck + "\r\n" + "state=" + rt.state + "\r\n" + "status=" + rt.status);
-            //由于这个JSON字符串的 public List<DataItem> data 是一个集合，所以我们需要遍历集合里面的所有数据
-            for (int i = 0; i < rt.data.Count; i++)
-            {
-                this.label1.Text = rt.data[i].context;
-                MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
-            }
-        }
+        //    //这样就可以取出json数据里面的值
+        //    MessageBox.Show("com=" + rt.com + "\r\n" + "condition=" + rt.condition + "\r\n" + "ischeck=" + rt.ischeck + "\r\n" + "state=" + rt.state + "\r\n" + "status=" + rt.status);
+        //    //由于这个JSON字符串的 public List<DataItem> data 是一个集合，所以我们需要遍历集合里面的所有数据
+        //    for (int i = 0; i < rt.data.Count; i++)
+        //    {
+        //        this.label1.Text = rt.data[i].context;
+        //        MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
+        //    }
+        //}
 
-        // 生成Json数据
-        private void button5_Click(object sender, EventArgs e)
-        {
-        }
+        //// 生成Json数据
+        //private void button5_Click(object sender, EventArgs e)
+        //{
+        //}
 
         // Mes通信1
-        private void mesCmd1Button_Click(object sender, EventArgs e)
+        private void mesCmd1_btn_Click(object sender, EventArgs e)
         {
             MesRoot1 rt = new MesRoot1();
             MesData1 dt = new MesData1();
             rt.data = dt;
 
             // http 接口
-            string url = mesApiBox.Text;
-            string api_url = apiToken + "position&par=" + positionBox.Text;
+            string url = mesApi_txtBox.Text;
+            string api_url = apiToken + "position&par=" + position_txtBox.Text;
+            // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
+            if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (positionBox.Text == "") { MessageBox.Show("线别未设置"); return; }
-            else { url = api_url; mesApiBox.Text = url; }
+            if (position_txtBox.Text == "") { MessageBox.Show("线别未设置"); return; }
+            else { url = api_url; mesApi_txtBox.Text = url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t1 = new Task(() =>
             {
-                string getJson = HttpUitls.Get(url);
+                // 耗费时间的操作
+                string getJson = HttpUitls.Get(url); 
 
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() =>
-               {
-                   if (getJson == "无法连接到远程服务器")
-                   {
-                       mesIdBox.Text = getJson;
-                       this.mesComunication1Flag = 2;
-                   }
-                   else
-                   {
-                       // 解析 MES 回应的JSON数据，解析结果存入C#本地的MesRoot类中
-                       //MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
-                       try
-                       {
-                           rt = JsonConvert.DeserializeObject<MesRoot1>(getJson);
-                           mesIdBox.Text = rt.data.id;
-                           this.mesComunication1Flag = 1;
-                       }
-                       catch (Exception)
-                       {
-                           this.mesComunication1Flag = 2;
-                           MessageBox.Show("JsonConver解析出错");
-                           mesIdBox.Text = "##############";
-                       }
-                   }
-               });
+                {
+                    JsonMsg_txtBox.Text = "Mes1:\r\n" + getJson;
+                    if (getJson == "无法连接到远程服务器")
+                    {
+                        mesId_txtBox.Text = getJson;
+                        this.mesComunication1Flag = CONNECT_EXCEPTION;
+                    }
+                    else
+                    {
+                        // 解析 MES 回应的JSON数据，解析结果存入C#本地的MesRoot类中
+                        //MesRoot rt = JsonConvert.DeserializeObject<MesRoot>(getJson);
+                        try
+                        {
+                            rt = JsonConvert.DeserializeObject<MesRoot1>(getJson);
+                            mesId_txtBox.Text = rt.data.id;
+                            this.mesComunication1Flag = STATUS_WAIT;
+                        }
+                        catch (Exception)
+                        {
+                            this.mesComunication1Flag = CONVERT_EXCEPTION;
+                            if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                            {
+                                MessageBox.Show("JsonConver解析出错");
+                            }
+                            mesId_txtBox.Text = "##############";
+                        }
+                    }
+                });
                 this.BeginInvoke(mi);
             });
             t1.Start();
         }
 
         // Mes通信2
-        private void mesCmd2Button_Click(object sender, EventArgs e)
+        private void mesCmd2_btn_Click(object sender, EventArgs e)
         {
             MesRoot2 rt = new MesRoot2();
             MesData2 dt = new MesData2();
             rt.data = dt;
 
             // http 接口
-            string url = mesApiBox.Text;
-            string api_url = apiToken + "print&par=" + visionCodeBox.Text + "," + mesIdBox.Text;
+            string url = mesApi_txtBox.Text;
+            string api_url = apiToken + "print&par=" + visionCode_txtBox.Text + "," + mesId_txtBox.Text;
+            // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
+            if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (visionCodeBox.Text == "") { MessageBox.Show("视觉码未获取"); return; }
-            else { url = api_url; mesApiBox.Text = url; }
+            if (visionCode_txtBox.Text == "") { MessageBox.Show("视觉码未获取"); return; }
+            else { url = api_url; mesApi_txtBox.Text = url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t2 = new Task(() =>
             {
                 string getJson = HttpUitls.Get(url);
+                this.mesComunication2Flag = STATUS_WORKING;
+                MethodInvoker mi1 = new MethodInvoker(() => { this.mesComunication1Flag = STATUS_WORKING; });
+                this.BeginInvoke(mi1);
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
+                    JsonMsg_txtBox.Text = "Mes2:\r\n" + getJson;
                     if (getJson == "无法连接到远程服务器")
                     {
-                        mesIdBox.Text = getJson;
-                        this.mesComunication1Flag = 2;
+                        fogId_txtBox.Text = getJson;
+                        this.mesComunication2Flag = CONNECT_EXCEPTION;
                     }
                     else
                     {
@@ -177,14 +192,17 @@ namespace Data_Transceiver_Center
                         try
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot2>(getJson);
-                            fogIdBox.Text = rt.data.fogId;
-                            this.mesComunication2Flag = 1;
+                            fogId_txtBox.Text = rt.data.fogId;
+                            this.mesComunication2Flag = STATUS_WAIT;
                         }
                         catch (Exception)
                         {
-                            this.mesComunication2Flag = 2;
-                            MessageBox.Show("JsonConver解析出错");
-                            fogIdBox.Text = "##############";
+                            this.mesComunication2Flag = CONVERT_EXCEPTION;
+                            if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                            {
+                                MessageBox.Show("JsonConver解析出错");
+                            }
+                            fogId_txtBox.Text = "##############";
                         }
                     }
                 });
@@ -194,28 +212,34 @@ namespace Data_Transceiver_Center
         }
 
         // Mes通信3
-        private void mesCmd3Button_Click(object sender, EventArgs e)
+        private void mesCmd3_btn_Click(object sender, EventArgs e)
         {
             MesRoot3 rt = new MesRoot3();
 
             // http 接口
-            string url = mesApiBox.Text;
-            string api_url = apiToken + "printCallBack&par=" + mesIdBox.Text;
+            string url = mesApi_txtBox.Text;
+            string api_url = apiToken + "printCallBack&par=" + fogId_txtBox.Text;
+            // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
+            if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (mesIdBox.Text == "") { MessageBox.Show("mesID未获取"); return; }
-            else { url = api_url; mesApiBox.Text = url; }
+            if (fogId_txtBox.Text == "") { MessageBox.Show("fogID未获取"); return; }
+            else { url = api_url; mesApi_txtBox.Text = url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t3 = new Task(() =>
             {
                 string getJson = HttpUitls.Get(url);
+                this.mesComunication3Flag = STATUS_WORKING;
+                MethodInvoker mi1 = new MethodInvoker(() => { this.mesComunication1Flag = STATUS_WORKING; });
+                this.BeginInvoke(mi1);
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
+                    JsonMsg_txtBox.Text = "Mes3:\r\n" + getJson;
                     if (getJson == "无法连接到远程服务器")
                     {
-                        mesIdBox.Text = getJson;
-                        this.mesComunication3Flag = 2;
+                        fogId_txtBox.Text = getJson;
+                        this.mesComunication3Flag = CONNECT_EXCEPTION;
                     }
                     else
                     {
@@ -224,14 +248,16 @@ namespace Data_Transceiver_Center
                         try
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot3>(getJson);
-                            printCallBackLable.Text = rt.data;
-                            this.mesComunication3Flag = 1;
+                            JsonMsg_txtBox.Text = rt.data;
+                            this.mesComunication3Flag = STATUS_WAIT;
                         }
                         catch (Exception)
                         {
-                            this.mesComunication3Flag = 2;
-                            MessageBox.Show("JsonConver解析出错");
-                            printCallBackLable.Text = "回调失败";
+                            this.mesComunication3Flag = CONVERT_EXCEPTION;
+                            if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                            {
+                                MessageBox.Show("JsonConver解析出错");
+                            }
                         }
                     }
                 });
@@ -241,26 +267,41 @@ namespace Data_Transceiver_Center
         }
 
         // 读取CSV数据
-        private void button7_Click(object sender, EventArgs e)
+        private void readCsv_btn_Click(object sender, EventArgs e)
         {
-            string csvPath = csvPathBox.Text + "\\barcode.csv";
+            string csvPath = csvPath_txtBox.Text + "\\barcode.csv";
             string barCode = ReadCsvFile(csvPath);
-            visionCodeBox.Text = barCode;
+            visionCode_txtBox.Text = barCode;
 
-            if (checkBox2.Checked)
+            if (deleCsv_checkBox.Checked)
             {
                 File.Delete(csvPath);
             }
         }
 
-        // 打开串口
-        private void Button1_Click_1(object sender, EventArgs e)
+        // 打开、关闭串口
+        private void openSerial_btn_Click(object sender, EventArgs e)
         {
             try
             {
-                serialPort1.PortName = comboBox1.Text;
-                serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
-                serialPort1.Open();
+                if (!serialPort1.IsOpen)
+                {
+                    serialPort1.PortName = comboBox1.Text;
+                    serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
+                    serialPort1.Open();
+                    openSerial_btn.Text = "关闭串口";
+                    serialPort_label.Text = "串口已打开";
+                    //openSerial_btn.BackColor = System.Drawing.Color.Khaki;
+                    //serialPort_label.BackColor = System.Drawing.Color.Khaki;
+                }
+                else
+                {
+                    serialPort1.Close();
+                    openSerial_btn.Text = "打开串口";
+                    serialPort_label.Text = "串口已关闭";
+                    //openSerial_btn.BackColor = System.Drawing.Color.Transparent;
+                    //serialPort_label.BackColor = System.Drawing.Color.Transparent;
+                }
             }
             catch (UnauthorizedAccessException)
             {
@@ -288,32 +329,35 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 关闭串口
-        private void button2_Click_1(object sender, EventArgs e)
+        // 自动选项打开
+        private void autoRun_checkBox_CheckedChanged(object sender, EventArgs e)
         {
-            try
+            if (this.autoRun_checkBox.Checked)
             {
-                serialPort1.Close();
-            }
-            catch (Exception exp)
-            {
-                MessageBox.Show(exp.Message);
-            }
-        }
-
-        // 后台监控csv文档选项，多线程
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (this.checkBox1.Checked)
-            {
-                MessageBox.Show("循环检测csv文件");
+                MessageBox.Show("自动模式");
+                zplPath_txtBox.Enabled = false;
+                prtPath_txtBox.Enabled = false;
+                csvPath_txtBox.Enabled = false;
                 timer1.Enabled = true;
                 timer1.Start();
             }
             else
             {
                 timer1.Enabled = false;
+                zplPath_txtBox.Enabled = true;
+                prtPath_txtBox.Enabled = true;
+                csvPath_txtBox.Enabled = true;
             }
+        }
+
+        private void serialRead_txtBox_TextChanged(object sender, EventArgs e)
+        {
+            scnCode_txtBox.Text = serialRead_txtBox.Text;
+        }
+
+        private void fogId_txtBox_TextChanged(object sender, EventArgs e)
+        {
+            prtCode_txtBox.Text = fogId_txtBox.Text;
         }
 
         // 将ZPL指令输出到txt文档
@@ -336,12 +380,16 @@ namespace Data_Transceiver_Center
                     sw.Write(cmd.ToString());
                     sw.Close();
                 }
-                label11.Text = "zpl文件生产成功";
+                runStatus_lable.Text = "zpl文件生产成功";
                 //MessageBox.Show("zpl文件生产成功，文件位置："+ filePathZPL);
             }
             catch (Exception)
             {
-                MessageBox.Show("zpl文件生成失败\r\n" + filePathZPL);
+                if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                {
+                    MessageBox.Show("zpl文件生成失败\r\n" + filePathZPL);
+                }
+                runStatus_lable.Text = "zpl文件生产出错";
             }
         }
 
@@ -352,47 +400,17 @@ namespace Data_Transceiver_Center
             {
                 // 将ZPL指令发送到打印机，filePathZPL为ZPL指令文件路径，mPrintName为打印机路径，例如：mPrintName = @"\\192.168.0.132\zt411"
                 File.Copy(filePathZPL, mPrintName, true);
-                this.sendFileToPrtFlag = 1;
-                this.mesComunication1Flag = 0;
-                this.mesComunication2Flag = 0;
-                this.mesComunication3Flag = 0;
-                label11.Text = "发送成功!";
+                runStatus_lable.Text = "发送成功!";
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                MessageBox.Show("无权限，或目标位置已存在同名只读文件\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
+                this.sendFileToPrtFlag = 3;
+                if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
-            catch (ArgumentException)
-            {
-                MessageBox.Show("路径长度为零，或包含无效字符\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
-            catch (PathTooLongException)
-            {
-                MessageBox.Show("指定的路径和/或文件名超过了系统定义的最大长度\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
-            catch (DirectoryNotFoundException)
-            {
-                MessageBox.Show("指定的文件或目标无效\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("未找到要发送的文件\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
-            catch (IOException)
-            {
-                MessageBox.Show("发生了I/O错误，目标也应是文件\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
-            catch (NotSupportedException)
-            {
-                MessageBox.Show("文件格式或目标格式无效\r\n" + filePathZPL + "\r\n" + mPrintName);
-                this.sendFileToPrtFlag = 2;
-            }
+           
         }
 
         // http通信类，通过API获得JSON返回数据
@@ -430,7 +448,6 @@ namespace Data_Transceiver_Center
                 }
                 catch (WebException)
                 {
-                    MessageBox.Show("无法连接到远程服务器");
                     return "无法连接到远程服务器";
                 }
             }
@@ -465,15 +482,17 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 自动功能：自动读csv文件，将csv数据存入visionCode。等待prtCode，有prtCode后，发送给打印机，并清除prtCode
+        // 自动功能：自动读csv文件，将csv数据存入visionCode。等待prtCode（打印码来自Mes2消息），有prtCode后，发送给打印机，并清除prtCode
         private void AutoSendFile(string filePathZPL, string mPrintName, string csvPath)
         {
             if (File.Exists(csvPath))
             {
                 string visonCode = ReadCsvFile(csvPath);
-                visionCodeBox.Text = visonCode;
+                
+                MethodInvoker mi1 = new MethodInvoker(()=> { visionCode_txtBox.Text = visonCode;  });
+                BeginInvoke(mi1);
 
-                string prtCode = prtCodeBox.Text;
+                string prtCode = prtCode_txtBox.Text;
 
                 // 有打印码，才进行打印；打印完成后清楚prtCode
                 if (!(prtCode == ""))
@@ -482,27 +501,28 @@ namespace Data_Transceiver_Center
 
                     SendFileToPrinter(filePathZPL, mPrintName);
 
-                    prtCodelabel.Text = prtCode;
-                    visionCodelabel.Text = visonCode;
+                    prtCode_label.Text = prtCode;
+                    visionCode_label.Text = visonCode;
 
-                    //if ((this.mesComunication1Flag ==1)&(this.mesComunication2Flag==1))
+                    //发送完成后清空旧数据
                     {
-                        prtCodeBox.Text = "";//发送完成后清空
-                        visionCodeBox.Text = "";
-                        this.mesComunication1Flag = 0;
-                        this.mesComunication2Flag = 0;
+                        prtCode_txtBox.Text = "";
+                        visionCode_txtBox.Text = "";
+                        scnCode_txtBox.Text = "";
                     }
+
                 }
                 else
                 {
-                    label11.Text = "wait prtCode";
+                    runStatus_lable.Text = "wait prtCode";
                 }
 
-                if (checkBox2.Checked) { File.Delete(csvPath); }
+                // 自动删除 csv 文件
+                if (deleCsv_checkBox.Checked) { File.Delete(csvPath); }
             }
             else
             {
-                label11.Text = "file not exist";
+                runStatus_lable.Text = "file not exist";
             }
         }
 
@@ -513,7 +533,11 @@ namespace Data_Transceiver_Center
 
             if (!File.Exists(csvPath))
             {
-                MessageBox.Show("CSV文件未找到");
+                if (!this.autoRun_checkBox.Checked)
+                {
+                    MessageBox.Show("CSV文件未找到");
+                }
+                runStatus_lable.Text = "CSV文件未找到";
                 return "未找到CSV";
             }
             else
@@ -525,7 +549,7 @@ namespace Data_Transceiver_Center
                 string myLine;
                 string[] Ary;
 
-                StreamReader myReader = new StreamReader(csvPath);
+                StreamReader myReader = new StreamReader(csvPath, System.Text.Encoding.Default);
 
                 while ((myLine = myReader.ReadLine()) != null)
                 {
@@ -541,6 +565,7 @@ namespace Data_Transceiver_Center
                 dataGridView1.DataSource = myTable;
                 string barCode = myTable.Rows[1][1].ToString();
                 myReader.Close();
+                runStatus_lable.Text = "CSV读取完成";
                 return barCode;
             }
         }
@@ -564,18 +589,19 @@ namespace Data_Transceiver_Center
                   {
                       // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
                       //textBox3.Text = serialPort1.ReadExisting(); // 读所有缓存数据
-                      textBox3.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
+                      serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
+                      scnCode_txtBox.Text = serialRead_txtBox.Text;
                       // 扫码枪通过串口发送过来的
                       //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
 
                       //MessageBox.Show("收到条码："+ textBox3.Text);
-                      if (textBox3.Text == visionCodeBox.Text)
+                      if (serialRead_txtBox.Text == prtCode_label.Text)
                       {
-                          textBox4.Text = "校验OK：扫描码与打印码一致";
+                          chckResult_txtBox.Text = "校验OK：扫描码与打印码一致";
                       }
                       else
                       {
-                          textBox4.Text = "校验NG：扫描码与打印码不同";
+                          chckResult_txtBox.Text = "校验NG：扫描码与打印码不同";
                       }
                   }
                   )
@@ -583,7 +609,11 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                if (!this.autoRun_checkBox.Checked)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                return;
             }
         }
 
@@ -608,11 +638,99 @@ namespace Data_Transceiver_Center
         {
             Console.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff:ffffff"));
             Console.WriteLine("timer1 触发");
-            string csvPath = csvPathBox.Text + "\\barcode.csv";
-            string filePathZPL = zplPathBox.Text + "\\zpl.txt";
-            string mPrintName = prtPathBox.Text;
+            string csvPath = csvPath_txtBox.Text + "\\barcode.csv";
+            string filePathZPL = zplPath_txtBox.Text + "\\zpl.txt";
+            string mPrintName = prtPath_txtBox.Text;
 
             AutoSendFile(filePathZPL, mPrintName, csvPath);
         }
+
+        // 从ini读出数据到页面
+        // static 静态类，不用创建实例，只需要通过(类名.方法名)即可进行调用
+        public void LoadIniSettings(string iniFile)
+        {
+            var myIni = new IniFile(iniFile);
+
+            // string Read(string Key,string Section = null)
+            string filePathZPL = myIni.Read("filePathZPL", "Form1");
+            string prtName = myIni.Read("prtName", "Form1");
+            string csvPath = myIni.Read("csvPath", "Form1");
+            string testHttp = myIni.Read("testHttp", "Form1");
+
+            zplPath_txtBox.Text = filePathZPL;
+            prtPath_txtBox.Text = prtName;
+            csvPath_txtBox.Text = csvPath;
+            this.testHttpAPI = Convert.ToBoolean(testHttp);
+        }
+
+        // 将页面的数据写入ini保存
+        public void SaveIniSettings(string iniFile)
+        {
+            var myIni = new IniFile(iniFile);
+
+            string filePathZPL = zplPath_txtBox.Text;
+            string prtName = prtPath_txtBox.Text;
+            string csvPath = csvPath_txtBox.Text;
+            //string testHttp = Convert.ToString(this.testHttpAPI);
+            string testHttp = "False"; // 确保每次保存ini后关闭调试模式
+
+            myIni.Write("filePathZPL", filePathZPL, "Form1");
+            myIni.Write("prtName", prtName, "Form1");
+            myIni.Write("csvPath", csvPath, "Form1");
+            myIni.Write("testHttp", testHttp, "Form1");
+        }
+
+        #region 后台监听文件系统变化（FileSystemWatcher）
+        // 参数path是监听的文件或文件夹，filter为监听的文件类别，筛选器
+        private static void FileWatcher(string path, string filter)
+        {
+            FileSystemWatcher fileSysWatcher = new FileSystemWatcher();
+            fileSysWatcher.Path = path;
+            fileSysWatcher.NotifyFilter = NotifyFilters.LastAccess
+                                                                | NotifyFilters.LastWrite
+                                                                | NotifyFilters.FileName
+                                                                | NotifyFilters.DirectoryName;
+            // 文件类型，支持通配符，"*.txt"只监视文本文件
+            fileSysWatcher.Filter = filter;     // 要监控的文件格式
+            fileSysWatcher.IncludeSubdirectories = false; // 监控子目录
+            fileSysWatcher.Changed += new FileSystemEventHandler(OnProcess);
+            fileSysWatcher.Created += new FileSystemEventHandler(OnProcess);
+            fileSysWatcher.Renamed += new RenamedEventHandler(OnRenamed);
+            fileSysWatcher.Deleted += new FileSystemEventHandler(OnProcess);
+
+            //表示当前的路径正式开始被监控，一旦监控的路径出现变更，FileSystemWatcher 中的指定事件将会被触发。
+            fileSysWatcher.EnableRaisingEvents = true;
+        }
+
+        private static void OnProcess(object source, FileSystemEventArgs e)
+        {
+            if (e.ChangeType == WatcherChangeTypes.Created) { OnCreated(source, e); }
+            else if (e.ChangeType == WatcherChangeTypes.Changed) { OnChanged(source, e); }
+            else if (e.ChangeType == WatcherChangeTypes.Deleted) { OnDeleted(source, e); }
+        }
+
+        private static void OnCreated(object source, FileSystemEventArgs e)
+        {
+            Console.WriteLine("File created:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
+        }
+
+        private static void OnChanged(object source, FileSystemEventArgs e)
+        {
+            Console.WriteLine("File changed:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
+        }
+
+        private static void OnDeleted(object source, FileSystemEventArgs e)
+        {
+            Console.WriteLine("File deleted:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
+        }
+
+        private static void OnRenamed(object source, FileSystemEventArgs e)
+        {
+            Console.WriteLine("File renamed:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
+        }
+
+        #endregion
+
+
     }
 }
