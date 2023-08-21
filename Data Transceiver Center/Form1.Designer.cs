@@ -46,7 +46,7 @@ namespace Data_Transceiver_Center
             this.readCsv_btn = new System.Windows.Forms.Button();
             this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
             this.label3_3 = new System.Windows.Forms.Label();
-            this.serialRead__txtBox = new System.Windows.Forms.TextBox();
+            this.serialRead_txtBox = new System.Windows.Forms.TextBox();
             this.label3_2 = new System.Windows.Forms.Label();
             this.label3_1 = new System.Windows.Forms.Label();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
@@ -56,7 +56,7 @@ namespace Data_Transceiver_Center
             this.label3_4 = new System.Windows.Forms.Label();
             this.chckResult_txtBox = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.label_RunStatus = new System.Windows.Forms.Label();
+            this.runStatus_lable = new System.Windows.Forms.Label();
             this.deleCsv_checkBox = new System.Windows.Forms.CheckBox();
             this.position_txtBox = new System.Windows.Forms.TextBox();
             this.label2_3 = new System.Windows.Forms.Label();
@@ -65,22 +65,24 @@ namespace Data_Transceiver_Center
             this.fogId_txtBox = new System.Windows.Forms.TextBox();
             this.mesCmd2_btn = new System.Windows.Forms.Button();
             this.mesCmd3_btn = new System.Windows.Forms.Button();
-            this.mesApiBox = new System.Windows.Forms.TextBox();
+            this.mesApi_txtBox = new System.Windows.Forms.TextBox();
             this.label2_1 = new System.Windows.Forms.Label();
             this.label1_5 = new System.Windows.Forms.Label();
             this.prtCode_txtBox = new System.Windows.Forms.TextBox();
-            this.prtCodelabel = new System.Windows.Forms.Label();
-            this.visionCodelabel = new System.Windows.Forms.Label();
+            this.prtCode_label = new System.Windows.Forms.Label();
+            this.visionCode_label = new System.Windows.Forms.Label();
             this.pnl_Mes = new System.Windows.Forms.Panel();
             this.label2_2 = new System.Windows.Forms.Label();
-            this.txtBox_GetJson = new System.Windows.Forms.TextBox();
+            this.JsonMsg_txtBox = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.scnCode_txtBox = new System.Windows.Forms.TextBox();
             this.label1_6 = new System.Windows.Forms.Label();
             this.serialPort_label = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // visionCode_txtBox
@@ -92,7 +94,7 @@ namespace Data_Transceiver_Center
             // 
             // mesId_txtBox
             // 
-            this.mesId_txtBox.Location = new System.Drawing.Point(8, 58);
+            this.mesId_txtBox.Location = new System.Drawing.Point(8, 61);
             this.mesId_txtBox.Name = "mesId_txtBox";
             this.mesId_txtBox.Size = new System.Drawing.Size(142, 23);
             this.mesId_txtBox.TabIndex = 1;
@@ -119,9 +121,9 @@ namespace Data_Transceiver_Center
             // 
             // mesCmd1_btn
             // 
-            this.mesCmd1_btn.Location = new System.Drawing.Point(155, 7);
+            this.mesCmd1_btn.Location = new System.Drawing.Point(161, 8);
             this.mesCmd1_btn.Name = "mesCmd1_btn";
-            this.mesCmd1_btn.Size = new System.Drawing.Size(67, 33);
+            this.mesCmd1_btn.Size = new System.Drawing.Size(75, 33);
             this.mesCmd1_btn.TabIndex = 7;
             this.mesCmd1_btn.Text = "MES通信1";
             this.mesCmd1_btn.UseVisualStyleBackColor = true;
@@ -210,12 +212,12 @@ namespace Data_Transceiver_Center
             this.readCsv_btn.TabIndex = 18;
             this.readCsv_btn.Text = "读CSV数据";
             this.readCsv_btn.UseVisualStyleBackColor = true;
-            this.readCsv_btn.Click += new System.EventHandler(this.button7_Click);
+            this.readCsv_btn.Click += new System.EventHandler(this.readCsv_btn_Click);
             // 
             // autoRun_checkBox
             // 
             this.autoRun_checkBox.AutoSize = true;
-            this.autoRun_checkBox.Location = new System.Drawing.Point(499, 10);
+            this.autoRun_checkBox.Location = new System.Drawing.Point(448, 5);
             this.autoRun_checkBox.Name = "autoRun_checkBox";
             this.autoRun_checkBox.Size = new System.Drawing.Size(126, 16);
             this.autoRun_checkBox.TabIndex = 19;
@@ -226,23 +228,24 @@ namespace Data_Transceiver_Center
             // label3_3
             // 
             this.label3_3.AutoSize = true;
-            this.label3_3.Location = new System.Drawing.Point(460, 266);
+            this.label3_3.Location = new System.Drawing.Point(4, 93);
             this.label3_3.Name = "label3_3";
             this.label3_3.Size = new System.Drawing.Size(53, 12);
             this.label3_3.TabIndex = 25;
             this.label3_3.Text = "串口数据";
             // 
-            // serialRead__txtBox
+            // serialRead_txtBox
             // 
-            this.serialRead__txtBox.Location = new System.Drawing.Point(516, 263);
-            this.serialRead__txtBox.Name = "serialRead__txtBox";
-            this.serialRead__txtBox.Size = new System.Drawing.Size(167, 21);
-            this.serialRead__txtBox.TabIndex = 24;
+            this.serialRead_txtBox.Location = new System.Drawing.Point(60, 90);
+            this.serialRead_txtBox.Name = "serialRead_txtBox";
+            this.serialRead_txtBox.Size = new System.Drawing.Size(167, 21);
+            this.serialRead_txtBox.TabIndex = 24;
+            this.serialRead_txtBox.TextChanged += new System.EventHandler(this.serialRead_txtBox_TextChanged);
             // 
             // label3_2
             // 
             this.label3_2.AutoSize = true;
-            this.label3_2.Location = new System.Drawing.Point(460, 216);
+            this.label3_2.Location = new System.Drawing.Point(4, 43);
             this.label3_2.Name = "label3_2";
             this.label3_2.Size = new System.Drawing.Size(41, 12);
             this.label3_2.TabIndex = 22;
@@ -251,7 +254,7 @@ namespace Data_Transceiver_Center
             // label3_1
             // 
             this.label3_1.AutoSize = true;
-            this.label3_1.Location = new System.Drawing.Point(460, 178);
+            this.label3_1.Location = new System.Drawing.Point(4, 5);
             this.label3_1.Name = "label3_1";
             this.label3_1.Size = new System.Drawing.Size(41, 12);
             this.label3_1.TabIndex = 21;
@@ -263,7 +266,7 @@ namespace Data_Transceiver_Center
             // 
             // openSerial_btn
             // 
-            this.openSerial_btn.Location = new System.Drawing.Point(566, 193);
+            this.openSerial_btn.Location = new System.Drawing.Point(110, 10);
             this.openSerial_btn.Name = "openSerial_btn";
             this.openSerial_btn.Size = new System.Drawing.Size(59, 44);
             this.openSerial_btn.TabIndex = 26;
@@ -274,7 +277,7 @@ namespace Data_Transceiver_Center
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(462, 193);
+            this.comboBox1.Location = new System.Drawing.Point(3, 20);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(77, 20);
             this.comboBox1.TabIndex = 27;
@@ -282,15 +285,16 @@ namespace Data_Transceiver_Center
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(462, 231);
+            this.comboBox2.Location = new System.Drawing.Point(3, 58);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(76, 20);
             this.comboBox2.TabIndex = 28;
+            this.comboBox2.Text = "9600";
             // 
             // label3_4
             // 
             this.label3_4.AutoSize = true;
-            this.label3_4.Location = new System.Drawing.Point(460, 297);
+            this.label3_4.Location = new System.Drawing.Point(434, 85);
             this.label3_4.Name = "label3_4";
             this.label3_4.Size = new System.Drawing.Size(53, 12);
             this.label3_4.TabIndex = 29;
@@ -298,7 +302,7 @@ namespace Data_Transceiver_Center
             // 
             // chckResult_txtBox
             // 
-            this.chckResult_txtBox.Location = new System.Drawing.Point(516, 294);
+            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 104);
             this.chckResult_txtBox.Name = "chckResult_txtBox";
             this.chckResult_txtBox.Size = new System.Drawing.Size(167, 21);
             this.chckResult_txtBox.TabIndex = 30;
@@ -308,20 +312,23 @@ namespace Data_Transceiver_Center
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // label_RunStatus
+            // runStatus_lable
             // 
-            this.label_RunStatus.AutoSize = true;
-            this.label_RunStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label_RunStatus.Location = new System.Drawing.Point(499, 57);
-            this.label_RunStatus.Name = "label_RunStatus";
-            this.label_RunStatus.Size = new System.Drawing.Size(79, 14);
-            this.label_RunStatus.TabIndex = 31;
-            this.label_RunStatus.Text = "自动运行状态";
+            this.runStatus_lable.AutoSize = true;
+            this.runStatus_lable.BackColor = System.Drawing.SystemColors.ControlText;
+            this.runStatus_lable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.runStatus_lable.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.runStatus_lable.ForeColor = System.Drawing.SystemColors.Control;
+            this.runStatus_lable.Location = new System.Drawing.Point(448, 52);
+            this.runStatus_lable.Name = "runStatus_lable";
+            this.runStatus_lable.Size = new System.Drawing.Size(95, 22);
+            this.runStatus_lable.TabIndex = 31;
+            this.runStatus_lable.Text = "自动运行状态";
             // 
             // deleCsv_checkBox
             // 
             this.deleCsv_checkBox.AutoSize = true;
-            this.deleCsv_checkBox.Location = new System.Drawing.Point(499, 32);
+            this.deleCsv_checkBox.Location = new System.Drawing.Point(448, 27);
             this.deleCsv_checkBox.Name = "deleCsv_checkBox";
             this.deleCsv_checkBox.Size = new System.Drawing.Size(102, 16);
             this.deleCsv_checkBox.TabIndex = 32;
@@ -338,7 +345,7 @@ namespace Data_Transceiver_Center
             // label2_3
             // 
             this.label2_3.AutoSize = true;
-            this.label2_3.Location = new System.Drawing.Point(8, 3);
+            this.label2_3.Location = new System.Drawing.Point(8, -1);
             this.label2_3.Name = "label2_3";
             this.label2_3.Size = new System.Drawing.Size(32, 17);
             this.label2_3.TabIndex = 34;
@@ -368,12 +375,13 @@ namespace Data_Transceiver_Center
             this.fogId_txtBox.Name = "fogId_txtBox";
             this.fogId_txtBox.Size = new System.Drawing.Size(142, 23);
             this.fogId_txtBox.TabIndex = 37;
+            this.fogId_txtBox.TextChanged += new System.EventHandler(this.fogId_txtBox_TextChanged);
             // 
             // mesCmd2_btn
             // 
-            this.mesCmd2_btn.Location = new System.Drawing.Point(155, 51);
+            this.mesCmd2_btn.Location = new System.Drawing.Point(161, 52);
             this.mesCmd2_btn.Name = "mesCmd2_btn";
-            this.mesCmd2_btn.Size = new System.Drawing.Size(67, 33);
+            this.mesCmd2_btn.Size = new System.Drawing.Size(75, 33);
             this.mesCmd2_btn.TabIndex = 40;
             this.mesCmd2_btn.Text = "MES通信2";
             this.mesCmd2_btn.UseVisualStyleBackColor = true;
@@ -381,30 +389,30 @@ namespace Data_Transceiver_Center
             // 
             // mesCmd3_btn
             // 
-            this.mesCmd3_btn.Location = new System.Drawing.Point(155, 96);
+            this.mesCmd3_btn.Location = new System.Drawing.Point(161, 97);
             this.mesCmd3_btn.Name = "mesCmd3_btn";
-            this.mesCmd3_btn.Size = new System.Drawing.Size(67, 33);
+            this.mesCmd3_btn.Size = new System.Drawing.Size(75, 33);
             this.mesCmd3_btn.TabIndex = 41;
             this.mesCmd3_btn.Text = "MES通信3";
             this.mesCmd3_btn.UseVisualStyleBackColor = true;
             this.mesCmd3_btn.Click += new System.EventHandler(this.mesCmd3_btn_Click);
             // 
-            // mesApiBox
+            // mesApi_txtBox
             // 
-            this.mesApiBox.BackColor = System.Drawing.SystemColors.Info;
-            this.mesApiBox.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.mesApiBox.Location = new System.Drawing.Point(1, 15);
-            this.mesApiBox.Multiline = true;
-            this.mesApiBox.Name = "mesApiBox";
-            this.mesApiBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.mesApiBox.Size = new System.Drawing.Size(424, 69);
-            this.mesApiBox.TabIndex = 42;
+            this.mesApi_txtBox.BackColor = System.Drawing.SystemColors.Info;
+            this.mesApi_txtBox.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.mesApi_txtBox.Location = new System.Drawing.Point(1, 18);
+            this.mesApi_txtBox.Multiline = true;
+            this.mesApi_txtBox.Name = "mesApi_txtBox";
+            this.mesApi_txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.mesApi_txtBox.Size = new System.Drawing.Size(424, 86);
+            this.mesApi_txtBox.TabIndex = 42;
             // 
             // label2_1
             // 
             this.label2_1.AutoSize = true;
             this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2_1.Location = new System.Drawing.Point(5, 2);
+            this.label2_1.Location = new System.Drawing.Point(2, 2);
             this.label2_1.Name = "label2_1";
             this.label2_1.Size = new System.Drawing.Size(49, 14);
             this.label2_1.TabIndex = 43;
@@ -427,63 +435,65 @@ namespace Data_Transceiver_Center
             this.prtCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.prtCode_txtBox.TabIndex = 45;
             // 
-            // prtCodelabel
+            // prtCode_label
             // 
-            this.prtCodelabel.AutoSize = true;
-            this.prtCodelabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.prtCodelabel.Location = new System.Drawing.Point(499, 104);
-            this.prtCodelabel.Name = "prtCodelabel";
-            this.prtCodelabel.Size = new System.Drawing.Size(67, 14);
-            this.prtCodelabel.TabIndex = 47;
-            this.prtCodelabel.Text = "上次打印码";
+            this.prtCode_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.prtCode_label.Location = new System.Drawing.Point(312, 157);
+            this.prtCode_label.Name = "prtCode_label";
+            this.prtCode_label.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.prtCode_label.Size = new System.Drawing.Size(118, 14);
+            this.prtCode_label.TabIndex = 47;
+            this.prtCode_label.Text = "上次打印码";
+            this.prtCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // visionCodelabel
+            // visionCode_label
             // 
-            this.visionCodelabel.AutoSize = true;
-            this.visionCodelabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.visionCodelabel.Location = new System.Drawing.Point(499, 80);
-            this.visionCodelabel.Name = "visionCodelabel";
-            this.visionCodelabel.Size = new System.Drawing.Size(67, 14);
-            this.visionCodelabel.TabIndex = 48;
-            this.visionCodelabel.Text = "上次视觉码";
+            this.visionCode_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.visionCode_label.Location = new System.Drawing.Point(312, 133);
+            this.visionCode_label.Name = "visionCode_label";
+            this.visionCode_label.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.visionCode_label.Size = new System.Drawing.Size(118, 14);
+            this.visionCode_label.TabIndex = 48;
+            this.visionCode_label.Text = "上次视觉码";
+            this.visionCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pnl_Mes
             // 
             this.pnl_Mes.Controls.Add(this.label2_2);
-            this.pnl_Mes.Controls.Add(this.txtBox_GetJson);
+            this.pnl_Mes.Controls.Add(this.JsonMsg_txtBox);
             this.pnl_Mes.Controls.Add(this.panel1);
             this.pnl_Mes.Controls.Add(this.label2_1);
-            this.pnl_Mes.Controls.Add(this.mesApiBox);
-            this.pnl_Mes.Location = new System.Drawing.Point(5, 285);
+            this.pnl_Mes.Controls.Add(this.mesApi_txtBox);
+            this.pnl_Mes.Location = new System.Drawing.Point(5, 271);
             this.pnl_Mes.Name = "pnl_Mes";
-            this.pnl_Mes.Size = new System.Drawing.Size(431, 232);
+            this.pnl_Mes.Size = new System.Drawing.Size(681, 246);
             this.pnl_Mes.TabIndex = 51;
             // 
             // label2_2
             // 
             this.label2_2.AutoSize = true;
             this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2_2.Location = new System.Drawing.Point(231, 86);
+            this.label2_2.Location = new System.Drawing.Point(433, 3);
             this.label2_2.Name = "label2_2";
             this.label2_2.Size = new System.Drawing.Size(55, 14);
             this.label2_2.TabIndex = 53;
             this.label2_2.Text = "JSON消息";
             // 
-            // txtBox_GetJson
+            // JsonMsg_txtBox
             // 
-            this.txtBox_GetJson.BackColor = System.Drawing.SystemColors.Info;
-            this.txtBox_GetJson.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_GetJson.Location = new System.Drawing.Point(229, 100);
-            this.txtBox_GetJson.Multiline = true;
-            this.txtBox_GetJson.Name = "txtBox_GetJson";
-            this.txtBox_GetJson.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtBox_GetJson.Size = new System.Drawing.Size(196, 129);
-            this.txtBox_GetJson.TabIndex = 52;
+            this.JsonMsg_txtBox.BackColor = System.Drawing.SystemColors.Info;
+            this.JsonMsg_txtBox.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.JsonMsg_txtBox.Location = new System.Drawing.Point(431, 18);
+            this.JsonMsg_txtBox.Multiline = true;
+            this.JsonMsg_txtBox.Name = "JsonMsg_txtBox";
+            this.JsonMsg_txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.JsonMsg_txtBox.Size = new System.Drawing.Size(247, 225);
+            this.JsonMsg_txtBox.TabIndex = 52;
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.Info;
-            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label2_3);
             this.panel1.Controls.Add(this.mesCmd2_btn);
             this.panel1.Controls.Add(this.fogId_txtBox);
@@ -494,9 +504,9 @@ namespace Data_Transceiver_Center
             this.panel1.Controls.Add(this.mesCmd1_btn);
             this.panel1.Controls.Add(this.mesId_txtBox);
             this.panel1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.panel1.Location = new System.Drawing.Point(0, 89);
+            this.panel1.Location = new System.Drawing.Point(0, 107);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(225, 136);
+            this.panel1.Size = new System.Drawing.Size(425, 136);
             this.panel1.TabIndex = 55;
             // 
             // scnCode_txtBox
@@ -519,12 +529,30 @@ namespace Data_Transceiver_Center
             // serialPort_label
             // 
             this.serialPort_label.AutoSize = true;
-            this.serialPort_label.BackColor = System.Drawing.SystemColors.Control;
-            this.serialPort_label.Location = new System.Drawing.Point(570, 240);
+            this.serialPort_label.BackColor = System.Drawing.SystemColors.ControlText;
+            this.serialPort_label.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.serialPort_label.ForeColor = System.Drawing.SystemColors.Control;
+            this.serialPort_label.Location = new System.Drawing.Point(106, 58);
             this.serialPort_label.Name = "serialPort_label";
-            this.serialPort_label.Size = new System.Drawing.Size(53, 12);
+            this.serialPort_label.Size = new System.Drawing.Size(65, 20);
             this.serialPort_label.TabIndex = 54;
             this.serialPort_label.Text = "串口已关";
+            this.serialPort_label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.openSerial_btn);
+            this.panel2.Controls.Add(this.serialPort_label);
+            this.panel2.Controls.Add(this.label3_1);
+            this.panel2.Controls.Add(this.label3_2);
+            this.panel2.Controls.Add(this.serialRead_txtBox);
+            this.panel2.Controls.Add(this.label3_3);
+            this.panel2.Controls.Add(this.comboBox1);
+            this.panel2.Controls.Add(this.comboBox2);
+            this.panel2.Location = new System.Drawing.Point(443, 148);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(243, 117);
+            this.panel2.TabIndex = 55;
             // 
             // Form1
             // 
@@ -533,25 +561,18 @@ namespace Data_Transceiver_Center
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(698, 522);
             this.ControlBox = false;
-            this.Controls.Add(this.serialPort_label);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.label1_6);
             this.Controls.Add(this.scnCode_txtBox);
             this.Controls.Add(this.pnl_Mes);
-            this.Controls.Add(this.visionCodelabel);
-            this.Controls.Add(this.prtCodelabel);
+            this.Controls.Add(this.visionCode_label);
+            this.Controls.Add(this.prtCode_label);
             this.Controls.Add(this.label1_5);
             this.Controls.Add(this.prtCode_txtBox);
             this.Controls.Add(this.deleCsv_checkBox);
-            this.Controls.Add(this.label_RunStatus);
+            this.Controls.Add(this.runStatus_lable);
             this.Controls.Add(this.chckResult_txtBox);
             this.Controls.Add(this.label3_4);
-            this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.openSerial_btn);
-            this.Controls.Add(this.label3_3);
-            this.Controls.Add(this.serialRead__txtBox);
-            this.Controls.Add(this.label3_2);
-            this.Controls.Add(this.label3_1);
             this.Controls.Add(this.autoRun_checkBox);
             this.Controls.Add(this.readCsv_btn);
             this.Controls.Add(this.dataGridView1);
@@ -578,6 +599,8 @@ namespace Data_Transceiver_Center
             this.pnl_Mes.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -601,7 +624,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button readCsv_btn;
         private System.Windows.Forms.CheckBox autoRun_checkBox;
         private System.Windows.Forms.Label label3_3;
-        private System.Windows.Forms.TextBox serialRead__txtBox;
+        private System.Windows.Forms.TextBox serialRead_txtBox;
         private System.Windows.Forms.Label label3_2;
         private System.Windows.Forms.Label label3_1;
         private System.IO.Ports.SerialPort serialPort1;
@@ -611,7 +634,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label label3_4;
         private System.Windows.Forms.TextBox chckResult_txtBox;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Label label_RunStatus;
+        private System.Windows.Forms.Label runStatus_lable;
         private System.Windows.Forms.CheckBox deleCsv_checkBox;
         private System.Windows.Forms.TextBox position_txtBox;
         private System.Windows.Forms.Label label2_3;
@@ -620,21 +643,22 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.TextBox fogId_txtBox;
         private System.Windows.Forms.Button mesCmd2_btn;
         private System.Windows.Forms.Button mesCmd3_btn;
-        private System.Windows.Forms.TextBox mesApiBox;
+        private System.Windows.Forms.TextBox mesApi_txtBox;
         private System.Windows.Forms.Label label2_1;
         private System.Windows.Forms.Label label1_5;
         private System.Windows.Forms.TextBox prtCode_txtBox;
-        private System.Windows.Forms.Label prtCodelabel;
-        private System.Windows.Forms.Label visionCodelabel;
+        private System.Windows.Forms.Label prtCode_label;
+        private System.Windows.Forms.Label visionCode_label;
         //private System.Windows.Forms.Button getJsonButton;
         //private System.Windows.Forms.Button convertJsonButton;
         private System.Windows.Forms.Panel pnl_Mes;
-        private System.Windows.Forms.TextBox txtBox_GetJson;
+        private System.Windows.Forms.TextBox JsonMsg_txtBox;
         private System.Windows.Forms.Label label2_2;
         private System.Windows.Forms.TextBox scnCode_txtBox;
         private System.Windows.Forms.Label label1_6;
         private System.Windows.Forms.Label serialPort_label;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 
