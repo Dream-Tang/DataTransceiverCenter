@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,7 +22,7 @@ namespace Data_Transceiver_Center
         private static string apiToken = "http://192.168.10.26:7199/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
         private static string testHttpUrl = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
-        private bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
+        public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
         private int mesComunication1Flag = STATUS_WAIT;
@@ -69,8 +70,10 @@ namespace Data_Transceiver_Center
         // 解析Json数据
         private void button4_Click(object sender, EventArgs e)
         {
+            Random rnd = new Random();
+            string postid = Convert.ToString(rnd.Next(999999))+Convert.ToString(rnd.Next(999999));
             //我们的接口
-            string url = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+            string url = "http://www.kuaidi100.com/query?type=shunfeng&postid="+ postid;
 
             //将接口传入，这个HttpUitls的类，有兴趣可以研究下，也可以直接用就可以，不用管如何实现。
             string getJson = HttpUitls.Get(url);
@@ -80,14 +83,13 @@ namespace Data_Transceiver_Center
             testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson);
 
             this.JsonMsg_txtBox.Text = rt.nu;
-
+             this.fogId_txtBox.Text = rt.nu;
             //这样就可以取出json数据里面的值
             //MessageBox.Show("com=" + rt.com + "\r\n" + "condition=" + rt.condition + "\r\n" + "ischeck=" + rt.ischeck + "\r\n" + "state=" + rt.state + "\r\n" + "status=" + rt.status);
             //由于这个JSON字符串的 public List<DataItem> data 是一个集合，所以我们需要遍历集合里面的所有数据
             for (int i = 0; i < rt.data.Count; i++)
             {
                 this.JsonMsg_txtBox.Text = rt.data[i].context;
-                this.fogId_txtBox.Text= rt.data[i].context;
                 //MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
             }
         }
@@ -381,13 +383,22 @@ namespace Data_Transceiver_Center
         private void serialRead_txtBox_TextChanged(object sender, EventArgs e)
         {
             scnCode_txtBox.Text = serialRead_txtBox.Text;
+            CheckScnPrtCode();
         }
 
         private void fogId_txtBox_TextChanged(object sender, EventArgs e)
         {
-            prtCode_txtBox.Text = fogId_txtBox.Text;
+            if (prtCode_txtBox.Text != "")
+            {
+                prtCode_label.Text = prtCode_txtBox.Text;  // 保存旧值
+            }
+            prtCode_txtBox.Text = fogId_txtBox.Text;  // 传入新值
+            CheckScnPrtCode();
         }
-
+        private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
+        {
+            CheckScnPrtCode();
+        }
         // 将ZPL指令输出到txt文档
         private void CmdToTxt(string filePathZPL, string line)
         {
@@ -591,20 +602,23 @@ namespace Data_Transceiver_Center
             readCsv_btn_Click(null,null);
         }
 
-        public void refreshMes1(string getJson)
+        public void refreshMes1(string api,string getJson,string mesID)
         {
+            this.mesApi_txtBox.Text = api;
             this.JsonMsg_txtBox.Text = "Mes1:\r\n" + getJson;
-            this.mesId_txtBox.Text = getJson;
+            this.mesId_txtBox.Text = mesID;
         }
 
-        public void refreshMes2(string getJson)
+        public void refreshMes2(string api, string getJson,string fogID)
         {
+            this.mesApi_txtBox.Text = api;
             this.JsonMsg_txtBox.Text = "Mes2:\r\n" + getJson;
-            this.fogId_txtBox.Text = getJson;
+            this.fogId_txtBox.Text = fogID;
         }
 
-        public void refreshMes3(string getJson)
+        public void refreshMes3(string api, string getJson)
         {
+            this.mesApi_txtBox.Text = api;
             this.JsonMsg_txtBox.Text = "Mes3:\r\n" + getJson;
         }
 
@@ -724,18 +738,7 @@ namespace Data_Transceiver_Center
                       scnCode_txtBox.Text = serialRead_txtBox.Text;
                       // 扫码枪通过串口发送过来的
                       //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
-
-                      //MessageBox.Show("收到条码："+ textBox3.Text);
-                      if (serialRead_txtBox.Text == visionCode_txtBox.Text)
-                      {
-                          chckResult_txtBox.Text = "校验OK：扫描码与打印码一致";
-                      }
-                      else
-                      {
-                          chckResult_txtBox.Text = "校验NG：扫描码与打印码不同";
-                      }
-                  }
-                  )
+                  })
                     );
             }
             catch (Exception ex)
@@ -870,9 +873,38 @@ namespace Data_Transceiver_Center
             comboBox1.Items.AddRange(comPort);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void CheckScnPrtCode()
         {
-            AutoRunMode();
+            // prtCode和ScnCode都不为空时，进行一次校验
+            if ((prtCode_txtBox.Text != "") & (scnCode_txtBox.Text !=""))
+            {
+                if (scnCode_txtBox.Text == prtCode_txtBox.Text)
+                {
+                    chckResult_txtBox.Text = "校验 OK：扫描码与打印码一致";
+                }
+                else
+                {
+                    chckResult_txtBox.Text = "校验 NG：扫描码与打印码不同";
+                }
+                // 校验完成后清空旧数据
+               
+                prtCode_label.Text = prtCode_txtBox.Text;
+                visionCode_label.Text = visionCode_txtBox.Text;
+
+                Task t = Task.Run(() =>
+                {
+                    Thread.Sleep(500);
+                    MethodInvoker mi = new MethodInvoker(() => 
+                    {
+                        prtCode_txtBox.Text = "";
+                        visionCode_txtBox.Text = "";
+                        scnCode_txtBox.Text = "";
+                    });
+                    BeginInvoke(mi);
+                });
+            }
+           
         }
+
     }
 }

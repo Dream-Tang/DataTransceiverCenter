@@ -522,6 +522,7 @@ namespace Data_Transceiver_Center
             this.scnCode_txtBox.Name = "scnCode_txtBox";
             this.scnCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.scnCode_txtBox.TabIndex = 52;
+            this.scnCode_txtBox.TextChanged += new System.EventHandler(this.scnCode_txtBox_TextChanged);
             // 
             // label1_6
             // 
