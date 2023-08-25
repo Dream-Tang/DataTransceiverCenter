@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Threading.Tasks;
+
 
 namespace Data_Transceiver_Center
 {
@@ -17,11 +19,6 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
-            
-            //f4 = new Form4();
-            //f1.TopLevel = false;
-            //f2.TopLevel = false;
-            //f4.TopLevel = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -89,6 +86,81 @@ namespace Data_Transceiver_Center
             {
                 return;
             }
+        }
+
+        // 自动模式：
+        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
+        // task0：读PLC
+        // task1：（启动条件）读csv=》mes1=》mes2
+        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
+        // task3：refalsh()=>methedInvoke();
+        private async void autoRun_btn_Click(object sender, EventArgs e)
+        {
+            short cam, prt, scn;
+            (cam, prt, scn) = f2.ReadPlc();
+            MethodInvoker mi0 = new MethodInvoker(() =>
+            {
+                f1.refreshPLC(cam, prt, scn);
+            });
+            this.BeginInvoke(mi0);
+
+            f1.refreshCSV();
+
+            string url1 = "";
+            string url2 = "";
+            string url3 = "";
+
+            string getJson1= "getJson1", getJson2= "getJson2", getJson3 = "getJson3";
+
+            var t1 = Task.Run(() =>
+            {
+                MesRoot1 rt = new MesRoot1();
+                MesData1 dt = new MesData1();
+                rt.data = dt;
+
+                url1 = f1.GetUrl("position", f1.GetMes1prt());
+
+                getJson1 = Form1.HttpUitls.Get(url1);
+                MethodInvoker mi1 = new MethodInvoker(() =>
+                   {
+                       f1.refreshMes1(getJson1);
+                   });
+                BeginInvoke(mi1);
+            });
+            await t1;
+            Console.WriteLine("Json1:"+getJson1);
+
+            var t2 = Task.Run(() => {
+
+                url2 = f1.GetUrl("print", f1.GetMes2prt());
+
+                getJson2 = Form1.HttpUitls.Get(url2); 
+                MethodInvoker mi2 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes2(getJson2);
+                });
+                BeginInvoke(mi2);
+            });
+            await t2;
+            Console.WriteLine("Json2:"+getJson2);
+
+            f1.makeZpl_btn_Click(null,null);
+            f1.sendToPrt_btn_Click(null, null);
+
+            var t3 = Task.Run(() => {
+
+                url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
+
+                getJson3 = Form1.HttpUitls.Get(url3);
+                MethodInvoker mi2 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes2(getJson3);
+                });
+                BeginInvoke(mi2);
+            });
+
+            Console.WriteLine("Json3:" + getJson3);
+
         }
     }
 }

@@ -186,6 +186,7 @@ namespace Data_Transceiver_Center
                 //axActUtlType1.ActPassword = txt_Password.Text;
 
                 //The Open method is executed.
+                
                 iReturnCode = axActUtlType1.Open();
                 //When the Open method is succeeded, disable the TextBox of 'LogocalStationNumber'.
                 //When the Open method is succeeded, make the EventHandler of ActUtlType Controle.
@@ -683,9 +684,46 @@ namespace Data_Transceiver_Center
         #endregion 
 
         // 发送数据
-        public void CrtToPlc(string D)
+        public (short cam,short prt, short scn ) ReadPlc()
         {
+            if (txt_LogicalStationNumber.Enabled)
+            {
+                MessageBox.Show("与PLC连接未打开，请先进行连接");
+                checkBox1.Checked = false;
+                return (-1, -1, -1);
+            }
+            try
+            {
+               short rd_camValue = Convert.ToInt16(ReadDeviceRandom(camRegister));
+               short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(prtRegister));
+               short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(scannerRegister));
 
+                return (rd_camValue, rd_prtValue, rd_scnValue);
+            }
+            catch (Exception)
+            {
+                return (-1, -1, -1);
+            }
+        }
+
+        public void WritePlc(short camValue, short prtValue, short scnValue)
+        {
+            if (txt_LogicalStationNumber.Enabled)
+            {
+                MessageBox.Show("与PLC连接未打开，请先进行连接");
+                checkBox1.Checked = false;
+                return ;
+            }
+            try
+            {
+                WriteDeviceRandom(camRegister, camValue);
+                WriteDeviceRandom(prtRegister,prtValue);
+                WriteDeviceRandom(scannerRegister,scnValue);
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
 
     }

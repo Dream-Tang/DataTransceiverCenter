@@ -7,7 +7,7 @@ namespace Data_Transceiver_Center
     /// 转换网址 https://www.bejson.com/convert/json2csharp/
     /// JSON数据的实体类
     /// </summary>
-    public class Root
+    public class testApiRoot
     {
         /// <summary>
         ///
@@ -47,10 +47,10 @@ namespace Data_Transceiver_Center
         /// <summary>
         ///
         /// </summary>
-        public List<DataItem> data { get; set; }
+        public List<testAPIDataItem> data { get; set; }
     }
 
-    public class DataItem
+    public class testAPIDataItem
     {
         /// <summary>
         ///
