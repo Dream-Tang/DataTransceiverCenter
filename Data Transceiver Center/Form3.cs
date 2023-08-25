@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 
 namespace Data_Transceiver_Center
@@ -74,10 +75,16 @@ namespace Data_Transceiver_Center
             dialog.Title = "请选择setting.ini文件";
             dialog.Filter = "ini文件(*.ini)|*.ini";
             string file = "";
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                file = dialog.FileName;
+            try 
+            { 
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    file = dialog.FileName;
+                }
             }
+            catch(Exception)
+            { return; }
+
             try
             {
                 f1.LoadIniSettings(file);
@@ -112,18 +119,38 @@ namespace Data_Transceiver_Center
 
             string getJson1= "getJson1", getJson2= "getJson2", getJson3 = "getJson3";
 
+            string mesID = "";
+            string fogID = "";
+
             var t1 = Task.Run(() =>
             {
-                MesRoot1 rt = new MesRoot1();
-                MesData1 dt = new MesData1();
-                rt.data = dt;
-
-                url1 = f1.GetUrl("position", f1.GetMes1prt());
-
-                getJson1 = Form1.HttpUitls.Get(url1);
+                if (f1.testHttpAPI)
+                {
+                    Random rnd = new Random();
+                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
+                    //我们的接口
+                    url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
+                    getJson1 = Form1.HttpUitls.Get(url1);
+                    testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
+                    mesID = rt.nu;
+                }
+                else
+                {
+                    url1 = f1.GetUrl("position", f1.GetMes1prt());
+                    getJson1 = Form1.HttpUitls.Get(url1);
+                    try
+                    {
+                        MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
+                        mesID = msrt1.data.id;
+                    }
+                    catch (Exception)
+                    {
+                        mesID = "解析出错";
+                    }
+                }
                 MethodInvoker mi1 = new MethodInvoker(() =>
                    {
-                       f1.refreshMes1(getJson1);
+                       f1.refreshMes1(url1,getJson1,mesID);
                    });
                 BeginInvoke(mi1);
             });
@@ -131,13 +158,33 @@ namespace Data_Transceiver_Center
             Console.WriteLine("Json1:"+getJson1);
 
             var t2 = Task.Run(() => {
-
-                url2 = f1.GetUrl("print", f1.GetMes2prt());
-
-                getJson2 = Form1.HttpUitls.Get(url2); 
+                if (f1.testHttpAPI)
+                {
+                    Random rnd = new Random();
+                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
+                    //我们的接口
+                    url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
+                    getJson2 = Form1.HttpUitls.Get(url2);
+                    testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
+                    fogID = rt.nu;
+                }
+                else
+                {
+                    url2 = f1.GetUrl("print", f1.GetMes2prt());
+                    getJson2 = Form1.HttpUitls.Get(url2);
+                    try
+                    {
+                        MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
+                        fogID = msrt2.data.fogId;
+                    }
+                    catch (Exception)
+                    {
+                        fogID = "解析出错";
+                    }
+                }
                 MethodInvoker mi2 = new MethodInvoker(() =>
                 {
-                    f1.refreshMes2(getJson2);
+                    f1.refreshMes2(url2, getJson2,fogID);
                 });
                 BeginInvoke(mi2);
             });
@@ -147,14 +194,16 @@ namespace Data_Transceiver_Center
             f1.makeZpl_btn_Click(null,null);
             f1.sendToPrt_btn_Click(null, null);
 
-            var t3 = Task.Run(() => {
+            var t3 = Task.Run(() =>
+            {
 
                 url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
 
                 getJson3 = Form1.HttpUitls.Get(url3);
+
                 MethodInvoker mi2 = new MethodInvoker(() =>
                 {
-                    f1.refreshMes2(getJson3);
+                    f1.refreshMes3(url3, getJson3);
                 });
                 BeginInvoke(mi2);
             });
