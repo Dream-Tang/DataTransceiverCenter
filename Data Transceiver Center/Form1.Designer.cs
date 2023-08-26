@@ -137,7 +137,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_4.AutoSize = true;
             this.label1_4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_4.Location = new System.Drawing.Point(6, 89);
+            this.label1_4.Location = new System.Drawing.Point(6, 90);
             this.label1_4.Name = "label1_4";
             this.label1_4.Size = new System.Drawing.Size(55, 14);
             this.label1_4.TabIndex = 10;
@@ -301,7 +301,7 @@ namespace Data_Transceiver_Center
             // label3_4
             // 
             this.label3_4.AutoSize = true;
-            this.label3_4.Location = new System.Drawing.Point(434, 85);
+            this.label3_4.Location = new System.Drawing.Point(434, 90);
             this.label3_4.Name = "label3_4";
             this.label3_4.Size = new System.Drawing.Size(53, 12);
             this.label3_4.TabIndex = 29;
@@ -309,7 +309,7 @@ namespace Data_Transceiver_Center
             // 
             // chckResult_txtBox
             // 
-            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 104);
+            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 106);
             this.chckResult_txtBox.Name = "chckResult_txtBox";
             this.chckResult_txtBox.Size = new System.Drawing.Size(167, 21);
             this.chckResult_txtBox.TabIndex = 30;
@@ -429,7 +429,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_5.AutoSize = true;
             this.label1_5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_5.Location = new System.Drawing.Point(150, 91);
+            this.label1_5.Location = new System.Drawing.Point(150, 90);
             this.label1_5.Name = "label1_5";
             this.label1_5.Size = new System.Drawing.Size(43, 14);
             this.label1_5.TabIndex = 46;
@@ -528,7 +528,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_6.AutoSize = true;
             this.label1_6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_6.Location = new System.Drawing.Point(298, 90);
+            this.label1_6.Location = new System.Drawing.Point(296, 90);
             this.label1_6.Name = "label1_6";
             this.label1_6.Size = new System.Drawing.Size(43, 14);
             this.label1_6.TabIndex = 53;

@@ -25,11 +25,9 @@ namespace Data_Transceiver_Center
         public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
-        private int mesComunication1Flag = STATUS_WAIT;
-        private int mesComunication2Flag = STATUS_WAIT;
-        private int mesComunication3Flag = STATUS_WAIT;
-        private int sendFileToPrtFlag = STATUS_WAIT;
-        private int readCsvFlag = STATUS_WAIT;
+        private int mes1Status = STATUS_WAIT;
+        private int mes2Status = STATUS_WAIT;
+        private int mes3Status = STATUS_WAIT;
 
         // 通信标志位数值定义
         private const int STATUS_WAIT = -1;
@@ -132,7 +130,8 @@ namespace Data_Transceiver_Center
                 {
                 // 耗费时间的操作
                 string getJson = HttpUitls.Get(url);
-                mesComunication1Flag = STATUS_WORKING;
+                mes1Status = STATUS_WORKING;
+                Console.WriteLine("mes1Status: {0}",mes1Status);
 
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() =>
@@ -141,7 +140,8 @@ namespace Data_Transceiver_Center
                         if (getJson == "无法连接到远程服务器")
                         {
                             mesId_txtBox.Text = getJson;
-                            this.mesComunication1Flag = CONNECT_EXCEPTION;
+                            this.mes1Status = CONNECT_EXCEPTION;
+                            Console.WriteLine("mes1Status: {0}", mes1Status);
                         }
                         else
                         {
@@ -151,11 +151,13 @@ namespace Data_Transceiver_Center
                             {
                                 rt = JsonConvert.DeserializeObject<MesRoot1>(getJson);
                                 mesId_txtBox.Text = rt.data.id;
-                                this.mesComunication1Flag = STATUS_WAIT;
+                                this.mes1Status = STATUS_WAIT;
+                                Console.WriteLine("mes1Status: {0}", mes1Status);
                             }
                             catch (Exception)
                             {
-                                this.mesComunication1Flag = CONVERT_EXCEPTION;
+                                this.mes1Status = CONVERT_EXCEPTION;
+                                Console.WriteLine("mes1Status: {0}", mes1Status);
                                 if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                     MessageBox.Show("JsonConver解析出错");
@@ -200,7 +202,8 @@ namespace Data_Transceiver_Center
             Task t2 = new Task(() =>
             {
                 string getJson = HttpUitls.Get(url);
-                this.mesComunication2Flag = STATUS_WORKING;
+                this.mes2Status = STATUS_WORKING;
+                Console.WriteLine("mes2Status: {0}", mes2Status);
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
@@ -208,7 +211,8 @@ namespace Data_Transceiver_Center
                     if (getJson == "无法连接到远程服务器")
                     {
                         fogId_txtBox.Text = getJson;
-                        this.mesComunication2Flag = CONNECT_EXCEPTION;
+                        this.mes2Status = CONNECT_EXCEPTION;
+                        Console.WriteLine("mes2Status: {0}", mes2Status);
                     }
                     else
                     {
@@ -218,11 +222,13 @@ namespace Data_Transceiver_Center
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot2>(getJson);
                             fogId_txtBox.Text = rt.data.fogId;
-                            this.mesComunication2Flag = STATUS_WAIT;
+                            this.mes2Status = STATUS_WAIT;
+                            Console.WriteLine("mes2Status: {0}", mes2Status);
                         }
                         catch (Exception)
                         {
-                            this.mesComunication2Flag = CONVERT_EXCEPTION;
+                            this.mes2Status = CONVERT_EXCEPTION;
+                            Console.WriteLine("mes2Status: {0}", mes2Status);
                             if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                 MessageBox.Show("JsonConver解析出错");
@@ -261,7 +267,8 @@ namespace Data_Transceiver_Center
             Task t3 = new Task(() =>
             {
                 string getJson = HttpUitls.Get(url);
-                this.mesComunication3Flag = STATUS_WORKING;
+                this.mes3Status = STATUS_WORKING;
+                Console.WriteLine("mes3Status: {0}", mes3Status);
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
@@ -269,7 +276,8 @@ namespace Data_Transceiver_Center
                     if (getJson == "无法连接到远程服务器")
                     {
                         fogId_txtBox.Text = getJson;
-                        this.mesComunication3Flag = CONNECT_EXCEPTION;
+                        this.mes3Status = CONNECT_EXCEPTION;
+                        Console.WriteLine("mes3Status: {0}", mes3Status);
                     }
                     else
                     {
@@ -279,11 +287,13 @@ namespace Data_Transceiver_Center
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot3>(getJson);
                             JsonMsg_txtBox.Text = rt.data;
-                            this.mesComunication3Flag = STATUS_WAIT;
+                            this.mes3Status = STATUS_WAIT;
+                            Console.WriteLine("mes3Status: {0}", mes3Status);
                         }
                         catch (Exception)
                         {
-                            this.mesComunication3Flag = CONVERT_EXCEPTION;
+                            this.mes3Status = CONVERT_EXCEPTION;
+                            Console.WriteLine("mes3Status: {0}", mes3Status);
                             if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                 MessageBox.Show("JsonConver解析出错");
@@ -395,10 +405,12 @@ namespace Data_Transceiver_Center
             prtCode_txtBox.Text = fogId_txtBox.Text;  // 传入新值
             CheckScnPrtCode();
         }
+       
         private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
         {
             CheckScnPrtCode();
         }
+        
         // 将ZPL指令输出到txt文档
         private void CmdToTxt(string filePathZPL, string line)
         {
@@ -733,8 +745,8 @@ namespace Data_Transceiver_Center
                 this.Invoke((EventHandler)(delegate
                   {
                       // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
-                      //textBox3.Text = serialPort1.ReadExisting(); // 读所有缓存数据
-                      serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
+                      serialRead_txtBox.Text = serialPort1.ReadExisting(); // 读所有缓存数据
+                      //serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
                       scnCode_txtBox.Text = serialRead_txtBox.Text;
                       // 扫码枪通过串口发送过来的
                       //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
