@@ -403,9 +403,13 @@ namespace Data_Transceiver_Center
                 prtCode_label.Text = prtCode_txtBox.Text;  // 保存旧值
             }
             prtCode_txtBox.Text = fogId_txtBox.Text;  // 传入新值
+        }
+
+        private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
+        {
             CheckScnPrtCode();
         }
-       
+
         private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
         {
             CheckScnPrtCode();
@@ -455,7 +459,6 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
-                this.sendFileToPrtFlag = 3;
                 if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
                 {
                     MessageBox.Show(ex.Message);
@@ -745,9 +748,11 @@ namespace Data_Transceiver_Center
                 this.Invoke((EventHandler)(delegate
                   {
                       // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
-                      serialRead_txtBox.Text = serialPort1.ReadExisting(); // 读所有缓存数据
+                      string portData = serialPort1.ReadExisting(); // 读所有缓存数据
+                      serialRead_txtBox.Text = portData.Trim(); //  移出头部和尾部空白字符
                       //serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
                       scnCode_txtBox.Text = serialRead_txtBox.Text;
+
                       // 扫码枪通过串口发送过来的
                       //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
                   })
@@ -885,18 +890,21 @@ namespace Data_Transceiver_Center
             comboBox1.Items.AddRange(comPort);
         }
 
-        private void CheckScnPrtCode()
+        private string CheckScnPrtCode()
         {
+            string chckResult = "";
             // prtCode和ScnCode都不为空时，进行一次校验
             if ((prtCode_txtBox.Text != "") & (scnCode_txtBox.Text !=""))
             {
                 if (scnCode_txtBox.Text == prtCode_txtBox.Text)
                 {
                     chckResult_txtBox.Text = "校验 OK：扫描码与打印码一致";
+                    chckResult = "OK";
                 }
                 else
                 {
                     chckResult_txtBox.Text = "校验 NG：扫描码与打印码不同";
+                    chckResult = "NG";
                 }
                 // 校验完成后清空旧数据
                
@@ -915,8 +923,14 @@ namespace Data_Transceiver_Center
                     BeginInvoke(mi);
                 });
             }
-           
+            return chckResult;
         }
 
+        public string GetCheckResult()
+        {
+            string chckResult;
+            chckResult = CheckScnPrtCode();
+            return chckResult;
+        }
     }
 }

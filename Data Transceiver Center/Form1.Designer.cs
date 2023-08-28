@@ -441,6 +441,7 @@ namespace Data_Transceiver_Center
             this.prtCode_txtBox.Name = "prtCode_txtBox";
             this.prtCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.prtCode_txtBox.TabIndex = 45;
+            this.prtCode_txtBox.TextChanged += new System.EventHandler(this.prtCode_txtBox_TextChanged);
             // 
             // prtCode_label
             // 

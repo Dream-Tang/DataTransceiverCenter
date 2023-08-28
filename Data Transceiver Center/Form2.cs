@@ -3,41 +3,9 @@ using System.Windows.Forms;
 
 namespace Data_Transceiver_Center
 {
+    
     public partial class Form2 : Form
     {
-        #region "定义PLC通信寄存器位置"
-        // 相机动作交互寄存器
-        private static string camRegister = "D1000";
-        // 打印机动作交互寄存器
-        private static string prtRegister = "D1001";
-        // 扫码枪动作交互寄存器
-        private static string scannerRegister = "D1002";
-        #endregion
-
-        #region "定义PLC通信信号数值"
-        // 相机信号
-        //允许相机拍照 = 1
-        // 扫描OK放行 = 11
-        // 扫描NG报警 取料 = 12
-        private const short camAllow = 1;
-        private const short camOK = 11;
-        private const short camNG = 12;
-        // 打印机信号
-        // 取标平台准备好 = 1
-        // 标打印完成 = 11
-        private const short prtReady = 1;
-        private const short prtComplete = 11;
-        // 扫码枪信号
-        // 扫码开始 = 1
-        // 扫码完成，标头返回 = 11
-        private const short scannerStart = 1;
-        private const short scannerComplete = 11;
-        // 核验信号
-        // 判定数据OK，放行 = 12
-        // 判定数据NG，报警 = 13
-        private const short checkOK = 12;
-        private const short checkNG = 13;
-        #endregion
 
          // 声明变量，存储信号值。定时刷新时，根据此变量设定rediobox
         private short rd_camRegisterValue;
@@ -52,24 +20,24 @@ namespace Data_Transceiver_Center
         #region "刷新ControlBox组件"
         private void ReflashControlBox()
         {
-            rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(camRegister));
-            rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(prtRegister));
-            rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(scannerRegister));
+            rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+            rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+            rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
 
             rd_CamAllow.Checked = false;
             rd_CamOK.Checked = false;
             rd_CamNG.Checked = false;
             switch (rd_camRegisterValue)
             {
-                case camAllow:
+                case CommunicationProtocol.camAllow:
                     rd_CamAllow.Checked = true;
                     break;
 
-                case camOK:
+                case CommunicationProtocol.camOK:
                     rd_CamOK.Checked = true;
                     break;
 
-                case camNG:
+                case CommunicationProtocol.camNG:
                     rd_CamNG.Checked = true;
                     break;
             }
@@ -78,11 +46,11 @@ namespace Data_Transceiver_Center
             rd_PrtComplete.Checked = false;
             switch (rd_prtRegisterValue)
             {
-                case prtReady:
+                case CommunicationProtocol.prtReady:
                     rd_PrtReady.Checked = true;
                     break;
 
-                case prtComplete:
+                case CommunicationProtocol.prtComplete:
                     rd_PrtComplete.Checked = true;
                     break;
             }
@@ -93,19 +61,19 @@ namespace Data_Transceiver_Center
             rd_checkNG.Checked = false;
             switch (rd_scannerRegisterValue)
             {
-                case scannerStart:
+                case CommunicationProtocol.scannerStart:
                     rd_ScannerStart.Checked = true;
                     break;
 
-                case scannerComplete:
+                case CommunicationProtocol.scannerComplete:
                     rd_ScannerComplete.Checked = true;
                     break;
 
-                case checkOK:
+                case CommunicationProtocol.checkOK:
                     rd_checkOK.Checked = true;
                     break;
 
-                case checkNG:
+                case CommunicationProtocol.checkNG:
                     rd_checkNG.Checked = true;
                     break;
             }
@@ -604,8 +572,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_CamAllow.Checked)
             {
-                WriteDeviceRandom(camRegister, camAllow);
-                label11.Text = ReadDeviceRandom(camRegister);
+                WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camAllow);
+                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
             }
         }
 
@@ -613,8 +581,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_CamOK.Checked)
             {
-                WriteDeviceRandom(camRegister, camOK);
-                label11.Text = ReadDeviceRandom(camRegister);
+                WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camOK);
+                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
             }
         }
 
@@ -622,8 +590,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_CamNG.Checked)
             {
-                WriteDeviceRandom(camRegister, camNG);
-                label11.Text = ReadDeviceRandom(camRegister);
+                WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camNG);
+                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
             }
         }
 
@@ -631,8 +599,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_PrtReady.Checked)
             {
-                WriteDeviceRandom(prtRegister, prtReady);
-                label12.Text = ReadDeviceRandom(prtRegister);
+                WriteDeviceRandom(CommunicationProtocol.prtRegister, CommunicationProtocol.prtReady);
+                label12.Text = ReadDeviceRandom(CommunicationProtocol.prtRegister);
             }
         }
 
@@ -640,8 +608,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_PrtComplete.Checked)
             {
-                WriteDeviceRandom(prtRegister, prtComplete);
-                label12.Text = ReadDeviceRandom(prtRegister);
+                WriteDeviceRandom(CommunicationProtocol.prtRegister, CommunicationProtocol.prtComplete);
+                label12.Text = ReadDeviceRandom(CommunicationProtocol.prtRegister);
             }
         }
 
@@ -649,8 +617,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_ScannerStart.Checked)
             {
-                WriteDeviceRandom(scannerRegister, scannerStart);
-                label13.Text = ReadDeviceRandom(scannerRegister);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.scannerStart);
+                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
             }
         }
 
@@ -658,8 +626,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_ScannerComplete.Checked)
             {
-                WriteDeviceRandom(scannerRegister, scannerComplete);
-                label13.Text = ReadDeviceRandom(scannerRegister);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.scannerComplete);
+                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
             }
         }
 
@@ -667,8 +635,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_checkOK.Checked)
             {
-                WriteDeviceRandom(scannerRegister, checkOK);
-                label13.Text = ReadDeviceRandom(scannerRegister);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.checkOK);
+                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
             }
         }
 
@@ -676,8 +644,8 @@ namespace Data_Transceiver_Center
         {
             if (rd_checkNG.Checked)
             {
-                WriteDeviceRandom(scannerRegister, checkNG);
-                label13.Text = ReadDeviceRandom(scannerRegister);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.checkNG);
+                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
             }
         }
 
@@ -694,9 +662,9 @@ namespace Data_Transceiver_Center
             }
             try
             {
-               short rd_camValue = Convert.ToInt16(ReadDeviceRandom(camRegister));
-               short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(prtRegister));
-               short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(scannerRegister));
+               short rd_camValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+               short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+               short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
 
                 return (rd_camValue, rd_prtValue, rd_scnValue);
             }
@@ -716,9 +684,9 @@ namespace Data_Transceiver_Center
             }
             try
             {
-                WriteDeviceRandom(camRegister, camValue);
-                WriteDeviceRandom(prtRegister,prtValue);
-                WriteDeviceRandom(scannerRegister,scnValue);
+                WriteDeviceRandom(CommunicationProtocol.camRegister, camValue);
+                WriteDeviceRandom(CommunicationProtocol.prtRegister,prtValue);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister,scnValue);
             }
             catch (Exception)
             {

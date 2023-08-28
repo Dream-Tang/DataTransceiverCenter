@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Windows.Forms;
 
 
 namespace Data_Transceiver_Center
@@ -52,9 +52,9 @@ namespace Data_Transceiver_Center
             // 提示信息
             dialog.Description = "请选择ini保存位置";
             string iniPath = "";
-            if(dialog.ShowDialog() == DialogResult.OK)
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                iniPath = dialog.SelectedPath+ "\\settings.ini";
+                iniPath = dialog.SelectedPath + "\\settings.ini";
             }
             try
             {
@@ -63,9 +63,9 @@ namespace Data_Transceiver_Center
             }
             catch (Exception)
             {
-                return ;
+                return;
             }
-           
+
         }
 
         private void btnLoadIni_Click(object sender, EventArgs e)
@@ -75,14 +75,14 @@ namespace Data_Transceiver_Center
             dialog.Title = "请选择setting.ini文件";
             dialog.Filter = "ini文件(*.ini)|*.ini";
             string file = "";
-            try 
-            { 
+            try
+            {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     file = dialog.FileName;
                 }
             }
-            catch(Exception)
+            catch (Exception)
             { return; }
 
             try
@@ -101,10 +101,12 @@ namespace Data_Transceiver_Center
         // task1：（启动条件）读csv=》mes1=》mes2
         // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
         // task3：refalsh()=>methedInvoke();
+        // task4：获取CheckResult，读取判定结果，写PLC
         private async void autoRun_btn_Click(object sender, EventArgs e)
         {
             short cam, prt, scn;
             (cam, prt, scn) = f2.ReadPlc();
+
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
                 f1.refreshPLC(cam, prt, scn);
@@ -117,7 +119,7 @@ namespace Data_Transceiver_Center
             string url2 = "";
             string url3 = "";
 
-            string getJson1= "getJson1", getJson2= "getJson2", getJson3 = "getJson3";
+            string getJson1 = "getJson1", getJson2 = "getJson2", getJson3 = "getJson3";
 
             string mesID = "";
             string fogID = "";
@@ -150,14 +152,15 @@ namespace Data_Transceiver_Center
                 }
                 MethodInvoker mi1 = new MethodInvoker(() =>
                    {
-                       f1.refreshMes1(url1,getJson1,mesID);
+                       f1.refreshMes1(url1, getJson1, mesID);
                    });
                 BeginInvoke(mi1);
             });
             await t1;
-            Console.WriteLine("Json1:"+getJson1);
+            Console.WriteLine("Json1:" + getJson1);
 
-            var t2 = Task.Run(() => {
+            var t2 = Task.Run(() =>
+            {
                 if (f1.testHttpAPI)
                 {
                     Random rnd = new Random();
@@ -184,15 +187,30 @@ namespace Data_Transceiver_Center
                 }
                 MethodInvoker mi2 = new MethodInvoker(() =>
                 {
-                    f1.refreshMes2(url2, getJson2,fogID);
+                    f1.refreshMes2(url2, getJson2, fogID);
                 });
                 BeginInvoke(mi2);
             });
             await t2;
-            Console.WriteLine("Json2:"+getJson2);
+            Console.WriteLine("Json2:" + getJson2);
 
-            f1.makeZpl_btn_Click(null,null);
+            f1.makeZpl_btn_Click(null, null);
             f1.sendToPrt_btn_Click(null, null);
+            prt = CommunicationProtocol.prtComplete;
+
+            var t4 = Task.Run(() =>
+            {
+                string result = f1.GetCheckResult();
+                if (result == "OK")
+                {
+                    scn = CommunicationProtocol.checkOK;
+                }
+                if (result == "NG")
+                {
+                    scn = CommunicationProtocol.checkNG;
+                }
+                f2.WritePlc(cam, prt, scn);
+            });
 
             var t3 = Task.Run(() =>
             {
