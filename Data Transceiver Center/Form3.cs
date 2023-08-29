@@ -10,6 +10,7 @@ namespace Data_Transceiver_Center
     {
         public Form1 f1;    // 创建窗口1 窗口变量
         public Form2 f2;    // 创建窗口2 窗口变量
+        public Form4 f4;    // 创建窗口2 窗口变量
 
         public Form3()
         {
@@ -20,6 +21,7 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
+            f4 = new Form4();   // 实例化f2
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -40,9 +42,10 @@ namespace Data_Transceiver_Center
 
         private void button3_Click(object sender, EventArgs e)
         {
+            f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
-            //panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            //f4.Show();      // 将窗口4进行显示
+            panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
+            f4.Show();      // 将窗口4进行显示
         }
 
         private void btnSaveIni_Click(object sender, EventArgs e)
