@@ -102,17 +102,30 @@ namespace Data_Transceiver_Center
         // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
         // task3：refalsh()=>methedInvoke();
         // task4：获取CheckResult，读取判定结果，写PLC
-        private async void autoRun_btn_Click(object sender, EventArgs e)
+        private void autoRun_btn_Click(object sender, EventArgs e)
+        {
+            AutoRunMode();
+        }
+
+        // 自动模式：
+        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
+        // task0：读PLC
+        // task1：（启动条件）读csv=》mes1=》mes2
+        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
+        // task3：refalsh()=>methedInvoke();
+        // task4：获取CheckResult，读取判定结果，写PLC
+        private async void AutoRunMode()
         {
             short cam, prt, scn;
+            // 读PLC
             (cam, prt, scn) = f2.ReadPlc();
-
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
                 f1.refreshPLC(cam, prt, scn);
             });
             this.BeginInvoke(mi0);
 
+            // 读CSV
             f1.refreshCSV();
 
             string url1 = "";
@@ -124,17 +137,25 @@ namespace Data_Transceiver_Center
             string mesID = "";
             string fogID = "";
 
+            // MES1 
             var t1 = Task.Run(() =>
             {
                 if (f1.testHttpAPI)
                 {
                     Random rnd = new Random();
                     string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //我们的接口
+                    //随机数生成快递单号，用来查询数据，测试Json
                     url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
                     getJson1 = Form1.HttpUitls.Get(url1);
-                    testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
-                    mesID = rt.nu;
+                    try
+                    {
+                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
+                        mesID = rt.nu;
+                    }
+                    catch (Exception)
+                    {
+                        mesID = "解析出错";
+                    }
                 }
                 else
                 {
@@ -151,14 +172,15 @@ namespace Data_Transceiver_Center
                     }
                 }
                 MethodInvoker mi1 = new MethodInvoker(() =>
-                   {
-                       f1.refreshMes1(url1, getJson1, mesID);
-                   });
+                {
+                    f1.refreshMes1(url1, getJson1, mesID);
+                });
                 BeginInvoke(mi1);
             });
             await t1;
             Console.WriteLine("Json1:" + getJson1);
 
+            // MES2
             var t2 = Task.Run(() =>
             {
                 if (f1.testHttpAPI)
@@ -168,8 +190,16 @@ namespace Data_Transceiver_Center
                     //我们的接口
                     url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
                     getJson2 = Form1.HttpUitls.Get(url2);
-                    testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
-                    fogID = rt.nu;
+                    try
+                    {
+                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
+                        fogID = rt.nu;
+                    }
+                    catch (Exception)
+                    {
+                        fogID = "解析出错"; 
+                    }
+                    
                 }
                 else
                 {
@@ -194,10 +224,12 @@ namespace Data_Transceiver_Center
             await t2;
             Console.WriteLine("Json2:" + getJson2);
 
+            // 打印
             f1.makeZpl_btn_Click(null, null);
             f1.sendToPrt_btn_Click(null, null);
             prt = CommunicationProtocol.prtComplete;
 
+            // 校验 并与PLC通信
             var t4 = Task.Run(() =>
             {
                 string result = f1.GetCheckResult();
@@ -212,6 +244,7 @@ namespace Data_Transceiver_Center
                 f2.WritePlc(cam, prt, scn);
             });
 
+            // MES3
             var t3 = Task.Run(() =>
             {
 
@@ -229,5 +262,6 @@ namespace Data_Transceiver_Center
             Console.WriteLine("Json3:" + getJson3);
 
         }
+
     }
 }

@@ -159,7 +159,7 @@ namespace Data_Transceiver_Center
                                 this.mes1Status = CONVERT_EXCEPTION;
                                 Console.WriteLine("mes1Status: {0}", mes1Status);
                                 if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
-                            {
+                                {
                                     MessageBox.Show("JsonConver解析出错");
                                 }
                                 mesId_txtBox.Text = "##############";
@@ -169,10 +169,6 @@ namespace Data_Transceiver_Center
                     this.BeginInvoke(mi);
                 });
                 t1.Start();
-            }
-            if (testHttpAPI)
-            {
-                button4_Click(null, null);
             }
         }
 

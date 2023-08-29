@@ -20,10 +20,17 @@ namespace Data_Transceiver_Center
         #region "刷新ControlBox组件"
         private void ReflashControlBox()
         {
-            rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-            rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-            rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
-
+            try
+            {
+                rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+                rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+                rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            
             rd_CamAllow.Checked = false;
             rd_CamOK.Checked = false;
             rd_CamNG.Checked = false;
@@ -88,7 +95,7 @@ namespace Data_Transceiver_Center
         private void btn_Close_Click(object sender, EventArgs e)
         {
             int iReturnCode;    //Return code
-
+            checkBox1.Checked = false;
             //Displayed output data is cleared.
             ClearDisplay();
 
