@@ -79,6 +79,10 @@ namespace Data_Transceiver_Center
             this.label1_6 = new System.Windows.Forms.Label();
             this.serialPort_label = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.reloadPort_btn = new System.Windows.Forms.Button();
+            this.camValue_label = new System.Windows.Forms.Label();
+            this.prtValue_label = new System.Windows.Forms.Label();
+            this.scnValue_label = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -133,7 +137,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_4.AutoSize = true;
             this.label1_4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_4.Location = new System.Drawing.Point(6, 89);
+            this.label1_4.Location = new System.Drawing.Point(6, 90);
             this.label1_4.Name = "label1_4";
             this.label1_4.Size = new System.Drawing.Size(55, 14);
             this.label1_4.TabIndex = 10;
@@ -266,7 +270,7 @@ namespace Data_Transceiver_Center
             // 
             // openSerial_btn
             // 
-            this.openSerial_btn.Location = new System.Drawing.Point(110, 10);
+            this.openSerial_btn.Location = new System.Drawing.Point(101, 11);
             this.openSerial_btn.Name = "openSerial_btn";
             this.openSerial_btn.Size = new System.Drawing.Size(59, 44);
             this.openSerial_btn.TabIndex = 26;
@@ -285,6 +289,9 @@ namespace Data_Transceiver_Center
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Items.AddRange(new object[] {
+            "9600",
+            "115200"});
             this.comboBox2.Location = new System.Drawing.Point(3, 58);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(76, 20);
@@ -294,7 +301,7 @@ namespace Data_Transceiver_Center
             // label3_4
             // 
             this.label3_4.AutoSize = true;
-            this.label3_4.Location = new System.Drawing.Point(434, 85);
+            this.label3_4.Location = new System.Drawing.Point(434, 90);
             this.label3_4.Name = "label3_4";
             this.label3_4.Size = new System.Drawing.Size(53, 12);
             this.label3_4.TabIndex = 29;
@@ -302,7 +309,7 @@ namespace Data_Transceiver_Center
             // 
             // chckResult_txtBox
             // 
-            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 104);
+            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 106);
             this.chckResult_txtBox.Name = "chckResult_txtBox";
             this.chckResult_txtBox.Size = new System.Drawing.Size(167, 21);
             this.chckResult_txtBox.TabIndex = 30;
@@ -422,7 +429,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_5.AutoSize = true;
             this.label1_5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_5.Location = new System.Drawing.Point(150, 91);
+            this.label1_5.Location = new System.Drawing.Point(150, 90);
             this.label1_5.Name = "label1_5";
             this.label1_5.Size = new System.Drawing.Size(43, 14);
             this.label1_5.TabIndex = 46;
@@ -434,28 +441,29 @@ namespace Data_Transceiver_Center
             this.prtCode_txtBox.Name = "prtCode_txtBox";
             this.prtCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.prtCode_txtBox.TabIndex = 45;
+            this.prtCode_txtBox.TextChanged += new System.EventHandler(this.prtCode_txtBox_TextChanged);
             // 
             // prtCode_label
             // 
             this.prtCode_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.prtCode_label.Location = new System.Drawing.Point(312, 157);
             this.prtCode_label.Name = "prtCode_label";
-            this.prtCode_label.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.prtCode_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.prtCode_label.Size = new System.Drawing.Size(118, 14);
             this.prtCode_label.TabIndex = 47;
             this.prtCode_label.Text = "上次打印码";
-            this.prtCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.prtCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // visionCode_label
             // 
             this.visionCode_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.visionCode_label.Location = new System.Drawing.Point(312, 133);
             this.visionCode_label.Name = "visionCode_label";
-            this.visionCode_label.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.visionCode_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.visionCode_label.Size = new System.Drawing.Size(118, 14);
             this.visionCode_label.TabIndex = 48;
             this.visionCode_label.Text = "上次视觉码";
-            this.visionCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.visionCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // pnl_Mes
             // 
@@ -515,12 +523,13 @@ namespace Data_Transceiver_Center
             this.scnCode_txtBox.Name = "scnCode_txtBox";
             this.scnCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.scnCode_txtBox.TabIndex = 52;
+            this.scnCode_txtBox.TextChanged += new System.EventHandler(this.scnCode_txtBox_TextChanged);
             // 
             // label1_6
             // 
             this.label1_6.AutoSize = true;
             this.label1_6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_6.Location = new System.Drawing.Point(298, 90);
+            this.label1_6.Location = new System.Drawing.Point(296, 90);
             this.label1_6.Name = "label1_6";
             this.label1_6.Size = new System.Drawing.Size(43, 14);
             this.label1_6.TabIndex = 53;
@@ -532,7 +541,7 @@ namespace Data_Transceiver_Center
             this.serialPort_label.BackColor = System.Drawing.SystemColors.ControlText;
             this.serialPort_label.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.serialPort_label.ForeColor = System.Drawing.SystemColors.Control;
-            this.serialPort_label.Location = new System.Drawing.Point(106, 58);
+            this.serialPort_label.Location = new System.Drawing.Point(97, 58);
             this.serialPort_label.Name = "serialPort_label";
             this.serialPort_label.Size = new System.Drawing.Size(65, 20);
             this.serialPort_label.TabIndex = 54;
@@ -541,6 +550,7 @@ namespace Data_Transceiver_Center
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.reloadPort_btn);
             this.panel2.Controls.Add(this.openSerial_btn);
             this.panel2.Controls.Add(this.serialPort_label);
             this.panel2.Controls.Add(this.label3_1);
@@ -554,6 +564,48 @@ namespace Data_Transceiver_Center
             this.panel2.Size = new System.Drawing.Size(243, 117);
             this.panel2.TabIndex = 55;
             // 
+            // reloadPort_btn
+            // 
+            this.reloadPort_btn.Location = new System.Drawing.Point(175, 11);
+            this.reloadPort_btn.Name = "reloadPort_btn";
+            this.reloadPort_btn.Size = new System.Drawing.Size(59, 44);
+            this.reloadPort_btn.TabIndex = 55;
+            this.reloadPort_btn.Text = "刷新串口号";
+            this.reloadPort_btn.UseVisualStyleBackColor = true;
+            this.reloadPort_btn.Click += new System.EventHandler(this.reloadPort_btn_Click);
+            // 
+            // camValue_label
+            // 
+            this.camValue_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.camValue_label.Location = new System.Drawing.Point(604, 5);
+            this.camValue_label.Name = "camValue_label";
+            this.camValue_label.Size = new System.Drawing.Size(82, 14);
+            this.camValue_label.TabIndex = 56;
+            this.camValue_label.Text = "camValue";
+            this.camValue_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // prtValue_label
+            // 
+            this.prtValue_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.prtValue_label.Location = new System.Drawing.Point(604, 30);
+            this.prtValue_label.Name = "prtValue_label";
+            this.prtValue_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.prtValue_label.Size = new System.Drawing.Size(82, 14);
+            this.prtValue_label.TabIndex = 57;
+            this.prtValue_label.Text = "prtValue";
+            this.prtValue_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // scnValue_label
+            // 
+            this.scnValue_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.scnValue_label.Location = new System.Drawing.Point(604, 54);
+            this.scnValue_label.Name = "scnValue_label";
+            this.scnValue_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.scnValue_label.Size = new System.Drawing.Size(82, 14);
+            this.scnValue_label.TabIndex = 58;
+            this.scnValue_label.Text = "scnValue";
+            this.scnValue_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -561,6 +613,9 @@ namespace Data_Transceiver_Center
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(698, 522);
             this.ControlBox = false;
+            this.Controls.Add(this.scnValue_label);
+            this.Controls.Add(this.prtValue_label);
+            this.Controls.Add(this.camValue_label);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label1_6);
             this.Controls.Add(this.scnCode_txtBox);
@@ -659,6 +714,10 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label serialPort_label;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button reloadPort_btn;
+        private System.Windows.Forms.Label camValue_label;
+        private System.Windows.Forms.Label prtValue_label;
+        private System.Windows.Forms.Label scnValue_label;
     }
 }
 

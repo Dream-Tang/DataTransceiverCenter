@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace Data_Transceiver_Center
 {
@@ -17,11 +20,6 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
-            
-            //f4 = new Form4();
-            //f1.TopLevel = false;
-            //f2.TopLevel = false;
-            //f4.TopLevel = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -54,9 +52,9 @@ namespace Data_Transceiver_Center
             // 提示信息
             dialog.Description = "请选择ini保存位置";
             string iniPath = "";
-            if(dialog.ShowDialog() == DialogResult.OK)
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                iniPath = dialog.SelectedPath+ "\\settings.ini";
+                iniPath = dialog.SelectedPath + "\\settings.ini";
             }
             try
             {
@@ -65,9 +63,9 @@ namespace Data_Transceiver_Center
             }
             catch (Exception)
             {
-                return ;
+                return;
             }
-           
+
         }
 
         private void btnLoadIni_Click(object sender, EventArgs e)
@@ -77,10 +75,16 @@ namespace Data_Transceiver_Center
             dialog.Title = "请选择setting.ini文件";
             dialog.Filter = "ini文件(*.ini)|*.ini";
             string file = "";
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                file = dialog.FileName;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    file = dialog.FileName;
+                }
             }
+            catch (Exception)
+            { return; }
+
             try
             {
                 f1.LoadIniSettings(file);
@@ -90,5 +94,174 @@ namespace Data_Transceiver_Center
                 return;
             }
         }
+
+        // 自动模式：
+        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
+        // task0：读PLC
+        // task1：（启动条件）读csv=》mes1=》mes2
+        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
+        // task3：refalsh()=>methedInvoke();
+        // task4：获取CheckResult，读取判定结果，写PLC
+        private void autoRun_btn_Click(object sender, EventArgs e)
+        {
+            AutoRunMode();
+        }
+
+        // 自动模式：
+        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
+        // task0：读PLC
+        // task1：（启动条件）读csv=》mes1=》mes2
+        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
+        // task3：refalsh()=>methedInvoke();
+        // task4：获取CheckResult，读取判定结果，写PLC
+        private async void AutoRunMode()
+        {
+            short cam, prt, scn;
+            // 读PLC
+            (cam, prt, scn) = f2.ReadPlc();
+            MethodInvoker mi0 = new MethodInvoker(() =>
+            {
+                f1.refreshPLC(cam, prt, scn);
+            });
+            this.BeginInvoke(mi0);
+
+            // 读CSV
+            f1.refreshCSV();
+
+            string url1 = "";
+            string url2 = "";
+            string url3 = "";
+
+            string getJson1 = "getJson1", getJson2 = "getJson2", getJson3 = "getJson3";
+
+            string mesID = "";
+            string fogID = "";
+
+            // MES1 
+            var t1 = Task.Run(() =>
+            {
+                if (f1.testHttpAPI)
+                {
+                    Random rnd = new Random();
+                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
+                    //随机数生成快递单号，用来查询数据，测试Json
+                    url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
+                    getJson1 = Form1.HttpUitls.Get(url1);
+                    try
+                    {
+                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
+                        mesID = rt.nu;
+                    }
+                    catch (Exception)
+                    {
+                        mesID = "解析出错";
+                    }
+                }
+                else
+                {
+                    url1 = f1.GetUrl("position", f1.GetMes1prt());
+                    getJson1 = Form1.HttpUitls.Get(url1);
+                    try
+                    {
+                        MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
+                        mesID = msrt1.data.id;
+                    }
+                    catch (Exception)
+                    {
+                        mesID = "解析出错";
+                    }
+                }
+                MethodInvoker mi1 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes1(url1, getJson1, mesID);
+                });
+                BeginInvoke(mi1);
+            });
+            await t1;
+            Console.WriteLine("Json1:" + getJson1);
+
+            // MES2
+            var t2 = Task.Run(() =>
+            {
+                if (f1.testHttpAPI)
+                {
+                    Random rnd = new Random();
+                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
+                    //我们的接口
+                    url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
+                    getJson2 = Form1.HttpUitls.Get(url2);
+                    try
+                    {
+                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
+                        fogID = rt.nu;
+                    }
+                    catch (Exception)
+                    {
+                        fogID = "解析出错"; 
+                    }
+                    
+                }
+                else
+                {
+                    url2 = f1.GetUrl("print", f1.GetMes2prt());
+                    getJson2 = Form1.HttpUitls.Get(url2);
+                    try
+                    {
+                        MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
+                        fogID = msrt2.data.fogId;
+                    }
+                    catch (Exception)
+                    {
+                        fogID = "解析出错";
+                    }
+                }
+                MethodInvoker mi2 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes2(url2, getJson2, fogID);
+                });
+                BeginInvoke(mi2);
+            });
+            await t2;
+            Console.WriteLine("Json2:" + getJson2);
+
+            // 打印
+            f1.makeZpl_btn_Click(null, null);
+            f1.sendToPrt_btn_Click(null, null);
+            prt = CommunicationProtocol.prtComplete;
+
+            // 校验 并与PLC通信
+            var t4 = Task.Run(() =>
+            {
+                string result = f1.GetCheckResult();
+                if (result == "OK")
+                {
+                    scn = CommunicationProtocol.checkOK;
+                }
+                if (result == "NG")
+                {
+                    scn = CommunicationProtocol.checkNG;
+                }
+                f2.WritePlc(cam, prt, scn);
+            });
+
+            // MES3
+            var t3 = Task.Run(() =>
+            {
+
+                url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
+
+                getJson3 = Form1.HttpUitls.Get(url3);
+
+                MethodInvoker mi2 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes3(url3, getJson3);
+                });
+                BeginInvoke(mi2);
+            });
+
+            Console.WriteLine("Json3:" + getJson3);
+
+        }
+
     }
 }

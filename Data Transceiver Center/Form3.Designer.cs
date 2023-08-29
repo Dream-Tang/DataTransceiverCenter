@@ -29,6 +29,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form3));
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
@@ -37,6 +38,8 @@ namespace Data_Transceiver_Center
             this.btn_Form3 = new System.Windows.Forms.Button();
             this.btn_SaveIni = new System.Windows.Forms.Button();
             this.btn_LoadIni = new System.Windows.Forms.Button();
+            this.autoRun_btn = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -111,11 +114,26 @@ namespace Data_Transceiver_Center
             this.btn_LoadIni.UseVisualStyleBackColor = true;
             this.btn_LoadIni.Click += new System.EventHandler(this.btnLoadIni_Click);
             // 
+            // autoRun_btn
+            // 
+            this.autoRun_btn.Location = new System.Drawing.Point(27, 324);
+            this.autoRun_btn.Name = "autoRun_btn";
+            this.autoRun_btn.Size = new System.Drawing.Size(81, 57);
+            this.autoRun_btn.TabIndex = 6;
+            this.autoRun_btn.Text = "自动运行";
+            this.autoRun_btn.UseVisualStyleBackColor = true;
+            this.autoRun_btn.Click += new System.EventHandler(this.autoRun_btn_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.autoRun_btn_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(878, 575);
+            this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadIni);
             this.Controls.Add(this.btn_SaveIni);
             this.Controls.Add(this.btn_Form3);
@@ -142,5 +160,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btn_SaveIni;
         private System.Windows.Forms.Button btn_LoadIni;
+        private System.Windows.Forms.Button autoRun_btn;
+        private System.Windows.Forms.Timer timer1;
     }
 }
