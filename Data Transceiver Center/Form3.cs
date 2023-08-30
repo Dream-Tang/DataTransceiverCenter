@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 
 namespace Data_Transceiver_Center
@@ -266,5 +267,23 @@ namespace Data_Transceiver_Center
 
         }
 
+        /// <summary>
+        /// 文件监控，当有文件改变，则触发事件。filechanged会被多次触发，使用lastRead和lastWrite的时间对比，来避免重复触发
+        /// </summary>
+        DateTime lastRead = DateTime.MinValue;
+        private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
+        {
+            DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
+            if (lastWriteTime != lastRead)
+            {
+                Console.WriteLine("changend");
+                lastRead = lastWriteTime;
+                AutoRunMode();
+            }
+            else
+            {
+                Console.WriteLine(lastRead);
+            }
+        }
     }
 }
