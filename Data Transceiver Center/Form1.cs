@@ -821,15 +821,15 @@ namespace Data_Transceiver_Center
         {
             var myIni = new IniFile(iniFile);
 
+            string csvPath = csvPath_txtBox.Text;
             string filePathZPL = zplPath_txtBox.Text;
             string prtName = prtPath_txtBox.Text;
-            string csvPath = csvPath_txtBox.Text;
             //string testHttp = Convert.ToString(this.testHttpAPI);
             string testHttp = "False"; // 确保每次保存ini后关闭调试模式
 
             myIni.Write("filePathZPL", filePathZPL, "Form1");
-            myIni.Write("prtName", prtName, "Form1");
             myIni.Write("csvPath", csvPath, "Form1");
+            myIni.Write("prtName", prtName, "Form1");
             myIni.Write("testHttp", testHttp, "Form1");
         }
 

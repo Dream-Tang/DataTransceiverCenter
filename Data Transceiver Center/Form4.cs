@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing.Common;
+using System.IO;
 
 
 namespace Data_Transceiver_Center
@@ -39,19 +40,55 @@ namespace Data_Transceiver_Center
             }
             catch (Exception)
             {
-                // MessageBox.Show("barCode转换出错，存在无法转换的字符");
+                MessageBox.Show("barCode转换出错，存在无法转换的字符");
                 Console.WriteLine("barCode转换出错，存在无法转换的字符");
                 return null;
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
         {
             string barCodeStr = prtCode_txtBox.Text;
-            //int width = Convert.ToUInt16(this.scnCode_txtBox.Text);
-            int height = Convert.ToUInt16(this.chckResult_txtBox.Text);
-            Image img = SetBarCode128(barCodeStr);
-            pictureBox2.Image = img;
+            pictureBox2.Image = SetBarCode128(barCodeStr);
+        }
+
+        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (fileWatcher_chkbox.Checked)
+            {
+                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                string fileWatchPath = appPath.Substring(0, appPath.IndexOf("DataTransceiverCenter") + 21);
+                label4_2.Text = "监控：" + fileWatchPath;
+                Console.WriteLine(fileWatchPath);
+                this.fileSystemWatcher1.Path = fileWatchPath;
+                fileSystemWatcher1.EnableRaisingEvents = true;
+                MessageBox.Show("文件夹监控已打开，文件夹内有文件修改，将触发事件");
+            }
+            else
+            {
+                label4_2.Text = "fileSystemWatcher 关闭";
+                fileSystemWatcher1.EnableRaisingEvents = false;
+                MessageBox.Show("文件夹监控已关闭");
+            }
+            
+        }
+
+        DateTime lastRead = DateTime.MinValue;
+
+        private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
+        {
+            DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
+            if (lastWriteTime!=lastRead)
+            {
+                Console.WriteLine("changend");
+                label4_3.Text = lastWriteTime + ": file changed";
+                lastRead = lastWriteTime;
+            }
+            else
+            {
+                Console.WriteLine(lastRead);
+            }
+            
         }
     }
 }
