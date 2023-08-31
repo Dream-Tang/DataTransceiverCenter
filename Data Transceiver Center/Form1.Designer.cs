@@ -83,10 +83,12 @@ namespace Data_Transceiver_Center
             this.camValue_label = new System.Windows.Forms.Label();
             this.prtValue_label = new System.Windows.Forms.Label();
             this.scnValue_label = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // visionCode_txtBox
@@ -301,7 +303,7 @@ namespace Data_Transceiver_Center
             // label3_4
             // 
             this.label3_4.AutoSize = true;
-            this.label3_4.Location = new System.Drawing.Point(434, 90);
+            this.label3_4.Location = new System.Drawing.Point(429, 90);
             this.label3_4.Name = "label3_4";
             this.label3_4.Size = new System.Drawing.Size(53, 12);
             this.label3_4.TabIndex = 29;
@@ -309,7 +311,7 @@ namespace Data_Transceiver_Center
             // 
             // chckResult_txtBox
             // 
-            this.chckResult_txtBox.Location = new System.Drawing.Point(436, 106);
+            this.chckResult_txtBox.Location = new System.Drawing.Point(431, 106);
             this.chckResult_txtBox.Name = "chckResult_txtBox";
             this.chckResult_txtBox.Size = new System.Drawing.Size(167, 21);
             this.chckResult_txtBox.TabIndex = 30;
@@ -519,7 +521,7 @@ namespace Data_Transceiver_Center
             // 
             // scnCode_txtBox
             // 
-            this.scnCode_txtBox.Location = new System.Drawing.Point(295, 106);
+            this.scnCode_txtBox.Location = new System.Drawing.Point(290, 106);
             this.scnCode_txtBox.Name = "scnCode_txtBox";
             this.scnCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.scnCode_txtBox.TabIndex = 52;
@@ -529,7 +531,7 @@ namespace Data_Transceiver_Center
             // 
             this.label1_6.AutoSize = true;
             this.label1_6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_6.Location = new System.Drawing.Point(296, 90);
+            this.label1_6.Location = new System.Drawing.Point(291, 90);
             this.label1_6.Name = "label1_6";
             this.label1_6.Size = new System.Drawing.Size(43, 14);
             this.label1_6.TabIndex = 53;
@@ -606,6 +608,14 @@ namespace Data_Transceiver_Center
             this.scnValue_label.Text = "scnValue";
             this.scnValue_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(295, 179);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(135, 50);
+            this.pictureBox1.TabIndex = 59;
+            this.pictureBox1.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -613,6 +623,7 @@ namespace Data_Transceiver_Center
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(698, 522);
             this.ControlBox = false;
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.scnValue_label);
             this.Controls.Add(this.prtValue_label);
             this.Controls.Add(this.camValue_label);
@@ -656,6 +667,7 @@ namespace Data_Transceiver_Center
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -718,6 +730,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label camValue_label;
         private System.Windows.Forms.Label prtValue_label;
         private System.Windows.Forms.Label scnValue_label;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

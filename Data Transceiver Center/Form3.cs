@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 
 namespace Data_Transceiver_Center
@@ -10,6 +11,7 @@ namespace Data_Transceiver_Center
     {
         public Form1 f1;    // 创建窗口1 窗口变量
         public Form2 f2;    // 创建窗口2 窗口变量
+        public Form4 f4;    // 创建窗口2 窗口变量
 
         public Form3()
         {
@@ -20,6 +22,7 @@ namespace Data_Transceiver_Center
         {
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
+            f4 = new Form4();   // 实例化f2
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -40,9 +43,10 @@ namespace Data_Transceiver_Center
 
         private void button3_Click(object sender, EventArgs e)
         {
+            f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
-            //panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            //f4.Show();      // 将窗口4进行显示
+            panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
+            f4.Show();      // 将窗口4进行显示
         }
 
         private void btnSaveIni_Click(object sender, EventArgs e)
@@ -242,6 +246,7 @@ namespace Data_Transceiver_Center
                     scn = CommunicationProtocol.checkNG;
                 }
                 f2.WritePlc(cam, prt, scn);
+                this.BeginInvoke(mi0);
             });
 
             // MES3
@@ -263,5 +268,48 @@ namespace Data_Transceiver_Center
 
         }
 
+        /// <summary>
+        /// 文件监控，当有文件改变，则触发事件。filechanged会被多次触发，使用lastRead和lastWrite的时间对比，来避免重复触发
+        /// </summary>
+        /// 
+        DateTime lastRead = DateTime.Now;
+        private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
+        {
+            DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
+            if (lastWriteTime != lastRead)
+            {
+                Console.WriteLine("changend");
+                lastRead = lastWriteTime;
+                AutoRunMode();
+            }
+            else
+            {
+                Console.WriteLine(lastRead);
+            }
+        }
+
+        ///  CSV监控选框
+        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
+        {
+            string fileWatchPath= f1.GetCsvPath();
+            if (fileWatchPath == "")
+            {
+                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                fileWatchPath = appPath.Substring(0,appPath.IndexOf("DataTransceiverCenter")+21);
+                Console.WriteLine(fileWatchPath);
+            }
+            fileSystemWatcher1.Path = fileWatchPath;
+
+            if (fileWatcher_chkbox.Checked == true)
+            {
+                fileSystemWatcher1.EnableRaisingEvents = true;
+                Console.WriteLine("AutoMode is running");
+            }
+            else
+            {
+                fileSystemWatcher1.EnableRaisingEvents = false;
+                Console.WriteLine("AutoMode is closing");
+            }
+        }
     }
 }

@@ -173,6 +173,7 @@ namespace Data_Transceiver_Center
             this.txt_LogicalStationNumber.Size = new System.Drawing.Size(64, 21);
             this.txt_LogicalStationNumber.TabIndex = 12;
             this.txt_LogicalStationNumber.Text = "1";
+            this.txt_LogicalStationNumber.EnabledChanged += new System.EventHandler(this.txt_LogicStation_EnableChanged);
             // 
             // txt_ReturnCode
             // 
@@ -268,6 +269,7 @@ namespace Data_Transceiver_Center
             // rd_CamAllow
             // 
             this.rd_CamAllow.AutoSize = true;
+            this.rd_CamAllow.Enabled = false;
             this.rd_CamAllow.Location = new System.Drawing.Point(5, 17);
             this.rd_CamAllow.Name = "rd_CamAllow";
             this.rd_CamAllow.Size = new System.Drawing.Size(95, 16);
@@ -280,6 +282,7 @@ namespace Data_Transceiver_Center
             // rd_CamOK
             // 
             this.rd_CamOK.AutoSize = true;
+            this.rd_CamOK.Enabled = false;
             this.rd_CamOK.Location = new System.Drawing.Point(5, 39);
             this.rd_CamOK.Name = "rd_CamOK";
             this.rd_CamOK.Size = new System.Drawing.Size(83, 16);
@@ -349,6 +352,7 @@ namespace Data_Transceiver_Center
             // rd_ScannerStart
             // 
             this.rd_ScannerStart.AutoSize = true;
+            this.rd_ScannerStart.Enabled = false;
             this.rd_ScannerStart.Location = new System.Drawing.Point(7, 15);
             this.rd_ScannerStart.Name = "rd_ScannerStart";
             this.rd_ScannerStart.Size = new System.Drawing.Size(71, 16);
@@ -361,6 +365,7 @@ namespace Data_Transceiver_Center
             // rd_checkOK
             // 
             this.rd_checkOK.AutoSize = true;
+            this.rd_checkOK.Enabled = false;
             this.rd_checkOK.Location = new System.Drawing.Point(7, 59);
             this.rd_checkOK.Name = "rd_checkOK";
             this.rd_checkOK.Size = new System.Drawing.Size(83, 16);
@@ -373,6 +378,7 @@ namespace Data_Transceiver_Center
             // rd_ScannerComplete
             // 
             this.rd_ScannerComplete.AutoSize = true;
+            this.rd_ScannerComplete.Enabled = false;
             this.rd_ScannerComplete.Location = new System.Drawing.Point(7, 37);
             this.rd_ScannerComplete.Name = "rd_ScannerComplete";
             this.rd_ScannerComplete.Size = new System.Drawing.Size(71, 16);
@@ -385,6 +391,7 @@ namespace Data_Transceiver_Center
             // rd_checkNG
             // 
             this.rd_checkNG.AutoSize = true;
+            this.rd_checkNG.Enabled = false;
             this.rd_checkNG.Location = new System.Drawing.Point(7, 81);
             this.rd_checkNG.Name = "rd_checkNG";
             this.rd_checkNG.Size = new System.Drawing.Size(83, 16);
@@ -436,6 +443,7 @@ namespace Data_Transceiver_Center
             // rd_PrtComplete
             // 
             this.rd_PrtComplete.AutoSize = true;
+            this.rd_PrtComplete.Enabled = false;
             this.rd_PrtComplete.Location = new System.Drawing.Point(5, 46);
             this.rd_PrtComplete.Name = "rd_PrtComplete";
             this.rd_PrtComplete.Size = new System.Drawing.Size(83, 16);
@@ -448,6 +456,7 @@ namespace Data_Transceiver_Center
             // rd_PrtReady
             // 
             this.rd_PrtReady.AutoSize = true;
+            this.rd_PrtReady.Enabled = false;
             this.rd_PrtReady.Location = new System.Drawing.Point(5, 24);
             this.rd_PrtReady.Name = "rd_PrtReady";
             this.rd_PrtReady.Size = new System.Drawing.Size(101, 16);
@@ -493,6 +502,7 @@ namespace Data_Transceiver_Center
             // rd_CamNG
             // 
             this.rd_CamNG.AutoSize = true;
+            this.rd_CamNG.Enabled = false;
             this.rd_CamNG.Location = new System.Drawing.Point(5, 61);
             this.rd_CamNG.Name = "rd_CamNG";
             this.rd_CamNG.Size = new System.Drawing.Size(83, 16);

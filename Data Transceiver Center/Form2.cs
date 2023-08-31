@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace Data_Transceiver_Center
 {
@@ -20,74 +21,84 @@ namespace Data_Transceiver_Center
         #region "刷新ControlBox组件"
         private void ReflashControlBox()
         {
-            try
-            {
-                rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-                rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-                rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            Task.Run(() => {
+                MethodInvoker mi = new MethodInvoker(() => 
+                { 
+                    try
+                    {
+                        rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+                        rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+                        rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+                    }
+                    catch (Exception)
+                    {
+                        timer1.Enabled = false;
+                        checkBox1.Checked = false;
+                        txt_LogicalStationNumber.Enabled = true;
+                        Console.WriteLine("PLC掉线");
+                        return;
+                    }
             
-            rd_CamAllow.Checked = false;
-            rd_CamOK.Checked = false;
-            rd_CamNG.Checked = false;
-            switch (rd_camRegisterValue)
-            {
-                case CommunicationProtocol.camAllow:
-                    rd_CamAllow.Checked = true;
-                    break;
+                    rd_CamAllow.Checked = false;
+                    rd_CamOK.Checked = false;
+                    rd_CamNG.Checked = false;
+                    switch (rd_camRegisterValue)
+                    {
+                        case CommunicationProtocol.camAllow:
+                            rd_CamAllow.Checked = true;
+                            break;
 
-                case CommunicationProtocol.camOK:
-                    rd_CamOK.Checked = true;
-                    break;
+                        case CommunicationProtocol.camOK:
+                            rd_CamOK.Checked = true;
+                            break;
 
-                case CommunicationProtocol.camNG:
-                    rd_CamNG.Checked = true;
-                    break;
-            }
+                        case CommunicationProtocol.camNG:
+                            rd_CamNG.Checked = true;
+                            break;
+                    }
 
-            rd_PrtReady.Checked = false;
-            rd_PrtComplete.Checked = false;
-            switch (rd_prtRegisterValue)
-            {
-                case CommunicationProtocol.prtReady:
-                    rd_PrtReady.Checked = true;
-                    break;
+                    rd_PrtReady.Checked = false;
+                    rd_PrtComplete.Checked = false;
+                    switch (rd_prtRegisterValue)
+                    {
+                        case CommunicationProtocol.prtReady:
+                            rd_PrtReady.Checked = true;
+                            break;
 
-                case CommunicationProtocol.prtComplete:
-                    rd_PrtComplete.Checked = true;
-                    break;
-            }
+                        case CommunicationProtocol.prtComplete:
+                            rd_PrtComplete.Checked = true;
+                            break;
+                    }
 
-            rd_ScannerStart.Checked = false;
-            rd_ScannerComplete.Checked = false;
-            rd_checkOK.Checked = false;
-            rd_checkNG.Checked = false;
-            switch (rd_scannerRegisterValue)
-            {
-                case CommunicationProtocol.scannerStart:
-                    rd_ScannerStart.Checked = true;
-                    break;
+                    rd_ScannerStart.Checked = false;
+                    rd_ScannerComplete.Checked = false;
+                    rd_checkOK.Checked = false;
+                    rd_checkNG.Checked = false;
+                    switch (rd_scannerRegisterValue)
+                    {
+                        case CommunicationProtocol.scannerStart:
+                            rd_ScannerStart.Checked = true;
+                            break;
 
-                case CommunicationProtocol.scannerComplete:
-                    rd_ScannerComplete.Checked = true;
-                    break;
+                        case CommunicationProtocol.scannerComplete:
+                            rd_ScannerComplete.Checked = true;
+                            break;
 
-                case CommunicationProtocol.checkOK:
-                    rd_checkOK.Checked = true;
-                    break;
+                        case CommunicationProtocol.checkOK:
+                            rd_checkOK.Checked = true;
+                            break;
 
-                case CommunicationProtocol.checkNG:
-                    rd_checkNG.Checked = true;
-                    break;
-            }
+                        case CommunicationProtocol.checkNG:
+                            rd_checkNG.Checked = true;
+                            break;
+                    }
 
-            label11.Text = rd_camRegisterValue.ToString();
-            label12.Text = rd_prtRegisterValue.ToString();
-            label13.Text = rd_scannerRegisterValue.ToString();
+                    label11.Text = rd_camRegisterValue.ToString();
+                    label12.Text = rd_prtRegisterValue.ToString();
+                    label13.Text = rd_scannerRegisterValue.ToString();
+                });
+                BeginInvoke(mi);
+            });
         }
 
         #endregion "刷新寄存器rediobutton"
@@ -574,6 +585,40 @@ namespace Data_Transceiver_Center
         }
 
         #region "redioButton 控制按钮，点击则给PLC发送数据"
+
+        private void txt_LogicStation_EnableChanged(object sender, EventArgs e)
+        {
+            if (txt_LogicalStationNumber.Enabled==false)
+            {
+                rd_CamAllow.Enabled = true;
+                rd_CamNG.Enabled = true;
+                rd_CamOK.Enabled = true;
+
+                rd_PrtComplete.Enabled = true;
+                rd_PrtReady.Enabled = true;
+
+                rd_checkNG.Enabled = true;
+                rd_checkOK.Enabled = true;
+
+                rd_ScannerComplete.Enabled = true;
+                rd_ScannerStart.Enabled = true;
+            }
+            else
+            {
+                rd_CamAllow.Enabled = false;
+                rd_CamNG.Enabled = false;
+                rd_CamOK.Enabled = false;
+
+                rd_PrtComplete.Enabled = false;
+                rd_PrtReady.Enabled = false;
+
+                rd_checkNG.Enabled = false;
+                rd_checkOK.Enabled = false;
+
+                rd_ScannerComplete.Enabled = false;
+                rd_ScannerStart.Enabled = false;
+            }
+        }
 
         private void rd_CamAllow_CheckedChanged(object sender, EventArgs e)
         {
