@@ -246,6 +246,7 @@ namespace Data_Transceiver_Center
                     scn = CommunicationProtocol.checkNG;
                 }
                 f2.WritePlc(cam, prt, scn);
+                this.BeginInvoke(mi0);
             });
 
             // MES3
@@ -270,7 +271,8 @@ namespace Data_Transceiver_Center
         /// <summary>
         /// 文件监控，当有文件改变，则触发事件。filechanged会被多次触发，使用lastRead和lastWrite的时间对比，来避免重复触发
         /// </summary>
-        DateTime lastRead = DateTime.MinValue;
+        /// 
+        DateTime lastRead = DateTime.Now;
         private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
         {
             DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
@@ -283,6 +285,30 @@ namespace Data_Transceiver_Center
             else
             {
                 Console.WriteLine(lastRead);
+            }
+        }
+
+        ///  CSV监控选框
+        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
+        {
+            string fileWatchPath= f1.GetCsvPath();
+            if (fileWatchPath == "")
+            {
+                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                fileWatchPath = appPath.Substring(0,appPath.IndexOf("DataTransceiverCenter")+21);
+                Console.WriteLine(fileWatchPath);
+            }
+            fileSystemWatcher1.Path = fileWatchPath;
+
+            if (fileWatcher_chkbox.Checked == true)
+            {
+                fileSystemWatcher1.EnableRaisingEvents = true;
+                Console.WriteLine("AutoMode is running");
+            }
+            else
+            {
+                fileSystemWatcher1.EnableRaisingEvents = false;
+                Console.WriteLine("AutoMode is closing");
             }
         }
     }

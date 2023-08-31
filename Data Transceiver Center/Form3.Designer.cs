@@ -41,6 +41,7 @@ namespace Data_Transceiver_Center
             this.autoRun_btn = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
+            this.fileWatcher_chkbox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -133,14 +134,27 @@ namespace Data_Transceiver_Center
             // fileSystemWatcher1
             // 
             this.fileSystemWatcher1.EnableRaisingEvents = true;
+            this.fileSystemWatcher1.Filter = "*.csv";
             this.fileSystemWatcher1.SynchronizingObject = this;
             this.fileSystemWatcher1.Changed += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Changed);
+            // 
+            // fileWatcher_chkbox
+            // 
+            this.fileWatcher_chkbox.AutoSize = true;
+            this.fileWatcher_chkbox.Location = new System.Drawing.Point(27, 397);
+            this.fileWatcher_chkbox.Name = "fileWatcher_chkbox";
+            this.fileWatcher_chkbox.Size = new System.Drawing.Size(90, 16);
+            this.fileWatcher_chkbox.TabIndex = 7;
+            this.fileWatcher_chkbox.Text = "监测CSV文件";
+            this.fileWatcher_chkbox.UseVisualStyleBackColor = true;
+            this.fileWatcher_chkbox.CheckedChanged += new System.EventHandler(this.fileWatcher_chkbox_CheckedChanged);
             // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(878, 575);
+            this.Controls.Add(this.fileWatcher_chkbox);
             this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadIni);
             this.Controls.Add(this.btn_SaveIni);
@@ -172,5 +186,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button autoRun_btn;
         private System.Windows.Forms.Timer timer1;
         private System.IO.FileSystemWatcher fileSystemWatcher1;
+        private System.Windows.Forms.CheckBox fileWatcher_chkbox;
     }
 }

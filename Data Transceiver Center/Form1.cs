@@ -833,57 +833,6 @@ namespace Data_Transceiver_Center
             myIni.Write("testHttp", testHttp, "Form1");
         }
 
-        #region 后台监听文件系统变化（FileSystemWatcher）
-        // 参数path是监听的文件或文件夹，filter为监听的文件类别，筛选器
-        private static void FileWatcher(string path, string filter)
-        {
-            FileSystemWatcher fileSysWatcher = new FileSystemWatcher();
-            fileSysWatcher.Path = path;
-            fileSysWatcher.NotifyFilter = NotifyFilters.LastAccess
-                                                                | NotifyFilters.LastWrite
-                                                                | NotifyFilters.FileName
-                                                                | NotifyFilters.DirectoryName;
-            // 文件类型，支持通配符，"*.txt"只监视文本文件
-            fileSysWatcher.Filter = filter;     // 要监控的文件格式
-            fileSysWatcher.IncludeSubdirectories = false; // 监控子目录
-            fileSysWatcher.Changed += new FileSystemEventHandler(OnProcess);
-            fileSysWatcher.Created += new FileSystemEventHandler(OnProcess);
-            fileSysWatcher.Renamed += new RenamedEventHandler(OnRenamed);
-            fileSysWatcher.Deleted += new FileSystemEventHandler(OnProcess);
-
-            //表示当前的路径正式开始被监控，一旦监控的路径出现变更，FileSystemWatcher 中的指定事件将会被触发。
-            fileSysWatcher.EnableRaisingEvents = true;
-        }
-
-        private static void OnProcess(object source, FileSystemEventArgs e)
-        {
-            if (e.ChangeType == WatcherChangeTypes.Created) { OnCreated(source, e); }
-            else if (e.ChangeType == WatcherChangeTypes.Changed) { OnChanged(source, e); }
-            else if (e.ChangeType == WatcherChangeTypes.Deleted) { OnDeleted(source, e); }
-        }
-
-        private static void OnCreated(object source, FileSystemEventArgs e)
-        {
-            Console.WriteLine("File created:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
-        }
-
-        private static void OnChanged(object source, FileSystemEventArgs e)
-        {
-            Console.WriteLine("File changed:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
-        }
-
-        private static void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            Console.WriteLine("File deleted:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
-        }
-
-        private static void OnRenamed(object source, FileSystemEventArgs e)
-        {
-            Console.WriteLine("File renamed:{0} {1} {2}", e.ChangeType, e.FullPath, e.Name);
-        }
-
-        #endregion
-
         // 刷新端口号
         private void reloadPort_btn_Click(object sender, EventArgs e)
         {
@@ -933,6 +882,13 @@ namespace Data_Transceiver_Center
             string chckResult;
             chckResult = CheckScnPrtCode();
             return chckResult;
+        }
+
+        public string GetCsvPath()
+        {
+            string csvPath;
+            csvPath = this.csvPath_txtBox.Text;
+            return csvPath;
         }
 
         /// <summary>
