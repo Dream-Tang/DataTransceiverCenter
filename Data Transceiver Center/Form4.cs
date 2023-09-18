@@ -90,5 +90,17 @@ namespace Data_Transceiver_Center
             }
             
         }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (textBox1.Lines.Length > 0)
+            {
+                textBox2.Text = textBox1.Lines[textBox1.Lines.Length-1];
+            }
+            else
+            {
+                textBox2.Text = null;
+            }
+        }
     }
 }

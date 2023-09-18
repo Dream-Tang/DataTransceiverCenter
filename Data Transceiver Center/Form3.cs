@@ -20,9 +20,10 @@ namespace Data_Transceiver_Center
 
         private void Form3_Load(object sender, EventArgs e)
         {
+            this.Text = Application.ProductName + "  V" + Application.ProductVersion;
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
-            f4 = new Form4();   // 实例化f2
+           // f4 = new Form4();   // 实例化f2
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -43,10 +44,10 @@ namespace Data_Transceiver_Center
 
         private void button3_Click(object sender, EventArgs e)
         {
-            f4.TopLevel = false;
+           // f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            f4.Show();      // 将窗口4进行显示
+            //f4.Show();      // 将窗口4进行显示
         }
 
         private void btnSaveIni_Click(object sender, EventArgs e)
@@ -129,8 +130,6 @@ namespace Data_Transceiver_Center
             });
             this.BeginInvoke(mi0);
 
-            // 读CSV
-            f1.refreshCSV();
 
             string url1 = "";
             string url2 = "";
@@ -150,7 +149,7 @@ namespace Data_Transceiver_Center
                     string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
                     //随机数生成快递单号，用来查询数据，测试Json
                     url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson1 = Form1.HttpUitls.Get(url1);
+                    getJson1 = HttpUitls.Get(url1);
                     try
                     {
                         testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
@@ -164,7 +163,7 @@ namespace Data_Transceiver_Center
                 else
                 {
                     url1 = f1.GetUrl("position", f1.GetMes1prt());
-                    getJson1 = Form1.HttpUitls.Get(url1);
+                    getJson1 = HttpUitls.Get(url1);
                     try
                     {
                         MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
@@ -193,7 +192,7 @@ namespace Data_Transceiver_Center
                     string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
                     //我们的接口
                     url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson2 = Form1.HttpUitls.Get(url2);
+                    getJson2 = HttpUitls.Get(url2);
                     try
                     {
                         testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
@@ -208,7 +207,7 @@ namespace Data_Transceiver_Center
                 else
                 {
                     url2 = f1.GetUrl("print", f1.GetMes2prt());
-                    getJson2 = Form1.HttpUitls.Get(url2);
+                    getJson2 = HttpUitls.Get(url2);
                     try
                     {
                         MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
@@ -255,7 +254,7 @@ namespace Data_Transceiver_Center
 
                 url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
 
-                getJson3 = Form1.HttpUitls.Get(url3);
+                getJson3 = HttpUitls.Get(url3);
 
                 MethodInvoker mi2 = new MethodInvoker(() =>
                 {
@@ -288,28 +287,5 @@ namespace Data_Transceiver_Center
             }
         }
 
-        ///  CSV监控选框
-        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
-        {
-            string fileWatchPath= f1.GetCsvPath();
-            if (fileWatchPath == "")
-            {
-                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                fileWatchPath = appPath.Substring(0,appPath.IndexOf("DataTransceiverCenter")+21);
-                Console.WriteLine(fileWatchPath);
-            }
-            fileSystemWatcher1.Path = fileWatchPath;
-
-            if (fileWatcher_chkbox.Checked == true)
-            {
-                fileSystemWatcher1.EnableRaisingEvents = true;
-                Console.WriteLine("AutoMode is running");
-            }
-            else
-            {
-                fileSystemWatcher1.EnableRaisingEvents = false;
-                Console.WriteLine("AutoMode is closing");
-            }
-        }
     }
 }

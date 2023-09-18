@@ -40,10 +40,7 @@ namespace Data_Transceiver_Center
             this.btn_LoadIni = new System.Windows.Forms.Button();
             this.autoRun_btn = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.fileWatcher_chkbox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -54,7 +51,7 @@ namespace Data_Transceiver_Center
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(128, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(738, 551);
+            this.panel1.Size = new System.Drawing.Size(725, 550);
             this.panel1.TabIndex = 0;
             // 
             // label1
@@ -131,30 +128,11 @@ namespace Data_Transceiver_Center
             // 
             this.timer1.Tick += new System.EventHandler(this.autoRun_btn_Click);
             // 
-            // fileSystemWatcher1
-            // 
-            this.fileSystemWatcher1.EnableRaisingEvents = true;
-            this.fileSystemWatcher1.Filter = "*.csv";
-            this.fileSystemWatcher1.SynchronizingObject = this;
-            this.fileSystemWatcher1.Changed += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Changed);
-            // 
-            // fileWatcher_chkbox
-            // 
-            this.fileWatcher_chkbox.AutoSize = true;
-            this.fileWatcher_chkbox.Location = new System.Drawing.Point(27, 397);
-            this.fileWatcher_chkbox.Name = "fileWatcher_chkbox";
-            this.fileWatcher_chkbox.Size = new System.Drawing.Size(90, 16);
-            this.fileWatcher_chkbox.TabIndex = 7;
-            this.fileWatcher_chkbox.Text = "监测CSV文件";
-            this.fileWatcher_chkbox.UseVisualStyleBackColor = true;
-            this.fileWatcher_chkbox.CheckedChanged += new System.EventHandler(this.fileWatcher_chkbox_CheckedChanged);
-            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(878, 575);
-            this.Controls.Add(this.fileWatcher_chkbox);
+            this.ClientSize = new System.Drawing.Size(861, 567);
             this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadIni);
             this.Controls.Add(this.btn_SaveIni);
@@ -162,13 +140,14 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.btn_Form2);
             this.Controls.Add(this.btn_Form1);
             this.Controls.Add(this.panel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "Form3";
             this.Text = "Data Transceiver Center";
             this.Load += new System.EventHandler(this.Form3_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -185,7 +164,5 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_LoadIni;
         private System.Windows.Forms.Button autoRun_btn;
         private System.Windows.Forms.Timer timer1;
-        private System.IO.FileSystemWatcher fileSystemWatcher1;
-        private System.Windows.Forms.CheckBox fileWatcher_chkbox;
     }
 }

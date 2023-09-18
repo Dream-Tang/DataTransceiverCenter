@@ -47,7 +47,6 @@ namespace Data_Transceiver_Center
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.rad_ActUtlType = new System.Windows.Forms.RadioButton();
-            this.axActUtlType1 = new AxActUtlTypeLib.AxActUtlType();
             this.label8 = new System.Windows.Forms.Label();
             this.txt_DeviceNameRandom = new System.Windows.Forms.TextBox();
             this.txt_DeviceDataRandom = new System.Windows.Forms.TextBox();
@@ -74,12 +73,14 @@ namespace Data_Transceiver_Center
             this.rd_CamNG = new System.Windows.Forms.RadioButton();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.分割线1 = new System.Windows.Forms.Label();
+            this.axActUtlType1 = new AxActUtlTypeLib.AxActUtlType();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).BeginInit();
             this.SuspendLayout();
             // 
             // btn_ReadDeviceRandom2
@@ -230,15 +231,6 @@ namespace Data_Transceiver_Center
             this.rad_ActUtlType.TabStop = true;
             this.rad_ActUtlType.Text = "ActUtlType";
             this.rad_ActUtlType.UseVisualStyleBackColor = true;
-            // 
-            // axActUtlType1
-            // 
-            this.axActUtlType1.Enabled = true;
-            this.axActUtlType1.Location = new System.Drawing.Point(50, 50);
-            this.axActUtlType1.Name = "axActUtlType1";
-            this.axActUtlType1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axActUtlType1.OcxState")));
-            this.axActUtlType1.Size = new System.Drawing.Size(32, 32);
-            this.axActUtlType1.TabIndex = 0;
             // 
             // label8
             // 
@@ -528,12 +520,31 @@ namespace Data_Transceiver_Center
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // 分割线1
+            // 
+            this.分割线1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.分割线1.Location = new System.Drawing.Point(12, 289);
+            this.分割线1.Name = "分割线1";
+            this.分割线1.Size = new System.Drawing.Size(551, 2);
+            this.分割线1.TabIndex = 27;
+            this.分割线1.Text = "分割线1";
+            // 
+            // axActUtlType1
+            // 
+            this.axActUtlType1.Enabled = true;
+            this.axActUtlType1.Location = new System.Drawing.Point(50, 50);
+            this.axActUtlType1.Name = "axActUtlType1";
+            this.axActUtlType1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axActUtlType1.OcxState")));
+            this.axActUtlType1.Size = new System.Drawing.Size(32, 32);
+            this.axActUtlType1.TabIndex = 0;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(567, 316);
+            this.ClientSize = new System.Drawing.Size(597, 514);
             this.ControlBox = false;
+            this.Controls.Add(this.分割线1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.txt_DeviceDataRandom);
@@ -564,7 +575,6 @@ namespace Data_Transceiver_Center
             this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.panel3.ResumeLayout(false);
@@ -573,6 +583,7 @@ namespace Data_Transceiver_Center
             this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.axActUtlType1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -624,5 +635,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.TextBox txt_Timer1Interval;
+        private System.Windows.Forms.Label 分割线1;
     }
 }

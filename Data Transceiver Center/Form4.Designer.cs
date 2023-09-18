@@ -36,6 +36,8 @@ namespace Data_Transceiver_Center
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.fileWatcher_chkbox = new System.Windows.Forms.CheckBox();
             this.label4_3 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
@@ -105,11 +107,30 @@ namespace Data_Transceiver_Center
             this.label4_3.TabIndex = 69;
             this.label4_3.Text = "监控状态";
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(14, 258);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox1.Size = new System.Drawing.Size(135, 157);
+            this.textBox1.TabIndex = 70;
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(197, 258);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(135, 21);
+            this.textBox2.TabIndex = 71;
+            // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(738, 551);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label4_3);
             this.Controls.Add(this.fileWatcher_chkbox);
             this.Controls.Add(this.label4_2);
@@ -134,5 +155,7 @@ namespace Data_Transceiver_Center
         private System.IO.FileSystemWatcher fileSystemWatcher1;
         private System.Windows.Forms.Label label4_3;
         private System.Windows.Forms.CheckBox fileWatcher_chkbox;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
