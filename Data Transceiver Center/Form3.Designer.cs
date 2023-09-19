@@ -40,6 +40,8 @@ namespace Data_Transceiver_Center
             this.btn_LoadIni = new System.Windows.Forms.Button();
             this.autoRun_btn = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.trigger1_CheckBox = new System.Windows.Forms.CheckBox();
+            this.ignorePlc_checkBox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -128,11 +130,34 @@ namespace Data_Transceiver_Center
             // 
             this.timer1.Tick += new System.EventHandler(this.autoRun_btn_Click);
             // 
+            // trigger1_CheckBox
+            // 
+            this.trigger1_CheckBox.AutoSize = true;
+            this.trigger1_CheckBox.Location = new System.Drawing.Point(8, 407);
+            this.trigger1_CheckBox.Name = "trigger1_CheckBox";
+            this.trigger1_CheckBox.Size = new System.Drawing.Size(108, 16);
+            this.trigger1_CheckBox.TabIndex = 7;
+            this.trigger1_CheckBox.Text = "二维码输入触发";
+            this.trigger1_CheckBox.UseVisualStyleBackColor = true;
+            this.trigger1_CheckBox.CheckedChanged += new System.EventHandler(this.trigger1_CheckBox_CheckedChanged);
+            // 
+            // ignorePlc_checkBox
+            // 
+            this.ignorePlc_checkBox.AutoSize = true;
+            this.ignorePlc_checkBox.Location = new System.Drawing.Point(8, 429);
+            this.ignorePlc_checkBox.Name = "ignorePlc_checkBox";
+            this.ignorePlc_checkBox.Size = new System.Drawing.Size(66, 16);
+            this.ignorePlc_checkBox.TabIndex = 8;
+            this.ignorePlc_checkBox.Text = "屏蔽PLC";
+            this.ignorePlc_checkBox.UseVisualStyleBackColor = true;
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 567);
+            this.Controls.Add(this.ignorePlc_checkBox);
+            this.Controls.Add(this.trigger1_CheckBox);
             this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadIni);
             this.Controls.Add(this.btn_SaveIni);
@@ -164,5 +189,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_LoadIni;
         private System.Windows.Forms.Button autoRun_btn;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.CheckBox trigger1_CheckBox;
+        private System.Windows.Forms.CheckBox ignorePlc_checkBox;
     }
 }

@@ -30,19 +30,20 @@ namespace Data_Transceiver_Center
         public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
-        private int mes1Status = STATUS_WAIT;
-        private int mes2Status = STATUS_WAIT;
-        private int mes3Status = STATUS_WAIT;
-        private int prtStatus = STATUS_WAIT;
+        internal int mes1Status = STATUS_WAIT;
+        internal int mes2Status = STATUS_WAIT;
+        internal int mes3Status = STATUS_WAIT;
+        internal int prtStatus = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
+        internal int trigSigner = STATUS_WAIT;      // 触发信号状态，当二维码输入时，表示有触发信号，可执行全流程操作
 
         // 通信标志位数值定义
-        private const int STATUS_WAIT = -1;
-        private const int STATUS_READY = 0;
-        private const int STATUS_WORKING = 1;
-        private const int STATUS_COMPLETE = 2;
-        private const int STATUS_EXCEPTION = 3;
-        private const int CONNECT_EXCEPTION = 4;
-        private const int CONVERT_EXCEPTION = 5;
+        internal const int STATUS_WAIT = -1;
+        internal const int STATUS_READY = 0;
+        internal const int STATUS_WORKING = 1;
+        internal const int STATUS_COMPLETE = 2;
+        internal const int STATUS_EXCEPTION = 3;
+        internal const int CONNECT_EXCEPTION = 4;
+        internal const int CONVERT_EXCEPTION = 5;
 
         // 生成ZPL文档
         public void makeZpl_btn_Click(object sender, EventArgs e)
@@ -544,7 +545,6 @@ namespace Data_Transceiver_Center
             this.scnValue_label.Text = Convert.ToString(scn);
         }
 
-
         public void refreshMes1(string api, string getJson, string mesID)
         {
             this.mesApi_txtBox.Text = api;
@@ -565,10 +565,10 @@ namespace Data_Transceiver_Center
             this.JsonMsg_txtBox.Text = "Mes3:\r\n" + getJson;
         }
 
-        public string GetUrl(string pluginarg = "", string par = "", string mesApi = "")
+        public string GetUrl(string addr, string pluginarg = "", string par = "", string mesApi = "")
         {
             // http 接口。若直接参数传入mesApi，则直接用mesApi，若没有直接传入，则根据参数来合成。
-            string api_url = apiToken + pluginarg + "&par=" + par;
+            string api_url = "https://" + addr +  apiToken + pluginarg + "&par=" + par;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI)
             {
@@ -579,6 +579,13 @@ namespace Data_Transceiver_Center
                 api_url = mesApi;
             }
             return api_url;
+        }
+
+        public string GetMesAddr()
+        {
+            string addr;
+            addr = this.mesAddr_txtBox.Text;
+            return addr;
         }
 
         public string GetMes1prt()
@@ -675,7 +682,15 @@ namespace Data_Transceiver_Center
             string filePathZPL = zplPath_txtBox.Text + "\\zpl.txt";
             string mPrintName = prtPath_txtBox.Text;
 
-            AutoSendFile(filePathZPL, mPrintName);
+            Task t1 = new Task(() =>
+            {
+                AutoSendFile(filePathZPL, mPrintName);
+                MethodInvoker mi = new MethodInvoker(() =>
+                {
+                    //refreshPLC();
+                });
+            });
+            t1.Start();
         }
 
         // 从ini读出数据到页面
@@ -704,10 +719,10 @@ namespace Data_Transceiver_Center
         {
             var myIni = new IniFile(iniFile);
 
-            string filePathZPL = zplPath_txtBox.Text+"\r\n";
-            string prtName = prtPath_txtBox.Text + "\r\n";
-            string mesAddr = mesAddr_txtBox.Text + "\r\n";
-            string lineCount = position_txtBox.Text + "\r\n";
+            string filePathZPL = zplPath_txtBox.Text;
+            string prtName = prtPath_txtBox.Text ;
+            string mesAddr = mesAddr_txtBox.Text ;
+            string lineCount = position_txtBox.Text ;
             string testHttp = "False" + "\r\n"; // 确保每次保存ini后关闭调试模式
 
             myIni.Write("filePathZPL", filePathZPL, "Form1");
@@ -803,6 +818,8 @@ namespace Data_Transceiver_Center
             if (veriCodeHistory_txtBox.Lines.Length > 0)
             {
                 veriCode_txtBox.Text = veriCodeHistory_txtBox.Lines[veriCodeHistory_txtBox.Lines.Length-1];
+                // 触发信号，当二维码输入时，表示有触发信号，可执行全流程操作
+                trigSigner = STATUS_WORKING;
             }
             else
             {

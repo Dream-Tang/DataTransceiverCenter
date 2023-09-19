@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
@@ -23,7 +24,7 @@ namespace Data_Transceiver_Center
             this.Text = Application.ProductName + "  V" + Application.ProductVersion;
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
-           // f4 = new Form4();   // 实例化f2
+                                // f4 = new Form4();   // 实例化f2
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -44,7 +45,7 @@ namespace Data_Transceiver_Center
 
         private void button3_Click(object sender, EventArgs e)
         {
-           // f4.TopLevel = false;
+            // f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
             //f4.Show();      // 将窗口4进行显示
@@ -123,7 +124,14 @@ namespace Data_Transceiver_Center
         {
             short cam, prt, scn;
             // 读PLC
-            (cam, prt, scn) = f2.ReadPlc();
+            if(ignorePlc_checkBox.Checked)
+            {
+                (cam, prt, scn) = (-1, -1, -1);
+            }
+            else
+            {
+                (cam, prt, scn) = f2.ReadPlc();
+            }
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
                 f1.refreshPLC(cam, prt, scn);
@@ -162,7 +170,7 @@ namespace Data_Transceiver_Center
                 }
                 else
                 {
-                    url1 = f1.GetUrl("position", f1.GetMes1prt());
+                    url1 = f1.GetUrl(f1.GetMesAddr(), "position", f1.GetMes1prt());
                     getJson1 = HttpUitls.Get(url1);
                     try
                     {
@@ -182,6 +190,7 @@ namespace Data_Transceiver_Center
             });
             await t1;
             Console.WriteLine("Json1:" + getJson1);
+            cam = CommunicationProtocol.camOK;
 
             // MES2
             var t2 = Task.Run(() =>
@@ -200,13 +209,13 @@ namespace Data_Transceiver_Center
                     }
                     catch (Exception)
                     {
-                        fogID = "解析出错"; 
+                        fogID = "解析出错";
                     }
-                    
+
                 }
                 else
                 {
-                    url2 = f1.GetUrl("print", f1.GetMes2prt());
+                    url2 = f1.GetUrl(f1.GetMesAddr(), "print", f1.GetMes2prt());
                     getJson2 = HttpUitls.Get(url2);
                     try
                     {
@@ -244,7 +253,14 @@ namespace Data_Transceiver_Center
                 {
                     scn = CommunicationProtocol.checkNG;
                 }
-                f2.WritePlc(cam, prt, scn);
+                if (ignorePlc_checkBox.Checked)
+                {
+                    
+                }
+                else
+                {
+                    f2.WritePlc(cam, prt, scn);
+                }
                 this.BeginInvoke(mi0);
             });
 
@@ -252,7 +268,7 @@ namespace Data_Transceiver_Center
             var t3 = Task.Run(() =>
             {
 
-                url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
+                url3 = f1.GetUrl(f1.GetMesAddr(), "printCallBack", f1.GetMes3prt());
 
                 getJson3 = HttpUitls.Get(url3);
 
@@ -286,6 +302,28 @@ namespace Data_Transceiver_Center
                 Console.WriteLine(lastRead);
             }
         }
+
+        private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            var t1 = Task.Run(() =>
+            {
+                while (trigger1_CheckBox.Checked)
+                {
+                    if (f1.trigSigner == Form1.STATUS_WORKING)
+                    {
+                        Console.WriteLine("自动运行已触发");
+                        Action action = () =>
+                        {
+                            AutoRunMode();
+                        };
+                        Invoke(action);
+                        Thread.Sleep(500);
+                        f1.trigSigner = Form1.STATUS_WAIT;
+                    }
+                }
+            });
+        }
+
 
     }
 }
