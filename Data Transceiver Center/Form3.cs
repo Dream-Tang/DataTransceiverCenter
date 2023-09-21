@@ -316,10 +316,11 @@ namespace Data_Transceiver_Center
                         {
                             AutoRunMode();
                         };
-                        Invoke(action);
-                        Thread.Sleep(500);
+
                         f1.trigSigner = Form1.STATUS_WAIT;
+                        Invoke(action);
                     }
+                    Thread.Sleep(500);
                 }
             });
         }
