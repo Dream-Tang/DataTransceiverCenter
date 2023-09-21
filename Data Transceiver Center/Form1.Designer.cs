@@ -67,29 +67,29 @@ namespace Data_Transceiver_Center
             this.label2_2 = new System.Windows.Forms.Label();
             this.JsonMsg_txtBox = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.apiTest_btn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.mesAddr_txtBox = new System.Windows.Forms.TextBox();
             this.scnCode_txtBox = new System.Windows.Forms.TextBox();
             this.label1_6 = new System.Windows.Forms.Label();
             this.serialPort_label = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.reloadPort_btn = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.camValue_label = new System.Windows.Forms.Label();
             this.prtValue_label = new System.Windows.Forms.Label();
             this.scnValue_label = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.reloadPort_btn = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.runStatus_lable = new System.Windows.Forms.Label();
             this.veriCodeHistory_txtBox = new System.Windows.Forms.TextBox();
             this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
-            this.apiTest_btn = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -465,6 +465,16 @@ namespace Data_Transceiver_Center
             this.panel1.Size = new System.Drawing.Size(403, 136);
             this.panel1.TabIndex = 55;
             // 
+            // apiTest_btn
+            // 
+            this.apiTest_btn.Location = new System.Drawing.Point(268, 52);
+            this.apiTest_btn.Name = "apiTest_btn";
+            this.apiTest_btn.Size = new System.Drawing.Size(75, 33);
+            this.apiTest_btn.TabIndex = 44;
+            this.apiTest_btn.Text = "Api Test";
+            this.apiTest_btn.UseVisualStyleBackColor = true;
+            this.apiTest_btn.Click += new System.EventHandler(this.apiTest_btn_Click);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -532,16 +542,25 @@ namespace Data_Transceiver_Center
             this.panel2.Size = new System.Drawing.Size(124, 248);
             this.panel2.TabIndex = 55;
             // 
-            // reloadPort_btn
+            // label5
             // 
-            this.reloadPort_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.reloadPort_btn.Location = new System.Drawing.Point(77, 68);
-            this.reloadPort_btn.Name = "reloadPort_btn";
-            this.reloadPort_btn.Size = new System.Drawing.Size(75, 32);
-            this.reloadPort_btn.TabIndex = 55;
-            this.reloadPort_btn.Text = "刷新串口号";
-            this.reloadPort_btn.UseVisualStyleBackColor = true;
-            this.reloadPort_btn.Click += new System.EventHandler(this.reloadPort_btn_Click);
+            this.label5.AutoSize = true;
+            this.label5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label5.Location = new System.Drawing.Point(3, 3);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(49, 14);
+            this.label5.TabIndex = 65;
+            this.label5.Text = "PLC状态";
+            // 
+            // label3
+            // 
+            this.label3.Location = new System.Drawing.Point(3, 39);
+            this.label3.Name = "label3";
+            this.label3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label3.Size = new System.Drawing.Size(55, 17);
+            this.label3.TabIndex = 63;
+            this.label3.Text = "prtValue";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // camValue_label
             // 
@@ -575,6 +594,36 @@ namespace Data_Transceiver_Center
             this.scnValue_label.Text = "scnValue";
             this.scnValue_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // label4
+            // 
+            this.label4.Location = new System.Drawing.Point(3, 57);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(55, 17);
+            this.label4.TabIndex = 62;
+            this.label4.Text = "camValue";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(3, 21);
+            this.label2.Name = "label2";
+            this.label2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.label2.Size = new System.Drawing.Size(55, 17);
+            this.label2.TabIndex = 64;
+            this.label2.Text = "scnValue";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // reloadPort_btn
+            // 
+            this.reloadPort_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.reloadPort_btn.Location = new System.Drawing.Point(77, 68);
+            this.reloadPort_btn.Name = "reloadPort_btn";
+            this.reloadPort_btn.Size = new System.Drawing.Size(75, 32);
+            this.reloadPort_btn.TabIndex = 55;
+            this.reloadPort_btn.Text = "刷新串口号";
+            this.reloadPort_btn.UseVisualStyleBackColor = true;
+            this.reloadPort_btn.Click += new System.EventHandler(this.reloadPort_btn_Click);
+            // 
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -601,6 +650,7 @@ namespace Data_Transceiver_Center
             // veriCodeHistory_txtBox
             // 
             this.veriCodeHistory_txtBox.Location = new System.Drawing.Point(5, 60);
+            this.veriCodeHistory_txtBox.MaxLength = 0;
             this.veriCodeHistory_txtBox.Multiline = true;
             this.veriCodeHistory_txtBox.Name = "veriCodeHistory_txtBox";
             this.veriCodeHistory_txtBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -620,35 +670,6 @@ namespace Data_Transceiver_Center
             this.autoRun_checkBox.Text = "锁定设置";
             this.autoRun_checkBox.UseVisualStyleBackColor = true;
             this.autoRun_checkBox.CheckedChanged += new System.EventHandler(this.autoRun_checkBox_CheckedChanged);
-            // 
-            // label2
-            // 
-            this.label2.Location = new System.Drawing.Point(3, 21);
-            this.label2.Name = "label2";
-            this.label2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.label2.Size = new System.Drawing.Size(55, 17);
-            this.label2.TabIndex = 64;
-            this.label2.Text = "scnValue";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(3, 39);
-            this.label3.Name = "label3";
-            this.label3.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.label3.Size = new System.Drawing.Size(55, 17);
-            this.label3.TabIndex = 63;
-            this.label3.Text = "prtValue";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(3, 57);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 17);
-            this.label4.TabIndex = 62;
-            this.label4.Text = "camValue";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel3
             // 
@@ -703,26 +724,6 @@ namespace Data_Transceiver_Center
             this.panel6.Name = "panel6";
             this.panel6.Size = new System.Drawing.Size(195, 220);
             this.panel6.TabIndex = 68;
-            // 
-            // apiTest_btn
-            // 
-            this.apiTest_btn.Location = new System.Drawing.Point(268, 52);
-            this.apiTest_btn.Name = "apiTest_btn";
-            this.apiTest_btn.Size = new System.Drawing.Size(75, 33);
-            this.apiTest_btn.TabIndex = 44;
-            this.apiTest_btn.Text = "Api Test";
-            this.apiTest_btn.UseVisualStyleBackColor = true;
-            this.apiTest_btn.Click += new System.EventHandler(this.apiTest_btn_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label5.Location = new System.Drawing.Point(3, 3);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 14);
-            this.label5.TabIndex = 65;
-            this.label5.Text = "PLC状态";
             // 
             // Form1
             // 

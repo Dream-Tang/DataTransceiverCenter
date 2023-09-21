@@ -815,8 +815,18 @@ namespace Data_Transceiver_Center
         // 二维码扫码录入到多行文本框，从多行文本框末行取值给veriCode
         private void veriCodeHistory_txtBox_TextChanged(object sender, EventArgs e)
         {
+            int maxLines =2000;
             if (veriCodeHistory_txtBox.Lines.Length > 0)
             {
+                if (veriCodeHistory_txtBox.Lines.Length > maxLines)
+                {
+                    // 截去顶行
+                    veriCodeHistory_txtBox.Text = veriCodeHistory_txtBox.Text.Substring(veriCodeHistory_txtBox.Lines[0].Length+1);
+                    // 光标到最后
+                    veriCodeHistory_txtBox.Select(veriCodeHistory_txtBox.Text.Length,0);
+                    // 滚动条到最后
+                    veriCodeHistory_txtBox.ScrollToCaret();
+                }
                 veriCode_txtBox.Text = veriCodeHistory_txtBox.Lines[veriCodeHistory_txtBox.Lines.Length-1];
                 // 触发信号，当二维码输入时，表示有触发信号，可执行全流程操作
                 trigSigner = STATUS_WORKING;

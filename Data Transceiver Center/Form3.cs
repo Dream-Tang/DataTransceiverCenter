@@ -24,7 +24,7 @@ namespace Data_Transceiver_Center
             this.Text = Application.ProductName + "  V" + Application.ProductVersion;
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
-                                // f4 = new Form4();   // 实例化f2
+            // f4 = new Form4();   // 实例化f2
         }
 
         private void button1_Click(object sender, EventArgs e)
