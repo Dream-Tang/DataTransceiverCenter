@@ -90,6 +90,8 @@ namespace Data_Transceiver_Center
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
+            //this.label6 = new System.Windows.Forms.Label();
+            //this.veriCount_label = new System.Windows.Forms.Label();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -530,6 +532,8 @@ namespace Data_Transceiver_Center
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            //this.panel2.Controls.Add(this.veriCount_label);
+            //this.panel2.Controls.Add(this.label6);
             this.panel2.Controls.Add(this.label5);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.camValue_label);
@@ -725,6 +729,25 @@ namespace Data_Transceiver_Center
             this.panel6.Size = new System.Drawing.Size(195, 220);
             this.panel6.TabIndex = 68;
             // 
+            //// label6
+            //// 
+            //this.label6.AutoSize = true;
+            //this.label6.Location = new System.Drawing.Point(5, 91);
+            //this.label6.Name = "label6";
+            //this.label6.Size = new System.Drawing.Size(65, 12);
+            //this.label6.TabIndex = 66;
+            //this.label6.Text = "二维码计数";
+            //// 
+            //// veriCount_label
+            //// 
+            //this.veriCount_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            //this.veriCount_label.Location = new System.Drawing.Point(7, 107);
+            //this.veriCount_label.Name = "veriCount_label";
+            //this.veriCount_label.Size = new System.Drawing.Size(57, 17);
+            //this.veriCount_label.TabIndex = 67;
+            //this.veriCount_label.Text = "veriCount";
+            //this.veriCount_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            //// 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -837,6 +860,8 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button apiTest_btn;
         private System.Windows.Forms.Label label5;
         internal System.Windows.Forms.TextBox veriCodeHistory_txtBox;
+        //private System.Windows.Forms.Label veriCount_label;
+        //private System.Windows.Forms.Label label6;
     }
 }
 

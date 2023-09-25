@@ -705,13 +705,13 @@ namespace Data_Transceiver_Center
         #endregion 
 
         // 发送数据
-        public (short cam,short prt, short scn ) ReadPlc()
+        public Tuple<short,short,short> ReadPlc()
         {
             if (txt_LogicalStationNumber.Enabled)
             {
                 MessageBox.Show("与PLC连接未打开，请先进行连接");
                 checkBox1.Checked = false;
-                return (-1, -1, -1);
+                return new Tuple<short,short,short>(-1, -1, -1);
             }
             try
             {
@@ -719,11 +719,11 @@ namespace Data_Transceiver_Center
                short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
                short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
 
-                return (rd_camValue, rd_prtValue, rd_scnValue);
+                return new Tuple<short, short, short>(rd_camValue, rd_prtValue, rd_scnValue);
             }
             catch (Exception)
             {
-                return (-1, -1, -1);
+                return new Tuple<short, short, short>(-1, -1, -1);
             }
         }
 

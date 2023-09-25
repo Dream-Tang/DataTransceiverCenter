@@ -126,11 +126,17 @@ namespace Data_Transceiver_Center
             // 读PLC
             if(ignorePlc_checkBox.Checked)
             {
-                (cam, prt, scn) = (-1, -1, -1);
+                //(cam, prt, scn) = (-1, -1, -1);
+                cam = -1;
+                prt = -1;
+                scn = -1;
             }
             else
             {
-                (cam, prt, scn) = f2.ReadPlc();
+                //(cam, prt, scn) = f2.ReadPlc();
+                cam = f2.ReadPlc().Item1;
+                prt = f2.ReadPlc().Item2;
+                scn = f2.ReadPlc().Item3;
             }
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
@@ -318,6 +324,8 @@ namespace Data_Transceiver_Center
                         };
 
                         f1.trigSigner = Form1.STATUS_WAIT;
+                        //f1.veriCodeCount = f1.veriCodeCount + 1;
+
                         Invoke(action);
                     }
                     Thread.Sleep(500);
