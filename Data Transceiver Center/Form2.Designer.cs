@@ -105,6 +105,7 @@ namespace Data_Transceiver_Center
             // 
             // txt_DeviceSizeRandom
             // 
+            this.txt_DeviceSizeRandom.Enabled = false;
             this.txt_DeviceSizeRandom.Location = new System.Drawing.Point(13, 174);
             this.txt_DeviceSizeRandom.Name = "txt_DeviceSizeRandom";
             this.txt_DeviceSizeRandom.Size = new System.Drawing.Size(100, 21);

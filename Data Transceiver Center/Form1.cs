@@ -642,7 +642,7 @@ namespace Data_Transceiver_Center
                   {
                       // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
                       string portData = serialPort1.ReadExisting(); // 读所有缓存数据
-                      serialRead_txtBox.Text = portData.Trim(); //  移出头部和尾部空白字符
+                      serialRead_txtBox.Text = portData;//.Trim(); //  移出头部和尾部空白字符
                       //serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
                       scnCode_txtBox.Text = serialRead_txtBox.Text;
 
