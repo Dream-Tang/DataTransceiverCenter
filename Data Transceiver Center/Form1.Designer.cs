@@ -232,6 +232,7 @@ namespace Data_Transceiver_Center
             // 
             // serialPort1
             // 
+            this.serialPort1.ParityReplace = ((byte)(0));
             this.serialPort1.ReadTimeout = 2000;
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.SerialPort1_DataRecived);
             // 

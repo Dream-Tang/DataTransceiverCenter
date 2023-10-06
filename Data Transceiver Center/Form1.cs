@@ -637,19 +637,20 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                // 因为要访问UI资源，所以需要使用invoke方式同步ui
-                this.Invoke((EventHandler)(delegate
-                  {
-                      // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
-                      string portData = serialPort1.ReadExisting(); // 读所有缓存数据
-                      serialRead_txtBox.Text = portData;//.Trim(); //  移出头部和尾部空白字符
-                      //serialRead_txtBox.Text = serialPort1.ReadTo("\r"); // 读到0x0d，也就是'\r' 回车结束
-                      scnCode_txtBox.Text = serialRead_txtBox.Text;
+                // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
+                //string portData = serialPort1.ReadExisting(); // 读所有缓存数据
+                string portData = serialPort1.ReadTo("\r\n");
 
-                      // 扫码枪通过串口发送过来的
-                      //textBox4.Text = System.Text.Encoding.ASCII.GetString(ToBytesFromHexString(textBox3.Text));
-                  })
-                    );
+                // 因为要访问UI资源，所以需要使用invoke方式同步ui
+
+                // 跨线程修改UI，使用methodinvoker工具类
+                MethodInvoker mi = new MethodInvoker(() => 
+                {
+                    serialRead_txtBox.Text = portData.Trim(); //  移出头部和尾部空白字符
+                    //scnCode_txtBox.Text = serialRead_txtBox.Text;
+                });
+                BeginInvoke(mi);
+                    
             }
             catch (Exception ex)
             {
