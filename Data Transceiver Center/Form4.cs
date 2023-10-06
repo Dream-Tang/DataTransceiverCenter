@@ -5,10 +5,13 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing.Common;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 
 
 namespace Data_Transceiver_Center
@@ -102,5 +105,119 @@ namespace Data_Transceiver_Center
                 textBox2.Text = null;
             }
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Task.Run(TcpServer);
+        }
+
+        // 打开tcpServer服务
+        private void TcpServer()
+        {
+
+            TcpListener server = null;
+            try
+            {
+                var ip = IPAddr_cobBox.sel;
+                string port = tcpPort_txtBox.Text;
+                // Set the TcpListener on port 13000.
+                Int32 localPort  = Int32.Parse(port) ;
+                IPAddress localAddr = IPAddress.Parse(ip);
+
+                // TcpListener server = new TcpListener(port);
+                server = new TcpListener(localAddr, localPort);
+
+                // Start listening for client requests.
+                server.Start();
+
+                // Buffer for reading data
+                Byte[] bytes = new Byte[256];
+                String data = null;
+
+                // Enter the listening loop.
+                while (true)
+                {
+                    Console.Write("Waiting for a connection... ");
+
+                    // Perform a blocking call to accept requests.
+                    // You could also use server.AcceptSocket() here.
+                   TcpClient client = server.AcceptTcpClient();
+                    Console.WriteLine("Connected!");
+
+                    data = null;
+
+                    // Get a stream object for reading and writing
+                    NetworkStream stream = client.GetStream();
+
+                    int i;
+
+                    // Loop to receive all the data sent by the client.
+                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        // Translate data bytes to a ASCII string.
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        Console.WriteLine("Received: {0}", data);
+
+                        MethodInvoker mi = new MethodInvoker(()=>
+                        {
+                            textBox3.Text = data;
+                        });
+                        BeginInvoke(mi);
+
+                        // Process the data sent by the client.
+                        string sendData = data.ToUpper();
+
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(sendData);
+
+                        // Send back a response.
+                        stream.Write(msg, 0, msg.Length);
+                        Console.WriteLine("Sent: {0}", data);
+
+                        Thread.Sleep(100);
+                    }
+
+                    Thread.Sleep(100);
+                }
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: {0}", e);
+            }
+            finally
+            {
+                server.Stop();
+            }
+
+            Console.WriteLine("\nHit enter to continue...");
+            Console.Read();
+
+    }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            GetLocalIp();
+        }
+
+        public string GetLocalIp() 
+        {
+            string AddressIP = string.Empty;
+            IPAddr_cobBox.Items.Clear();
+
+            foreach (IPAddress _IPAddress in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+            {
+                if (_IPAddress.AddressFamily.ToString() == "InterNetwork")
+                {
+                    AddressIP = _IPAddress.ToString();
+                }
+                if (AddressIP!="")
+                {
+                    IPAddr_cobBox.Items.Add(AddressIP);
+                }
+            }
+
+            IPAddr_cobBox.SelectedIndex = 0;
+            return AddressIP;
+        }
+
     }
 }

@@ -38,8 +38,21 @@ namespace Data_Transceiver_Center
             this.label4_3 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.tcpPort_txtBox = new System.Windows.Forms.TextBox();
+            this.client_radBtn = new System.Windows.Forms.RadioButton();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.server_radBtn = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.IP_txtBox = new System.Windows.Forms.TextBox();
+            this.IPAddr_cobBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1_5
@@ -124,11 +137,128 @@ namespace Data_Transceiver_Center
             this.textBox2.Size = new System.Drawing.Size(135, 21);
             this.textBox2.TabIndex = 71;
             // 
+            // tcpPort_txtBox
+            // 
+            this.tcpPort_txtBox.Location = new System.Drawing.Point(384, 146);
+            this.tcpPort_txtBox.Name = "tcpPort_txtBox";
+            this.tcpPort_txtBox.Size = new System.Drawing.Size(168, 21);
+            this.tcpPort_txtBox.TabIndex = 72;
+            // 
+            // client_radBtn
+            // 
+            this.client_radBtn.AutoSize = true;
+            this.client_radBtn.Location = new System.Drawing.Point(5, 3);
+            this.client_radBtn.Name = "client_radBtn";
+            this.client_radBtn.Size = new System.Drawing.Size(59, 16);
+            this.client_radBtn.TabIndex = 74;
+            this.client_radBtn.TabStop = true;
+            this.client_radBtn.Text = "客户端";
+            this.client_radBtn.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.server_radBtn);
+            this.panel1.Controls.Add(this.client_radBtn);
+            this.panel1.Location = new System.Drawing.Point(384, 83);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(171, 24);
+            this.panel1.TabIndex = 75;
+            // 
+            // server_radBtn
+            // 
+            this.server_radBtn.AutoSize = true;
+            this.server_radBtn.Location = new System.Drawing.Point(109, 5);
+            this.server_radBtn.Name = "server_radBtn";
+            this.server_radBtn.Size = new System.Drawing.Size(59, 16);
+            this.server_radBtn.TabIndex = 75;
+            this.server_radBtn.TabStop = true;
+            this.server_radBtn.Text = "服务端";
+            this.server_radBtn.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(349, 122);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(17, 12);
+            this.label1.TabIndex = 76;
+            this.label1.Text = "IP";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(349, 149);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 12);
+            this.label2.TabIndex = 77;
+            this.label2.Text = "端口";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(576, 83);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 78;
+            this.button1.Text = "开启服务器";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(576, 112);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 79;
+            this.button2.Text = "获取本地IP";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(389, 185);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(135, 21);
+            this.textBox3.TabIndex = 80;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(330, 188);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(53, 12);
+            this.label3.TabIndex = 81;
+            this.label3.Text = "接收数据";
+            // 
+            // IP_txtBox
+            // 
+            this.IP_txtBox.Location = new System.Drawing.Point(384, 114);
+            this.IP_txtBox.Name = "IP_txtBox";
+            this.IP_txtBox.Size = new System.Drawing.Size(168, 21);
+            this.IP_txtBox.TabIndex = 82;
+            // 
+            // IPAddr_cobBox
+            // 
+            this.IPAddr_cobBox.FormattingEnabled = true;
+            this.IPAddr_cobBox.Location = new System.Drawing.Point(389, 224);
+            this.IPAddr_cobBox.Name = "IPAddr_cobBox";
+            this.IPAddr_cobBox.Size = new System.Drawing.Size(121, 20);
+            this.IPAddr_cobBox.TabIndex = 84;
+            // 
             // Form4
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(738, 551);
+            this.Controls.Add(this.IPAddr_cobBox);
+            this.Controls.Add(this.IP_txtBox);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.tcpPort_txtBox);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label4_3);
@@ -142,6 +272,8 @@ namespace Data_Transceiver_Center
             this.Text = "Form4";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -157,5 +289,17 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.CheckBox fileWatcher_chkbox;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RadioButton server_radBtn;
+        private System.Windows.Forms.RadioButton client_radBtn;
+        private System.Windows.Forms.TextBox tcpPort_txtBox;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox IP_txtBox;
+        private System.Windows.Forms.ComboBox IPAddr_cobBox;
     }
 }

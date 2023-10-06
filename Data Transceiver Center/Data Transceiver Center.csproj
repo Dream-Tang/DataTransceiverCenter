@@ -182,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActDefine.cs" />
+    <Compile Include="TcpServer.cs" />
     <Compile Include="HttpUitls.cs" />
     <Compile Include="CommunicationProtocol.cs" />
     <Compile Include="Form4.cs">
