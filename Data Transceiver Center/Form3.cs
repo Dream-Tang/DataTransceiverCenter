@@ -392,7 +392,7 @@ namespace Data_Transceiver_Center
 
                             MethodInvoker mi = new MethodInvoker(() =>
                             {
-                                f1.veriCodeHistory_txtBox.AppendText(data);
+                                f1.veriCodeHistory_txtBox.AppendText(data+"\r\n");
                             });
                             BeginInvoke(mi);
 
