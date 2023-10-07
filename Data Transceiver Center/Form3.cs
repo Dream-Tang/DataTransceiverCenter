@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 
 
 namespace Data_Transceiver_Center
@@ -13,6 +15,11 @@ namespace Data_Transceiver_Center
         public Form1 f1;    // 创建窗口1 窗口变量
         public Form2 f2;    // 创建窗口2 窗口变量
         public Form4 f4;    // 创建窗口2 窗口变量
+
+        IPAddress localAddr = IPAddress.Parse("0.0.0.0"); // 本地所有网络地址
+        Int32 localPortNum = Int32.Parse("8080");  // TCP服务器的端口
+
+        TcpListener server = null;
 
         public Form3()
         {
@@ -48,7 +55,7 @@ namespace Data_Transceiver_Center
             f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            f4.Show();      // 将窗口4进行显示
+            //f4.Show();      // 将窗口4进行显示
         }
 
         private void btnSaveIni_Click(object sender, EventArgs e)
@@ -313,7 +320,7 @@ namespace Data_Transceiver_Center
         {
             var t1 = Task.Run(() =>
             {
-                while (trigger1_CheckBox.Checked)
+                while (trigger1_checkBox.Checked)
                 {
                     if (f1.trigSigner == Form1.STATUS_WORKING)
                     {
@@ -333,6 +340,96 @@ namespace Data_Transceiver_Center
             });
         }
 
+        private void tcpServer_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (tcpServer_checkBox.Checked)
+            {
+                server = new TcpListener(localAddr, localPortNum);
+                server.Start();
+                Task.Run(TcpServer);
+            }
+            else
+            {
+                server.Stop();
+            }
+        }
+
+        private void TcpServer()
+        {
+            try
+            {
+                //server = new TcpListener(localAddr, localPortNum);
+                //server.Start();
+
+                // Buffer for reading data
+                Byte[] bytes = new Byte[256];
+                String data = null;
+
+                while (true)
+                {
+                    Console.WriteLine("Waiting for a connection... ");
+
+                    // Perform a blocking call to accept requests.
+                    // You could also use server.AcceptSocket() here.
+                    TcpClient client = server.AcceptTcpClient();
+                    Console.WriteLine("Connected!");
+
+                    data = null;
+
+                    // Get a stream object for reading and writing
+                    NetworkStream stream = client.GetStream();
+
+                    int i;
+
+                    // Loop to receive all the data sent by the client.
+                    while (tcpServer_checkBox.Checked&&(i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        if (tcpServer_checkBox.Checked)
+                        {
+                            // Translate data bytes to a ASCII string.
+                            data = System.Text.Encoding.Default.GetString(bytes, 0, i);
+                            Console.WriteLine("Received: {0}", data);
+
+                            MethodInvoker mi = new MethodInvoker(() =>
+                            {
+                                f1.veriCodeHistory_txtBox.AppendText(data);
+                            });
+                            BeginInvoke(mi);
+
+                            // Process the data sent by the client.
+                            //string sendData = data.ToUpper();
+
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+
+                            // Send back a response.
+                            stream.Write(msg, 0, msg.Length);
+                            Console.WriteLine("Sent: {0}", data);
+                        }
+                        else
+                        {
+                            stream.Close();
+                            client.Close();
+                            server.Stop();
+                        }
+                        Thread.Sleep(100);
+                    }
+
+                    Thread.Sleep(100);
+
+                    client.GetStream().Close();
+                    client.Close();
+                }
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: {0}", e);
+            }
+            finally
+            {
+                server.Stop();
+            }
+
+        }
 
     }
 }

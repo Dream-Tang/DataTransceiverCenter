@@ -48,7 +48,6 @@ namespace Data_Transceiver_Center
             this.button2 = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.IP_txtBox = new System.Windows.Forms.TextBox();
             this.IPAddr_cobBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
@@ -141,7 +140,7 @@ namespace Data_Transceiver_Center
             // 
             this.tcpPort_txtBox.Location = new System.Drawing.Point(384, 146);
             this.tcpPort_txtBox.Name = "tcpPort_txtBox";
-            this.tcpPort_txtBox.Size = new System.Drawing.Size(168, 21);
+            this.tcpPort_txtBox.Size = new System.Drawing.Size(106, 21);
             this.tcpPort_txtBox.TabIndex = 72;
             // 
             // client_radBtn
@@ -161,13 +160,14 @@ namespace Data_Transceiver_Center
             this.panel1.Controls.Add(this.client_radBtn);
             this.panel1.Location = new System.Drawing.Point(384, 83);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(171, 24);
+            this.panel1.Size = new System.Drawing.Size(177, 24);
             this.panel1.TabIndex = 75;
+            this.panel1.Visible = false;
             // 
             // server_radBtn
             // 
             this.server_radBtn.AutoSize = true;
-            this.server_radBtn.Location = new System.Drawing.Point(109, 5);
+            this.server_radBtn.Location = new System.Drawing.Point(115, 3);
             this.server_radBtn.Name = "server_radBtn";
             this.server_radBtn.Size = new System.Drawing.Size(59, 16);
             this.server_radBtn.TabIndex = 75;
@@ -195,19 +195,19 @@ namespace Data_Transceiver_Center
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(576, 83);
+            this.button1.Location = new System.Drawing.Point(496, 144);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(93, 23);
             this.button1.TabIndex = 78;
-            this.button1.Text = "开启服务器";
+            this.button1.Text = "开启TCP接收";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(576, 112);
+            this.button2.Location = new System.Drawing.Point(496, 115);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(93, 23);
             this.button2.TabIndex = 79;
             this.button2.Text = "获取本地IP";
             this.button2.UseVisualStyleBackColor = true;
@@ -229,19 +229,12 @@ namespace Data_Transceiver_Center
             this.label3.TabIndex = 81;
             this.label3.Text = "接收数据";
             // 
-            // IP_txtBox
-            // 
-            this.IP_txtBox.Location = new System.Drawing.Point(384, 114);
-            this.IP_txtBox.Name = "IP_txtBox";
-            this.IP_txtBox.Size = new System.Drawing.Size(168, 21);
-            this.IP_txtBox.TabIndex = 82;
-            // 
             // IPAddr_cobBox
             // 
             this.IPAddr_cobBox.FormattingEnabled = true;
-            this.IPAddr_cobBox.Location = new System.Drawing.Point(389, 224);
+            this.IPAddr_cobBox.Location = new System.Drawing.Point(384, 115);
             this.IPAddr_cobBox.Name = "IPAddr_cobBox";
-            this.IPAddr_cobBox.Size = new System.Drawing.Size(121, 20);
+            this.IPAddr_cobBox.Size = new System.Drawing.Size(106, 20);
             this.IPAddr_cobBox.TabIndex = 84;
             // 
             // Form4
@@ -250,7 +243,6 @@ namespace Data_Transceiver_Center
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(738, 551);
             this.Controls.Add(this.IPAddr_cobBox);
-            this.Controls.Add(this.IP_txtBox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.button2);
@@ -299,7 +291,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox IP_txtBox;
         private System.Windows.Forms.ComboBox IPAddr_cobBox;
     }
 }

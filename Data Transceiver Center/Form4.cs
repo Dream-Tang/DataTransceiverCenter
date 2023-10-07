@@ -109,6 +109,15 @@ namespace Data_Transceiver_Center
         private void button1_Click(object sender, EventArgs e)
         {
             Task.Run(TcpServer);
+            if (button1.Text=="开启TCP接收")
+            {
+                button1.Text = "关闭TCP接收";
+            }
+            else
+            {
+                button1.Text = "开启TCP接收";
+            }
+            
         }
 
         // 打开tcpServer服务
@@ -118,7 +127,7 @@ namespace Data_Transceiver_Center
             TcpListener server = null;
             try
             {
-                var ip = IPAddr_cobBox.sel;
+                var ip = "0.0.0.0";//服务器侦听所有地址，服务器不用设置地址，客户端设置服务器地址即可。
                 string port = tcpPort_txtBox.Text;
                 // Set the TcpListener on port 13000.
                 Int32 localPort  = Int32.Parse(port) ;
@@ -137,7 +146,7 @@ namespace Data_Transceiver_Center
                 // Enter the listening loop.
                 while (true)
                 {
-                    Console.Write("Waiting for a connection... ");
+                    Console.WriteLine("Waiting for a connection... ");
 
                     // Perform a blocking call to accept requests.
                     // You could also use server.AcceptSocket() here.
@@ -177,6 +186,8 @@ namespace Data_Transceiver_Center
                     }
 
                     Thread.Sleep(100);
+
+                    client.Close();
                 }
             }
             catch (SocketException e)
