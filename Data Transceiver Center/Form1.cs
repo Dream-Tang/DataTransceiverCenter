@@ -763,6 +763,7 @@ namespace Data_Transceiver_Center
                 // 校验完成后清空旧数据
 
                 lastPrtCode_label.Text = prtCode_txtBox.Text;
+                scnCode_txtBox.Text = "";
 
                 Task t = Task.Run(() =>
                 {
