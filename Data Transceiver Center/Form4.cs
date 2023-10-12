@@ -18,6 +18,8 @@ namespace Data_Transceiver_Center
 {
     public partial class Form4 : Form
     {
+        private IPAddress LocalIPAddr;
+        private Int32 LocalPortNum;
         public Form4()
         {
             InitializeComponent();
@@ -108,6 +110,17 @@ namespace Data_Transceiver_Center
 
         private void button1_Click(object sender, EventArgs e)
         {
+            try
+            {
+                LocalIPAddr = IPAddress.Parse(IPAddr_cobBox.Text);
+                LocalPortNum = Int32.Parse(tcpPort_txtBox.Text);
+            }
+            catch (Exception)
+            {
+
+                MessageBox.Show("IP或端口设置出错");
+            }
+
             Task.Run(TcpServer);
             if (button1.Text=="开启TCP接收")
             {
@@ -127,14 +140,13 @@ namespace Data_Transceiver_Center
             TcpListener server = null;
             try
             {
-                var ip = "0.0.0.0";//服务器侦听所有地址，服务器不用设置地址，客户端设置服务器地址即可。
-                string port = tcpPort_txtBox.Text;
-                // Set the TcpListener on port 13000.
-                Int32 localPort  = Int32.Parse(port) ;
-                IPAddress localAddr = IPAddress.Parse(ip);
+                //string ip = "0.0.0.0";    //服务器侦听所有地址，服务器不用设置地址，客户端设置服务器地址即可。
+                //string port = 13000;      // Set the TcpListener on port 13000.
+                //Int32 localPort  = Int32.Parse(port) ;
+                //IPAddress localAddr = IPAddress.Parse(ip);
 
                 // TcpListener server = new TcpListener(port);
-                server = new TcpListener(localAddr, localPort);
+                server = new TcpListener(LocalIPAddr, LocalPortNum);
 
                 // Start listening for client requests.
                 server.Start();
@@ -222,10 +234,11 @@ namespace Data_Transceiver_Center
                 }
                 if (AddressIP!="")
                 {
-                    IPAddr_cobBox.Items.Add(AddressIP);
+                    IPAddr_cobBox.Items.Add (AddressIP);
                 }
             }
 
+            IPAddr_cobBox.Items.Add(AddressIP);
             IPAddr_cobBox.SelectedIndex = 0;
             return AddressIP;
         }

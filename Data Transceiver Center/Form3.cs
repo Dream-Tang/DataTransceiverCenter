@@ -34,6 +34,7 @@ namespace Data_Transceiver_Center
             f4 = new Form4();   // 实例化f2
         }
 
+        // 打开页面1
         private void button1_Click(object sender, EventArgs e)
         {
             f1.TopLevel = false;
@@ -42,6 +43,7 @@ namespace Data_Transceiver_Center
             f1.Show();      // 将窗口1进行显示
         }
 
+        // 打开页面2
         private void button2_Click(object sender, EventArgs e)
         {
             f2.TopLevel = false;
@@ -50,6 +52,7 @@ namespace Data_Transceiver_Center
             f2.Show();      // 将窗口2进行显示
         }
 
+        // 打开页面3
         private void button3_Click(object sender, EventArgs e)
         {
             f4.TopLevel = false;
@@ -58,6 +61,7 @@ namespace Data_Transceiver_Center
             //f4.Show();      // 将窗口4进行显示
         }
 
+        // 保存配置
         private void btnSaveIni_Click(object sender, EventArgs e)
         {
             // 选择文件夹路径
@@ -81,6 +85,7 @@ namespace Data_Transceiver_Center
 
         }
 
+        // 加载配置
         private void btnLoadIni_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
@@ -108,7 +113,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 自动模式：
+        // 自动模式按钮（执行一个循环）：
         // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
         // task0：读PLC
         // task1：（启动条件）读csv=》mes1=》mes2

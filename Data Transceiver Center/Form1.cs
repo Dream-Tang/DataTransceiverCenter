@@ -342,12 +342,16 @@ namespace Data_Transceiver_Center
                     serialPort1.Open();
                     openSerial_btn.Text = "关闭串口";
                     serialPort_label.Text = "串口已打开";
+                    comboBox1.Enabled = false;
+                    comboBox2.Enabled = false;
                 }
                 else
                 {
                     serialPort1.Close();
                     openSerial_btn.Text = "打开串口";
                     serialPort_label.Text = "串口已关闭";
+                    comboBox1.Enabled = true;
+                    comboBox2.Enabled = true;
                 }
             }
             catch (UnauthorizedAccessException)
@@ -754,11 +758,15 @@ namespace Data_Transceiver_Center
                 {
                     chckResult_txtBox.Text = "校验 OK：扫描码与打印码一致";
                     chckResult = "OK";
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    this.OK_NG_label.Text = "OK";
                 }
                 else
                 {
                     chckResult_txtBox.Text = "校验 NG：扫描码与打印码不同";
                     chckResult = "NG";
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    this.OK_NG_label.Text =  "NG";
                 }
                 // 校验完成后清空旧数据
 

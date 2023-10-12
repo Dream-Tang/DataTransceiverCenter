@@ -123,7 +123,7 @@ namespace Data_Transceiver_Center
             this.autoRun_btn.Name = "autoRun_btn";
             this.autoRun_btn.Size = new System.Drawing.Size(81, 57);
             this.autoRun_btn.TabIndex = 6;
-            this.autoRun_btn.Text = "自动运行";
+            this.autoRun_btn.Text = "自动一次";
             this.autoRun_btn.UseVisualStyleBackColor = true;
             this.autoRun_btn.Click += new System.EventHandler(this.autoRun_btn_Click);
             // 
