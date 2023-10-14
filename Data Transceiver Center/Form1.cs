@@ -18,7 +18,7 @@ namespace Data_Transceiver_Center
             InitializeComponent();
         }
 
-        private StringBuilder cmd;     // 打印机指令内容，可变字符串类型
+        private StringBuilder cmd_template;     // 打印机指令内容，可变字符串类型
 
         private string mesAddr =   "https://" +  "192.168.50.7:7199";
         private static string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
@@ -51,16 +51,16 @@ namespace Data_Transceiver_Center
         // 生成ZPL文档
         public void makeZpl_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.zplPath_txtBox.Text + "\\zpl.txt";
-            string line = prtCode_txtBox.Text;
+            string filePathZPL = this.txtBox_zplPath.Text + "\\zpl.txt";
+            string line = txtBox_prtCode.Text;
             CmdToTxt(filePathZPL, line);
         }
 
         // 发送文件到打印机
         public void sendToPrt_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.zplPath_txtBox.Text + "\\zpl.txt";
-            string prtName = this.prtPath_txtBox.Text;
+            string filePathZPL = this.txtBox_zplPath.Text + "\\zpl.txt";
+            string prtName = this.txtBox_prtPath.Text;
             SendFileToPrinter(filePathZPL, prtName);
         }
 
@@ -91,14 +91,14 @@ namespace Data_Transceiver_Center
             //传入我们的实体类还有需要解析的JSON字符串这样就OK了。然后就可以通过实体类使用数据了。
             testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson);
 
-            this.JsonMsg_txtBox.Text = rt.nu;
-            this.fogId_txtBox.Text = rt.nu;
+            this.txtBox_jsonMsg.Text = rt.nu;
+            this.txtBox_fogId.Text = rt.nu;
             //这样就可以取出json数据里面的值
             //MessageBox.Show("com=" + rt.com + "\r\n" + "condition=" + rt.condition + "\r\n" + "ischeck=" + rt.ischeck + "\r\n" + "state=" + rt.state + "\r\n" + "status=" + rt.status);
             //由于这个JSON字符串的 public List<DataItem> data 是一个集合，所以我们需要遍历集合里面的所有数据
             for (int i = 0; i < rt.data.Count; i++)
             {
-                this.JsonMsg_txtBox.Text = rt.data[i].context;
+                this.txtBox_jsonMsg.Text = rt.data[i].context;
                 //MessageBox.Show("Data=" + rt.data[i].context + "\r\n" + rt.data[i].location + "\r\n" + rt.data[i].time + "\r\n" + rt.data[i].ftime);
             }
         }
@@ -111,7 +111,7 @@ namespace Data_Transceiver_Center
         // api test 按钮，直接发送mes api 文本框中的内容
         private void apiTest_btn_Click(object sender, EventArgs e)
         {
-            string api_url = mesApi_txtBox.Text;
+            string api_url = txtBox_mesApi.Text;
             Task t1 = new Task(() => 
             {
                 // 耗费时间的操作
@@ -119,7 +119,7 @@ namespace Data_Transceiver_Center
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
-                    JsonMsg_txtBox.Text = "Api Test:\r\n" + getJson;
+                    txtBox_jsonMsg.Text = "Api Test:\r\n" + getJson;
                 });
                 this.BeginInvoke(mi);
             });
@@ -135,21 +135,21 @@ namespace Data_Transceiver_Center
 
             #region SetUrl1
             // http 接口
-            string mesAddr = "https://" +  mesAddr_txtBox.Text;
-            string api_url = mesAddr + apiToken +  mes1Par  + position_txtBox.Text;
+            string mesAddr = "https://" +  txtBox_mesAddr.Text;
+            string api_url = mesAddr + apiToken +  mes1Par  + txtBox_position.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (position_txtBox.Text == "")
+            if (txtBox_position.Text == "")
             {
                 if (!autoRun_checkBox.Checked)
                 {
                     MessageBox.Show("线别未设置");
                 }
-                JsonMsg_txtBox.Text = "Mes1:\r\n 线别未设置";
+                txtBox_jsonMsg.Text = "Mes1:\r\n 线别未设置";
                 return;
             }
-            else { mesApi_txtBox.Text = api_url; }
+            else { txtBox_mesApi.Text = api_url; }
             #endregion
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
@@ -163,10 +163,10 @@ namespace Data_Transceiver_Center
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() =>
                     {
-                        JsonMsg_txtBox.Text = "Mes1:\r\n" + getJson;
+                        txtBox_jsonMsg.Text = "Mes1:\r\n" + getJson;
                         if (getJson == "无法连接到远程服务器")
                         {
-                            mesId_txtBox.Text = getJson;
+                            txtBox_mesId.Text = getJson;
                             this.mes1Status = CONNECT_EXCEPTION;
                             Console.WriteLine("mes1Status: {0}", mes1Status);
                         }
@@ -177,7 +177,7 @@ namespace Data_Transceiver_Center
                         try
                             {
                                 rt = JsonConvert.DeserializeObject<MesRoot1>(getJson);
-                                mesId_txtBox.Text = rt.data.id;
+                                txtBox_mesId.Text = rt.data.id;
                                 this.mes1Status = STATUS_WAIT;
                                 Console.WriteLine("mes1Status: {0}", mes1Status);
                             }
@@ -189,7 +189,7 @@ namespace Data_Transceiver_Center
                             {
                                     MessageBox.Show("JsonConver解析出错");
                                 }
-                                mesId_txtBox.Text = "##############";
+                                txtBox_mesId.Text = "##############";
                             }
                         }
                     });
@@ -207,19 +207,19 @@ namespace Data_Transceiver_Center
             rt.data = dt;
 
             // http 接口
-            string mesAddr = "https://" + mesAddr_txtBox.Text;
-            string api_url = mesAddr + apiToken + mes2Par + veriCode_txtBox.Text + ',' + mesId_txtBox.Text;
+            string mesAddr = "https://" + txtBox_mesAddr.Text;
+            string api_url = mesAddr + apiToken + mes2Par + txtBox_veriCode.Text + ',' + txtBox_mesId.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (veriCode_txtBox.Text == "")
+            if (txtBox_veriCode.Text == "")
             {
                 if (!autoRun_checkBox.Checked)
                 { MessageBox.Show("视觉码未获取"); }
-                JsonMsg_txtBox.Text = "Mes2:\r\n 视觉码未获取";
+                txtBox_jsonMsg.Text = "Mes2:\r\n 视觉码未获取";
                 return;
             }
-            else { mesApi_txtBox.Text = api_url; }
+            else { txtBox_mesApi.Text = api_url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t2 = new Task(() =>
@@ -230,10 +230,10 @@ namespace Data_Transceiver_Center
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
-                    JsonMsg_txtBox.Text = "Mes2:\r\n" + getJson;
+                    txtBox_jsonMsg.Text = "Mes2:\r\n" + getJson;
                     if (getJson == "无法连接到远程服务器")
                     {
-                        fogId_txtBox.Text = getJson;
+                        txtBox_fogId.Text = getJson;
                         this.mes2Status = CONNECT_EXCEPTION;
                         Console.WriteLine("mes2Status: {0}", mes2Status);
                     }
@@ -244,7 +244,7 @@ namespace Data_Transceiver_Center
                         try
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot2>(getJson);
-                            fogId_txtBox.Text = rt.data.fogId;
+                            txtBox_fogId.Text = rt.data.fogId;
                             this.mes2Status = STATUS_WAIT;
                             Console.WriteLine("mes2Status: {0}", mes2Status);
                         }
@@ -256,7 +256,7 @@ namespace Data_Transceiver_Center
                             {
                                 MessageBox.Show("JsonConver解析出错");
                             }
-                            fogId_txtBox.Text = "##############";
+                            txtBox_fogId.Text = "##############";
                         }
                     }
                 });
@@ -271,21 +271,21 @@ namespace Data_Transceiver_Center
             MesRoot3 rt = new MesRoot3();
 
             // http 接口
-            string mesAddr = "https://" + mesAddr_txtBox.Text;
-            string api_url = mesAddr + apiToken + mes3Par + fogId_txtBox.Text;
+            string mesAddr = "https://" + txtBox_mesAddr.Text;
+            string api_url = mesAddr + apiToken + mes3Par + txtBox_fogId.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
 
-            if (fogId_txtBox.Text == "")
+            if (txtBox_fogId.Text == "")
             {
                 if (!autoRun_checkBox.Checked)
                 {
                     MessageBox.Show("fogID未获取");
                 }
-                JsonMsg_txtBox.Text = "Mes3:\r\n fogID未获取";
+                txtBox_jsonMsg.Text = "Mes3:\r\n fogID未获取";
                 return;
             }
-            else { mesApi_txtBox.Text = api_url; }
+            else { txtBox_mesApi.Text = api_url; }
 
             // 通过接口，向MES发送通信，收到的回应存入getJson
             Task t3 = new Task(() =>
@@ -296,10 +296,10 @@ namespace Data_Transceiver_Center
 
                 MethodInvoker mi = new MethodInvoker(() =>
                 {
-                    JsonMsg_txtBox.Text = "Mes3:\r\n" + getJson;
+                    txtBox_jsonMsg.Text = "Mes3:\r\n" + getJson;
                     if (getJson == "无法连接到远程服务器")
                     {
-                        fogId_txtBox.Text = getJson;
+                        txtBox_fogId.Text = getJson;
                         this.mes3Status = CONNECT_EXCEPTION;
                         Console.WriteLine("mes3Status: {0}", mes3Status);
                     }
@@ -310,7 +310,7 @@ namespace Data_Transceiver_Center
                         try
                         {
                             rt = JsonConvert.DeserializeObject<MesRoot3>(getJson);
-                            JsonMsg_txtBox.Text = rt.data;
+                            txtBox_jsonMsg.Text = rt.data;
                             this.mes3Status = STATUS_WAIT;
                             Console.WriteLine("mes3Status: {0}", mes3Status);
                         }
@@ -340,7 +340,7 @@ namespace Data_Transceiver_Center
                     serialPort1.PortName = comboBox1.Text;
                     serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
                     serialPort1.Open();
-                    openSerial_btn.Text = "关闭串口";
+                    btn_openSerial.Text = "关闭串口";
                     serialPort_label.Text = "串口已打开";
                     comboBox1.Enabled = false;
                     comboBox2.Enabled = false;
@@ -348,7 +348,7 @@ namespace Data_Transceiver_Center
                 else
                 {
                     serialPort1.Close();
-                    openSerial_btn.Text = "打开串口";
+                    btn_openSerial.Text = "打开串口";
                     serialPort_label.Text = "串口已关闭";
                     comboBox1.Enabled = true;
                     comboBox2.Enabled = true;
@@ -384,18 +384,18 @@ namespace Data_Transceiver_Center
         {
             if (status  == "Lock")
             {
-                zplPath_txtBox.Enabled = false;
-                prtPath_txtBox.Enabled = false;
-                mesAddr_txtBox.Enabled = false;
-                position_txtBox.Enabled = false;
+                txtBox_zplPath.Enabled = false;
+                txtBox_prtPath.Enabled = false;
+                txtBox_mesAddr.Enabled = false;
+                txtBox_position.Enabled = false;
             }
             else if (status == "UnLock")
             {
                 timer1.Enabled = false;
-                zplPath_txtBox.Enabled = true;
-                prtPath_txtBox.Enabled = true;
-                mesAddr_txtBox.Enabled = true;
-                position_txtBox.Enabled = true;
+                txtBox_zplPath.Enabled = true;
+                txtBox_prtPath.Enabled = true;
+                txtBox_mesAddr.Enabled = true;
+                txtBox_position.Enabled = true;
             }
         }
 
@@ -417,23 +417,23 @@ namespace Data_Transceiver_Center
 
         private void serialRead_txtBox_TextChanged(object sender, EventArgs e)
         {
-            scnCode_txtBox.Text = serialRead_txtBox.Text;
+            txtBox_scnCode.Text = txtBox_serialRead.Text;
             CheckScnPrtCode();
         }
 
         private void fogId_txtBox_TextChanged(object sender, EventArgs e)
         {
-            if (prtCode_txtBox.Text != "")
+            if (txtBox_prtCode.Text != "")
             {
-                lastPrtCode_label.Text = prtCode_txtBox.Text;  // 保存旧值
+                lastPrtCode_label.Text = txtBox_prtCode.Text;  // 保存旧值
             }
-            prtCode_txtBox.Text = fogId_txtBox.Text;  // 传入新值
+            txtBox_prtCode.Text = txtBox_fogId.Text;  // 传入新值
         }
 
         private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
         {
             CheckScnPrtCode();
-            pictureBox1.Image = SetBarCode128(prtCode_txtBox.Text);
+            pictureBox1.Image = SetBarCode128(txtBox_prtCode.Text);
         }
 
         private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
@@ -445,21 +445,33 @@ namespace Data_Transceiver_Center
         // TO DO：后续尝试通过加载模板的方式来更改打印的格式设置
         private void CmdToTxt(string filePathZPL, string line)
         {
-            cmd = new StringBuilder();
-            cmd.AppendLine("^XA");
-            cmd.AppendLine("^FO150,100^BY3");
-            cmd.AppendLine("^B3N,20,A,A");
-            cmd.AppendLine("^FD" + line + "^FS");
-            cmd.AppendLine("^XZ");
+            // ZPL文件生成
+            string zpl_cmd = cmd_template.ToString();
+            if (zpl_cmd == "")
+            {
+                Console.WriteLine("还未加载有效的ZPL模板");
+                MessageBox.Show("还未加载有效的ZPL模板,请先选择模板文件");
+                return;
+            }
+            else
+            {
+                int index_FD = zpl_cmd.IndexOf("^FD")+3;
+                int index_FS = zpl_cmd.IndexOf("^FS");
 
-            // 异常处理，可能会出现文件路径出错的情况
+                cmd_template.Remove(index_FD, index_FS-index_FD);
+                cmd_template.Insert(index_FD, line);
+
+            }
+
+
+            // ZPL文件保存
             try
             {
                 // 保存到本地文件，先清空文件
                 System.IO.File.WriteAllText(filePathZPL, string.Empty);
                 using (System.IO.StreamWriter sw = new System.IO.StreamWriter(filePathZPL, false, Encoding.UTF8))
                 {
-                    sw.Write(cmd.ToString());
+                    sw.Write(cmd_template.ToString());
                     sw.Close();
                 }
                 runStatus_lable.Text = "zpl文件生产成功";
@@ -501,7 +513,7 @@ namespace Data_Transceiver_Center
         // 打印条码功能：等待prtCode（打印码来自Mes2消息），有prtCode后，生成ZPL文件，发送给打印机
         private void AutoSendFile(string filePathZPL, string mPrintName)
         {
-            string prtCode = prtCode_txtBox.Text;
+            string prtCode = txtBox_prtCode.Text;
 
             // 有打印码，才进行打印；打印完成后清楚prtCode
             if (prtCode != "")
@@ -554,22 +566,22 @@ namespace Data_Transceiver_Center
 
         public void refreshMes1(string api, string getJson, string mesID)
         {
-            this.mesApi_txtBox.Text = api;
-            this.JsonMsg_txtBox.Text = "Mes1:\r\n" + getJson;
-            this.mesId_txtBox.Text = mesID;
+            this.txtBox_mesApi.Text = api;
+            this.txtBox_jsonMsg.Text = "Mes1:\r\n" + getJson;
+            this.txtBox_mesId.Text = mesID;
         }
 
         public void refreshMes2(string api, string getJson, string fogID)
         {
-            this.mesApi_txtBox.Text = api;
-            this.JsonMsg_txtBox.Text = "Mes2:\r\n" + getJson;
-            this.fogId_txtBox.Text = fogID;
+            this.txtBox_mesApi.Text = api;
+            this.txtBox_jsonMsg.Text = "Mes2:\r\n" + getJson;
+            this.txtBox_fogId.Text = fogID;
         }
 
         public void refreshMes3(string api, string getJson)
         {
-            this.mesApi_txtBox.Text = api;
-            this.JsonMsg_txtBox.Text = "Mes3:\r\n" + getJson;
+            this.txtBox_mesApi.Text = api;
+            this.txtBox_jsonMsg.Text = "Mes3:\r\n" + getJson;
         }
 
         public string GetUrl(string addr, string pluginarg = "", string par = "", string mesApi = "")
@@ -591,35 +603,35 @@ namespace Data_Transceiver_Center
         public string GetMesAddr()
         {
             string addr;
-            addr = this.mesAddr_txtBox.Text;
+            addr = this.txtBox_mesAddr.Text;
             return addr;
         }
 
         public string GetMes1prt()
         {
             string position;
-            position = this.position_txtBox.Text;
+            position = this.txtBox_position.Text;
             return position;
         }
 
         public string GetMes2prt()
         {
             string mesId;
-            mesId = this.veriCode_txtBox.Text + ',' + this.mesId_txtBox.Text;
+            mesId = this.txtBox_veriCode.Text + ',' + this.txtBox_mesId.Text;
             return mesId;
         }
 
         public string GetMes3prt()
         {
             string fogId;
-            fogId = this.fogId_txtBox.Text;
+            fogId = this.txtBox_fogId.Text;
             return fogId;
         }
 
         public string GetMesApi()
         {
             string mesApi;
-            mesApi = this.mesApi_txtBox.Text;
+            mesApi = this.txtBox_mesApi.Text;
             return mesApi;
         }
 
@@ -650,7 +662,7 @@ namespace Data_Transceiver_Center
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() => 
                 {
-                    serialRead_txtBox.Text = portData.Trim(); //  移出头部和尾部空白字符
+                    txtBox_serialRead.Text = portData.Trim(); //  移出头部和尾部空白字符
                     //scnCode_txtBox.Text = serialRead_txtBox.Text;
                 });
                 BeginInvoke(mi);
@@ -687,8 +699,8 @@ namespace Data_Transceiver_Center
         {
             Console.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff:ffffff"));
             Console.WriteLine("timer1 触发");
-            string filePathZPL = zplPath_txtBox.Text + "\\zpl.txt";
-            string mPrintName = prtPath_txtBox.Text;
+            string filePathZPL = txtBox_zplPath.Text + "\\zpl.txt";
+            string mPrintName = txtBox_prtPath.Text;
 
             Task t1 = new Task(() =>
             {
@@ -714,10 +726,10 @@ namespace Data_Transceiver_Center
             string lineCount = myIni.Read("lineCount","Form1");
             string testHttp = myIni.Read("testHttp", "Form1");
 
-            zplPath_txtBox.Text = filePathZPL;
-            prtPath_txtBox.Text = prtName;
-            mesAddr_txtBox.Text = mesAddr;
-            position_txtBox.Text = lineCount;
+            txtBox_zplPath.Text = filePathZPL;
+            txtBox_prtPath.Text = prtName;
+            txtBox_mesAddr.Text = mesAddr;
+            txtBox_position.Text = lineCount;
 
             this.testHttpAPI = Convert.ToBoolean(testHttp);
         }
@@ -727,10 +739,10 @@ namespace Data_Transceiver_Center
         {
             var myIni = new IniFile(iniFile);
 
-            string filePathZPL = zplPath_txtBox.Text;
-            string prtName = prtPath_txtBox.Text ;
-            string mesAddr = mesAddr_txtBox.Text ;
-            string lineCount = position_txtBox.Text ;
+            string filePathZPL = txtBox_zplPath.Text;
+            string prtName = txtBox_prtPath.Text ;
+            string mesAddr = txtBox_mesAddr.Text ;
+            string lineCount = txtBox_position.Text ;
             string testHttp = "False" + "\r\n"; // 确保每次保存ini后关闭调试模式
 
             myIni.Write("filePathZPL", filePathZPL, "Form1");
@@ -752,26 +764,26 @@ namespace Data_Transceiver_Center
         {
             string chckResult = "";
             // prtCode和ScnCode都不为空时，进行一次校验
-            if ((prtCode_txtBox.Text != "") & (scnCode_txtBox.Text != ""))
+            if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
             {
-                if (scnCode_txtBox.Text == prtCode_txtBox.Text)
+                if (txtBox_scnCode.Text == txtBox_prtCode.Text)
                 {
-                    chckResult_txtBox.Text = "校验 OK：扫描码与打印码一致";
+                    txtBox_chckResult.Text = "校验 OK：扫描码与打印码一致";
                     chckResult = "OK";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
                     this.OK_NG_label.Text = "OK";
                 }
                 else
                 {
-                    chckResult_txtBox.Text = "校验 NG：扫描码与打印码不同";
+                    txtBox_chckResult.Text = "校验 NG：扫描码与打印码不同";
                     chckResult = "NG";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     this.OK_NG_label.Text =  "NG";
                 }
                 // 校验完成后清空旧数据
 
-                lastPrtCode_label.Text = prtCode_txtBox.Text;
-                scnCode_txtBox.Text = "";
+                lastPrtCode_label.Text = txtBox_prtCode.Text;
+                txtBox_scnCode.Text = "";
 
                 Task t = Task.Run(() =>
                 {
@@ -780,9 +792,9 @@ namespace Data_Transceiver_Center
                     {
                         if ( prtStatus == STATUS_COMPLETE)
                         {
-                            prtCode_txtBox.Text = "";
-                            veriCode_txtBox.Text = "";
-                            scnCode_txtBox.Text = "";
+                            txtBox_prtCode.Text = "";
+                            txtBox_veriCode.Text = "";
+                            txtBox_scnCode.Text = "";
                             prtStatus = STATUS_WAIT;
                             Console.WriteLine("prtStatus:"+ STATUS_WAIT);
                         }
@@ -831,22 +843,22 @@ namespace Data_Transceiver_Center
             int maxLines =1000;
             //int currentLines = veriCodeHistory_txtBox.Lines.Length;
 
-            if (veriCodeHistory_txtBox.Lines.Length > 0)
+            if (txtBox_veriCodeHistory.Lines.Length > 0)
             {
-                if (veriCodeHistory_txtBox.Lines.Length > maxLines)
+                if (txtBox_veriCodeHistory.Lines.Length > maxLines)
                 {
                     // 截去顶行
-                    veriCodeHistory_txtBox.Text = veriCodeHistory_txtBox.Text.Substring(veriCodeHistory_txtBox.Lines[0].Length+1);
+                    txtBox_veriCodeHistory.Text = txtBox_veriCodeHistory.Text.Substring(txtBox_veriCodeHistory.Lines[0].Length+1);
                     // veriCodeCount = veriCodeCount - 1;
                     // 光标到最后
-                    veriCodeHistory_txtBox.Select(veriCodeHistory_txtBox.Text.Length,0);
+                    txtBox_veriCodeHistory.Select(txtBox_veriCodeHistory.Text.Length,0);
                     // 滚动条到最后
-                    veriCodeHistory_txtBox.ScrollToCaret();
+                    txtBox_veriCodeHistory.ScrollToCaret();
                 }
                 try
                 {
                     // 将多行文本框的最后一行取出给veriCode文本框
-                    veriCode_txtBox.Text = veriCodeHistory_txtBox.Lines[veriCodeHistory_txtBox.Lines.Length - 2];
+                    txtBox_veriCode.Text = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
                 }
                 catch (Exception)
                 {
@@ -862,8 +874,66 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                veriCode_txtBox.Text = "";
+                txtBox_veriCode.Text = "";
             }
+        }
+
+        // 加载ZPL模板按钮
+        private void btn_loadZpl_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
+            dialog.Multiselect = false; // 是否可以选择多个 文件
+            dialog.Title = "请选择 zpl_模板.txt文件";
+            dialog.Filter = "txt文件(*.txt)|*.txt";
+            string file = "";
+            try
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    file = dialog.FileName;
+                }
+            }
+            catch (Exception)
+            { return; }
+
+            try
+            {
+                cmd_template = new StringBuilder();
+                cmd_template.Clear();
+                cmd_template.Append(LoadZplTemplate(file));
+            }
+            catch (Exception)
+            {
+                return;
+            }
+        }
+        
+        // 加载 ZPL 模板文件
+        private string LoadZplTemplate(string path)
+        {
+            StreamReader zpl_temp = new StreamReader(path, Encoding.UTF8);
+            string readStr = zpl_temp.ReadToEnd();
+
+            if (!readStr.Contains("^XA"))
+            {
+                Console.WriteLine("ZPL_template error,missing ^XA");
+                MessageBox.Show("ZPL模板格式有误，缺少起始指令：^XA");
+                return "";
+            }
+            else if (!readStr.Contains("^XZ"))
+            {
+                Console.WriteLine("ZPL_template error,missing ^XZ");
+                MessageBox.Show("ZPL模板格式有误，缺少结束指令：^XZ");
+                return "";
+            }
+            else if (!readStr.Contains("^FD"))
+            {
+                Console.WriteLine("ZPL_template error,missing ^FD");
+                MessageBox.Show("ZPL模板格式有误，缺少字符指令：^FD");
+                return "";
+            }
+            zpl_temp.Close();
+            return readStr;
         }
 
     }

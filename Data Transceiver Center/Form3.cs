@@ -35,7 +35,7 @@ namespace Data_Transceiver_Center
         }
 
         // 打开页面1
-        private void button1_Click(object sender, EventArgs e)
+        private void btn_form1Open(object sender, EventArgs e)
         {
             f1.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
@@ -44,7 +44,7 @@ namespace Data_Transceiver_Center
         }
 
         // 打开页面2
-        private void button2_Click(object sender, EventArgs e)
+        private void btn_form2Open(object sender, EventArgs e)
         {
             f2.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
@@ -53,7 +53,7 @@ namespace Data_Transceiver_Center
         }
 
         // 打开页面3
-        private void button3_Click(object sender, EventArgs e)
+        private void btn_form3Open(object sender, EventArgs e)
         {
             f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
@@ -397,7 +397,7 @@ namespace Data_Transceiver_Center
 
                             MethodInvoker mi = new MethodInvoker(() =>
                             {
-                                f1.veriCodeHistory_txtBox.AppendText(data+"\r\n");
+                                f1.txtBox_veriCodeHistory.AppendText(data+"\r\n");
                             });
                             BeginInvoke(mi);
 

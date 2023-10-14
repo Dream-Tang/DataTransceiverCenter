@@ -75,7 +75,7 @@ namespace Data_Transceiver_Center
             this.btn_Form1.TabIndex = 1;
             this.btn_Form1.Text = "页面1";
             this.btn_Form1.UseVisualStyleBackColor = true;
-            this.btn_Form1.Click += new System.EventHandler(this.button1_Click);
+            this.btn_Form1.Click += new System.EventHandler(this.btn_form1Open);
             // 
             // btn_Form2
             // 
@@ -85,7 +85,7 @@ namespace Data_Transceiver_Center
             this.btn_Form2.TabIndex = 2;
             this.btn_Form2.Text = "页面2";
             this.btn_Form2.UseVisualStyleBackColor = true;
-            this.btn_Form2.Click += new System.EventHandler(this.button2_Click);
+            this.btn_Form2.Click += new System.EventHandler(this.btn_form2Open);
             // 
             // btn_Form3
             // 
@@ -95,7 +95,7 @@ namespace Data_Transceiver_Center
             this.btn_Form3.TabIndex = 3;
             this.btn_Form3.Text = "页面3";
             this.btn_Form3.UseVisualStyleBackColor = true;
-            this.btn_Form3.Click += new System.EventHandler(this.button3_Click);
+            this.btn_Form3.Click += new System.EventHandler(this.btn_form3Open);
             // 
             // btn_SaveIni
             // 
