@@ -87,10 +87,11 @@ namespace Data_Transceiver_Center
             this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.btn_loadZpl = new System.Windows.Forms.Button();
             this.panel5 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
             this.OK_NG_label = new System.Windows.Forms.Label();
-            this.btn_loadZpl = new System.Windows.Forms.Button();
+            this.label_zplTemp = new System.Windows.Forms.Label();
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -681,6 +682,7 @@ namespace Data_Transceiver_Center
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel4.Controls.Add(this.label_zplTemp);
             this.panel4.Controls.Add(this.btn_loadZpl);
             this.panel4.Controls.Add(this.txtBox_prtCode);
             this.panel4.Controls.Add(this.label1_5);
@@ -692,6 +694,17 @@ namespace Data_Transceiver_Center
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(163, 220);
             this.panel4.TabIndex = 66;
+            // 
+            // btn_loadZpl
+            // 
+            this.btn_loadZpl.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_loadZpl.Location = new System.Drawing.Point(4, 186);
+            this.btn_loadZpl.Name = "btn_loadZpl";
+            this.btn_loadZpl.Size = new System.Drawing.Size(63, 26);
+            this.btn_loadZpl.TabIndex = 60;
+            this.btn_loadZpl.Text = "加载模板";
+            this.btn_loadZpl.UseVisualStyleBackColor = true;
+            this.btn_loadZpl.Click += new System.EventHandler(this.btn_loadZpl_Click);
             // 
             // panel5
             // 
@@ -732,16 +745,15 @@ namespace Data_Transceiver_Center
             this.OK_NG_label.Text = "OK";
             this.OK_NG_label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // btn_loadZpl
+            // label_zplTemp
             // 
-            this.btn_loadZpl.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_loadZpl.Location = new System.Drawing.Point(4, 186);
-            this.btn_loadZpl.Name = "btn_loadZpl";
-            this.btn_loadZpl.Size = new System.Drawing.Size(64, 26);
-            this.btn_loadZpl.TabIndex = 60;
-            this.btn_loadZpl.Text = "加载ZPL模板";
-            this.btn_loadZpl.UseVisualStyleBackColor = true;
-            this.btn_loadZpl.Click += new System.EventHandler(this.btn_loadZpl_Click);
+            this.label_zplTemp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label_zplTemp.Location = new System.Drawing.Point(73, 186);
+            this.label_zplTemp.Name = "label_zplTemp";
+            this.label_zplTemp.Size = new System.Drawing.Size(82, 26);
+            this.label_zplTemp.TabIndex = 61;
+            this.label_zplTemp.Text = "模板名";
+            this.label_zplTemp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
@@ -856,6 +868,7 @@ namespace Data_Transceiver_Center
         internal System.Windows.Forms.TextBox txtBox_veriCodeHistory;
         private System.Windows.Forms.Label OK_NG_label;
         private System.Windows.Forms.Button btn_loadZpl;
+        private System.Windows.Forms.Label label_zplTemp;
         //private System.Windows.Forms.Label veriCount_label;
         //private System.Windows.Forms.Label label6;
     }

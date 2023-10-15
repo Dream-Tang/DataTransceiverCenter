@@ -271,11 +271,7 @@ namespace Data_Transceiver_Center
                 {
                     scn = CommunicationProtocol.checkNG;
                 }
-                if (ignorePlc_checkBox.Checked)
-                {
-                    
-                }
-                else
+                if (!ignorePlc_checkBox.Checked)
                 {
                     f2.WritePlc(cam, prt, scn);
                 }

@@ -1,0 +1,15 @@
+﻿^XA			开始
+^MMT			打印后撕扯
+^PW319		标签宽度
+^LL154			标签长度
+^LS0			向左移动值
+^FT87,87		字段位置
+^A@N,33,34,TT0003M_	使用字体名称调用字体
+^FH\			字段十六进制指示符
+^CI28			更改国际字体
+^FD12345678^FS	code字符串
+^CI27			更改国际字体
+^FO0,0			字段起始位置
+^GFA,105,6160,40,:Z64:eJztysEJgCAAAEDFAVwgaA1/bRZt0FiuIbRA/nxItEH/4O59IcBP7GW9y8xjibXlkc7aYk3HdvWRnjI9z/M8zwMAAIAPL35hy9E=:3BEB	图形字段
+^PQ1,0,1,Y		打印数量
+^XZ			结束

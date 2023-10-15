@@ -18,7 +18,7 @@ namespace Data_Transceiver_Center
             InitializeComponent();
         }
 
-        private StringBuilder cmd_template;     // 打印机指令内容，可变字符串类型
+        private StringBuilder cmd_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
 
         private string mesAddr =   "https://" +  "192.168.50.7:7199";
         private static string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
@@ -901,6 +901,7 @@ namespace Data_Transceiver_Center
                 cmd_template = new StringBuilder();
                 cmd_template.Clear();
                 cmd_template.Append(LoadZplTemplate(file));
+                label_zplTemp.Text = file.Substring(file.LastIndexOf("\\")+1);
             }
             catch (Exception)
             {
@@ -931,6 +932,11 @@ namespace Data_Transceiver_Center
                 Console.WriteLine("ZPL_template error,missing ^FD");
                 MessageBox.Show("ZPL模板格式有误，缺少字符指令：^FD");
                 return "";
+            }
+            else
+            {
+                Console.WriteLine("ZPL_template loaded success");
+                MessageBox.Show("ZPL模板加载成功");
             }
             zpl_temp.Close();
             return readStr;
