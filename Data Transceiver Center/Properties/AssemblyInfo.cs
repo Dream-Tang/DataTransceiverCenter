@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("Data Transceiver Center")]
-[assembly: AssemblyDescription("运行于.net framwork 4.8（win10 22H2以后系统自带此环境）")]
+[assembly: AssemblyDescription(".net framwork 4.6")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WEST")]
 [assembly: AssemblyProduct("Data Transceiver Center")]

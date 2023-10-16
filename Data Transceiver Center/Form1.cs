@@ -388,6 +388,7 @@ namespace Data_Transceiver_Center
                 txtBox_prtPath.Enabled = false;
                 txtBox_mesAddr.Enabled = false;
                 txtBox_position.Enabled = false;
+                label_zplTemp.Enabled = false;
             }
             else if (status == "UnLock")
             {
@@ -396,6 +397,7 @@ namespace Data_Transceiver_Center
                 txtBox_prtPath.Enabled = true;
                 txtBox_mesAddr.Enabled = true;
                 txtBox_position.Enabled = true;
+                label_zplTemp.Enabled = true;
             }
         }
 
@@ -883,8 +885,9 @@ namespace Data_Transceiver_Center
         {
             OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
             dialog.Multiselect = false; // 是否可以选择多个 文件
-            dialog.Title = "请选择 zpl_模板.txt文件";
-            dialog.Filter = "txt文件(*.txt)|*.txt";
+            dialog.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            dialog.Title = "请选择 zpl_模板 文件";
+            dialog.Filter = "txt文件(*.txt)|*.txt|所有文件（*.*）|*.*";
             string file = "";
             try
             {
