@@ -895,6 +895,10 @@ namespace Data_Transceiver_Center
                 {
                     file = dialog.FileName;
                 }
+                else
+                {
+                    return;
+                }
             }
             catch (Exception)
             { return; }
