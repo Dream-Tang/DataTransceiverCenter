@@ -138,21 +138,24 @@ namespace Data_Transceiver_Center
             // 读PLC
             if(ignorePlc_checkBox.Checked)
             {
-                //(cam, prt, scn) = (-1, -1, -1);
+                //(cam, prt, scn) = (-1, -1, -1);   // .net4.8特性
                 cam = -1;
                 prt = -1;
                 scn = -1;
             }
             else
             {
-                //(cam, prt, scn) = f2.ReadPlc();
+                //(cam, prt, scn) = f2.ReadPlc();   // .net4.8特性
                 cam = f2.ReadPlc().Item1;
                 prt = f2.ReadPlc().Item2;
                 scn = f2.ReadPlc().Item3;
             }
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
-                f1.refreshPLC(cam, prt, scn);
+                while (ignorePlc_checkBox.Checked)
+                {
+                    f1.refreshPLC(cam, prt, scn);
+                }
             });
             this.BeginInvoke(mi0);
 
@@ -254,10 +257,19 @@ namespace Data_Transceiver_Center
             await t2;
             Console.WriteLine("Json2:" + getJson2);
 
-            // 打印
+            // 打印（需要等待prt信号为ready）
+            while (!(prt == CommunicationProtocol.prtReady))
+            {
+                cam = f2.ReadPlc().Item1;
+                prt = f2.ReadPlc().Item2;
+                scn = f2.ReadPlc().Item3;
+                Thread.Sleep(500);
+            }
             f1.makeZpl_btn_Click(null, null);
             f1.sendToPrt_btn_Click(null, null);
             prt = CommunicationProtocol.prtComplete;
+            f2.WritePlc(cam, prt, scn);
+            
 
             // 校验 并与PLC通信
             var t4 = Task.Run(() =>
@@ -321,16 +333,22 @@ namespace Data_Transceiver_Center
         {
             var t1 = Task.Run(() =>
             {
+                short cam, prt, scn;
                 while (trigger1_checkBox.Checked)
                 {
                     if (f1.trigSigner == Form1.STATUS_WORKING)
                     {
+                        // 触发放行
+                        cam = CommunicationProtocol.camOK;
+                        prt = f2.ReadPlc().Item2;
+                        scn = f2.ReadPlc().Item3;
+                        f2.WritePlc(cam,prt,scn);
+
                         Console.WriteLine("自动运行已触发");
                         Action action = () =>
                         {
                             AutoRunMode();
                         };
-
                         f1.trigSigner = Form1.STATUS_WAIT;
                         //f1.veriCodeCount = f1.veriCodeCount + 1;
 
