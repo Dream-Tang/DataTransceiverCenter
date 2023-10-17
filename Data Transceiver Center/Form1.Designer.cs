@@ -45,7 +45,7 @@ namespace Data_Transceiver_Center
             this.label3_1 = new System.Windows.Forms.Label();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.btn_openSerial = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cobBox_SeriPortNum = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label3_4 = new System.Windows.Forms.Label();
             this.txtBox_chckResult = new System.Windows.Forms.TextBox();
@@ -84,7 +84,7 @@ namespace Data_Transceiver_Center
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.runStatus_lable = new System.Windows.Forms.Label();
             this.txtBox_veriCodeHistory = new System.Windows.Forms.TextBox();
-            this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
+            this.lockSettings_checkBox = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.label_zplTemp = new System.Windows.Forms.Label();
@@ -199,9 +199,9 @@ namespace Data_Transceiver_Center
             // txtBox_serialRead
             // 
             this.txtBox_serialRead.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_serialRead.Location = new System.Drawing.Point(3, 25);
+            this.txtBox_serialRead.Location = new System.Drawing.Point(2, 23);
             this.txtBox_serialRead.Name = "txtBox_serialRead";
-            this.txtBox_serialRead.Size = new System.Drawing.Size(150, 29);
+            this.txtBox_serialRead.Size = new System.Drawing.Size(154, 29);
             this.txtBox_serialRead.TabIndex = 24;
             this.txtBox_serialRead.TextChanged += new System.EventHandler(this.serialRead_txtBox_TextChanged);
             // 
@@ -240,13 +240,13 @@ namespace Data_Transceiver_Center
             this.btn_openSerial.UseVisualStyleBackColor = true;
             this.btn_openSerial.Click += new System.EventHandler(this.openSerial_btn_Click);
             // 
-            // comboBox1
+            // cobBox_SeriPortNum
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(2, 75);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(67, 20);
-            this.comboBox1.TabIndex = 27;
+            this.cobBox_SeriPortNum.FormattingEnabled = true;
+            this.cobBox_SeriPortNum.Location = new System.Drawing.Point(2, 75);
+            this.cobBox_SeriPortNum.Name = "cobBox_SeriPortNum";
+            this.cobBox_SeriPortNum.Size = new System.Drawing.Size(67, 20);
+            this.cobBox_SeriPortNum.TabIndex = 27;
             // 
             // comboBox2
             // 
@@ -495,7 +495,6 @@ namespace Data_Transceiver_Center
             this.txtBox_scnCode.Name = "txtBox_scnCode";
             this.txtBox_scnCode.Size = new System.Drawing.Size(152, 29);
             this.txtBox_scnCode.TabIndex = 52;
-            this.txtBox_scnCode.Visible = false;
             this.txtBox_scnCode.TextChanged += new System.EventHandler(this.scnCode_txtBox_TextChanged);
             // 
             // label1_6
@@ -653,19 +652,20 @@ namespace Data_Transceiver_Center
             this.txtBox_veriCodeHistory.Size = new System.Drawing.Size(151, 153);
             this.txtBox_veriCodeHistory.TabIndex = 60;
             this.txtBox_veriCodeHistory.TextChanged += new System.EventHandler(this.veriCodeHistory_txtBox_TextChanged);
+            this.txtBox_veriCodeHistory.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.txtBox_veriCodeHistory_MouseDoubleClick);
             // 
-            // autoRun_checkBox
+            // lockSettings_checkBox
             // 
-            this.autoRun_checkBox.AutoSize = true;
-            this.autoRun_checkBox.Checked = true;
-            this.autoRun_checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.autoRun_checkBox.Location = new System.Drawing.Point(443, 35);
-            this.autoRun_checkBox.Name = "autoRun_checkBox";
-            this.autoRun_checkBox.Size = new System.Drawing.Size(72, 16);
-            this.autoRun_checkBox.TabIndex = 61;
-            this.autoRun_checkBox.Text = "锁定设置";
-            this.autoRun_checkBox.UseVisualStyleBackColor = true;
-            this.autoRun_checkBox.CheckedChanged += new System.EventHandler(this.autoRun_checkBox_CheckedChanged);
+            this.lockSettings_checkBox.AutoSize = true;
+            this.lockSettings_checkBox.Checked = true;
+            this.lockSettings_checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.lockSettings_checkBox.Location = new System.Drawing.Point(443, 35);
+            this.lockSettings_checkBox.Name = "lockSettings_checkBox";
+            this.lockSettings_checkBox.Size = new System.Drawing.Size(72, 16);
+            this.lockSettings_checkBox.TabIndex = 61;
+            this.lockSettings_checkBox.Text = "锁定设置";
+            this.lockSettings_checkBox.UseVisualStyleBackColor = true;
+            this.lockSettings_checkBox.CheckedChanged += new System.EventHandler(this.lockSettings_checkBox_CheckedChanged);
             // 
             // panel3
             // 
@@ -718,7 +718,7 @@ namespace Data_Transceiver_Center
             this.panel5.Controls.Add(this.label3_1);
             this.panel5.Controls.Add(this.comboBox2);
             this.panel5.Controls.Add(this.label3_2);
-            this.panel5.Controls.Add(this.comboBox1);
+            this.panel5.Controls.Add(this.cobBox_SeriPortNum);
             this.panel5.Location = new System.Drawing.Point(340, 57);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(163, 220);
@@ -757,7 +757,7 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.autoRun_checkBox);
+            this.Controls.Add(this.lockSettings_checkBox);
             this.Controls.Add(this.pnl_Mes);
             this.Controls.Add(this.runStatus_lable);
             this.Controls.Add(this.txtBox_prtPath);
@@ -810,7 +810,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label label3_1;
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.Button btn_openSerial;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cobBox_SeriPortNum;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Label label3_4;
         private System.Windows.Forms.TextBox txtBox_chckResult;
@@ -843,7 +843,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label scnValue_label;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label runStatus_lable;
-        private System.Windows.Forms.CheckBox autoRun_checkBox;
+        private System.Windows.Forms.CheckBox lockSettings_checkBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtBox_mesAddr;
         private System.Windows.Forms.Label label2;

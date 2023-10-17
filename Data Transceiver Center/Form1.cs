@@ -35,6 +35,7 @@ namespace Data_Transceiver_Center
         internal int mes3Status = STATUS_WAIT;
         internal int prtStatus = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
         internal int trigSigner = STATUS_WAIT;      // 触发信号状态，当二维码输入时，表示有触发信号，可执行全流程操作
+        internal int seriStatus = STATUS_WAIT;      // 串口状态，当串口传入数据时，ready；校验结束后，wait。
 
         // 通信标志位数值定义
         internal const int STATUS_WAIT = -1;
@@ -142,7 +143,7 @@ namespace Data_Transceiver_Center
 
             if (txtBox_position.Text == "")
             {
-                if (!autoRun_checkBox.Checked)
+                if (!lockSettings_checkBox.Checked)
                 {
                     MessageBox.Show("线别未设置");
                 }
@@ -185,7 +186,7 @@ namespace Data_Transceiver_Center
                             {
                                 this.mes1Status = CONVERT_EXCEPTION;
                                 Console.WriteLine("mes1Status: {0}", mes1Status);
-                                if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                                if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                     MessageBox.Show("JsonConver解析出错");
                                 }
@@ -214,7 +215,7 @@ namespace Data_Transceiver_Center
 
             if (txtBox_veriCode.Text == "")
             {
-                if (!autoRun_checkBox.Checked)
+                if (!lockSettings_checkBox.Checked)
                 { MessageBox.Show("视觉码未获取"); }
                 txtBox_jsonMsg.Text = "Mes2:\r\n 视觉码未获取";
                 return;
@@ -252,7 +253,7 @@ namespace Data_Transceiver_Center
                         {
                             this.mes2Status = CONVERT_EXCEPTION;
                             Console.WriteLine("mes2Status: {0}", mes2Status);
-                            if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                            if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                 MessageBox.Show("JsonConver解析出错");
                             }
@@ -278,7 +279,7 @@ namespace Data_Transceiver_Center
 
             if (txtBox_fogId.Text == "")
             {
-                if (!autoRun_checkBox.Checked)
+                if (!lockSettings_checkBox.Checked)
                 {
                     MessageBox.Show("fogID未获取");
                 }
@@ -318,7 +319,7 @@ namespace Data_Transceiver_Center
                         {
                             this.mes3Status = CONVERT_EXCEPTION;
                             Console.WriteLine("mes3Status: {0}", mes3Status);
-                            if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                            if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
                             {
                                 MessageBox.Show("JsonConver解析出错");
                             }
@@ -337,12 +338,12 @@ namespace Data_Transceiver_Center
             {
                 if (!serialPort1.IsOpen)
                 {
-                    serialPort1.PortName = comboBox1.Text;
+                    serialPort1.PortName = cobBox_SeriPortNum.Text;
                     serialPort1.BaudRate = Convert.ToInt32(comboBox2.Text);
                     serialPort1.Open();
                     btn_openSerial.Text = "关闭串口";
                     serialPort_label.Text = "串口已打开";
-                    comboBox1.Enabled = false;
+                    cobBox_SeriPortNum.Enabled = false;
                     comboBox2.Enabled = false;
                 }
                 else
@@ -350,7 +351,7 @@ namespace Data_Transceiver_Center
                     serialPort1.Close();
                     btn_openSerial.Text = "打开串口";
                     serialPort_label.Text = "串口已关闭";
-                    comboBox1.Enabled = true;
+                    cobBox_SeriPortNum.Enabled = true;
                     comboBox2.Enabled = true;
                 }
             }
@@ -403,10 +404,10 @@ namespace Data_Transceiver_Center
 
 
         // 自动选项打开
-        private void autoRun_checkBox_CheckedChanged(object sender, EventArgs e)
+        private void lockSettings_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             string Lock_setting_status = "Lock";
-           if(autoRun_checkBox.Checked == true)
+           if(lockSettings_checkBox.Checked == true)
             {
                 Lock_setting_status = "Lock";
             }
@@ -483,7 +484,7 @@ namespace Data_Transceiver_Center
             }
             catch (Exception)
             {
-                if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
                 {
                     MessageBox.Show("zpl文件生成失败\r\n" + filePathZPL);
                 }
@@ -503,7 +504,7 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
-                if (!this.autoRun_checkBox.Checked) // 自动模式关闭才出弹窗
+                if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
                 {
                     MessageBox.Show(ex.Message);
                 }
@@ -659,23 +660,27 @@ namespace Data_Transceiver_Center
                 //string portData = serialPort1.ReadExisting(); // 读所有缓存数据
                 string portData = serialPort1.ReadTo("\r\n");
 
+                seriStatus = STATUS_READY;
+
                 // 因为要访问UI资源，所以需要使用invoke方式同步ui
 
                 // 跨线程修改UI，使用methodinvoker工具类
                 MethodInvoker mi = new MethodInvoker(() => 
                 {
+                    txtBox_serialRead.Clear();
                     txtBox_serialRead.Text = portData.Trim(); //  移出头部和尾部空白字符
                     //scnCode_txtBox.Text = serialRead_txtBox.Text;
+
                 });
-                BeginInvoke(mi);
-                    
+                BeginInvoke(mi);     
             }
             catch (Exception ex)
             {
-                if (!this.autoRun_checkBox.Checked)
+                if (!this.lockSettings_checkBox.Checked)
                 {
                     MessageBox.Show(ex.Message);
                 }
+                seriStatus = STATUS_WAIT;
                 return;
             }
         }
@@ -728,13 +733,16 @@ namespace Data_Transceiver_Center
             string lineCount = myIni.Read("lineCount","Form1");
             string testHttp = myIni.Read("testHttp", "Form1");
             string zplTemplate = myIni.Read("zplTemplate","Form1");
+            string seriPortNum = myIni.Read("seriPortNum","Form1");
 
             txtBox_zplPath.Text = filePathZPL;
             txtBox_prtPath.Text = prtName;
             txtBox_mesAddr.Text = mesAddr;
             txtBox_position.Text = lineCount;
+            cobBox_SeriPortNum.Text = seriPortNum;
             label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
-            // 读入ZPL模板
+            
+            // 加载ZPL模板
             try
             {
                 cmd_template = new StringBuilder();
@@ -753,6 +761,18 @@ namespace Data_Transceiver_Center
             {
                 return;
             }
+
+            // 打开串口
+            try
+            {
+                openSerial_btn_Click(null,null);
+            }
+            catch (Exception)
+            {
+
+                return;
+            }
+
 
             this.testHttpAPI = Convert.ToBoolean(testHttp);
         }
@@ -779,15 +799,15 @@ namespace Data_Transceiver_Center
         private void reloadPort_btn_Click(object sender, EventArgs e)
         {
             string[] comPort = System.IO.Ports.SerialPort.GetPortNames();
-            comboBox1.Items.Clear();
-            comboBox1.Items.AddRange(comPort);
+            cobBox_SeriPortNum.Items.Clear();
+            cobBox_SeriPortNum.Items.AddRange(comPort);
         }
 
         private string CheckScnPrtCode()
         {
             string chckResult = "";
             // prtCode和ScnCode都不为空时，进行一次校验
-            if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
+            if ((seriStatus==STATUS_READY) & (txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
             {
                 if (txtBox_scnCode.Text == txtBox_prtCode.Text)
                 {
@@ -795,6 +815,7 @@ namespace Data_Transceiver_Center
                     chckResult = "OK";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
                     this.OK_NG_label.Text = "OK";
+                    Console.WriteLine("Check result:OK");
                 }
                 else
                 {
@@ -802,28 +823,16 @@ namespace Data_Transceiver_Center
                     chckResult = "NG";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     this.OK_NG_label.Text =  "NG";
+                    Console.WriteLine("Check result:NG");
                 }
                 // 校验完成后清空旧数据
 
-                lastPrtCode_label.Text = txtBox_prtCode.Text;
-                txtBox_scnCode.Text = "";
+                seriStatus = STATUS_WAIT;
 
-                Task t = Task.Run(() =>
-                {
-                    Thread.Sleep(500);
-                    MethodInvoker mi = new MethodInvoker(() =>
-                    {
-                        if ( prtStatus == STATUS_COMPLETE)
-                        {
-                            txtBox_prtCode.Text = "";
-                            txtBox_veriCode.Text = "";
-                            txtBox_scnCode.Text = "";
-                            prtStatus = STATUS_WAIT;
-                            Console.WriteLine("prtStatus:"+ STATUS_WAIT);
-                        }
-                    });
-                    BeginInvoke(mi);
-                });
+                lastPrtCode_label.Text = txtBox_prtCode.Text;
+                //txtBox_scnCode.Text = "";
+                //txtBox_prtCode.Text = "";
+                Console.WriteLine("已执行校验");
             }
             return chckResult;
         }
@@ -977,5 +986,10 @@ namespace Data_Transceiver_Center
             return readStr;
         }
 
+        // 双击控件清空内容
+        private void txtBox_veriCodeHistory_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            txtBox_veriCodeHistory.Clear();
+        }
     }
 }

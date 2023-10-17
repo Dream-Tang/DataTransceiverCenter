@@ -43,6 +43,7 @@ namespace Data_Transceiver_Center
             this.trigger1_checkBox = new System.Windows.Forms.CheckBox();
             this.ignorePlc_checkBox = new System.Windows.Forms.CheckBox();
             this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
+            this.needCheck_checkBox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,6 +53,7 @@ namespace Data_Transceiver_Center
             this.panel1.AutoSize = true;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.btn_Form3);
             this.panel1.Location = new System.Drawing.Point(128, 12);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(725, 550);
@@ -89,12 +91,13 @@ namespace Data_Transceiver_Center
             // 
             // btn_Form3
             // 
-            this.btn_Form3.Location = new System.Drawing.Point(27, 224);
+            this.btn_Form3.Location = new System.Drawing.Point(155, 12);
             this.btn_Form3.Name = "btn_Form3";
             this.btn_Form3.Size = new System.Drawing.Size(81, 57);
             this.btn_Form3.TabIndex = 3;
             this.btn_Form3.Text = "页面3";
             this.btn_Form3.UseVisualStyleBackColor = true;
+            this.btn_Form3.Visible = false;
             this.btn_Form3.Click += new System.EventHandler(this.btn_form3Open);
             // 
             // btn_SaveIni
@@ -119,7 +122,7 @@ namespace Data_Transceiver_Center
             // 
             // autoRun_btn
             // 
-            this.autoRun_btn.Location = new System.Drawing.Point(27, 324);
+            this.autoRun_btn.Location = new System.Drawing.Point(27, 264);
             this.autoRun_btn.Name = "autoRun_btn";
             this.autoRun_btn.Size = new System.Drawing.Size(81, 57);
             this.autoRun_btn.TabIndex = 6;
@@ -134,7 +137,7 @@ namespace Data_Transceiver_Center
             // trigger1_checkBox
             // 
             this.trigger1_checkBox.AutoSize = true;
-            this.trigger1_checkBox.Location = new System.Drawing.Point(8, 429);
+            this.trigger1_checkBox.Location = new System.Drawing.Point(8, 464);
             this.trigger1_checkBox.Name = "trigger1_checkBox";
             this.trigger1_checkBox.Size = new System.Drawing.Size(108, 16);
             this.trigger1_checkBox.TabIndex = 7;
@@ -145,7 +148,7 @@ namespace Data_Transceiver_Center
             // ignorePlc_checkBox
             // 
             this.ignorePlc_checkBox.AutoSize = true;
-            this.ignorePlc_checkBox.Location = new System.Drawing.Point(8, 407);
+            this.ignorePlc_checkBox.Location = new System.Drawing.Point(8, 386);
             this.ignorePlc_checkBox.Name = "ignorePlc_checkBox";
             this.ignorePlc_checkBox.Size = new System.Drawing.Size(66, 16);
             this.ignorePlc_checkBox.TabIndex = 8;
@@ -155,7 +158,7 @@ namespace Data_Transceiver_Center
             // tcpServer_checkBox
             // 
             this.tcpServer_checkBox.AutoSize = true;
-            this.tcpServer_checkBox.Location = new System.Drawing.Point(8, 451);
+            this.tcpServer_checkBox.Location = new System.Drawing.Point(8, 486);
             this.tcpServer_checkBox.Name = "tcpServer_checkBox";
             this.tcpServer_checkBox.Size = new System.Drawing.Size(66, 16);
             this.tcpServer_checkBox.TabIndex = 9;
@@ -163,18 +166,29 @@ namespace Data_Transceiver_Center
             this.tcpServer_checkBox.UseVisualStyleBackColor = true;
             this.tcpServer_checkBox.CheckedChanged += new System.EventHandler(this.tcpServer_checkBox_CheckedChanged);
             // 
+            // needCheck_checkBox
+            // 
+            this.needCheck_checkBox.AutoSize = true;
+            this.needCheck_checkBox.Location = new System.Drawing.Point(8, 408);
+            this.needCheck_checkBox.Name = "needCheck_checkBox";
+            this.needCheck_checkBox.Size = new System.Drawing.Size(72, 16);
+            this.needCheck_checkBox.TabIndex = 10;
+            this.needCheck_checkBox.Text = "必须校验";
+            this.needCheck_checkBox.UseVisualStyleBackColor = true;
+            this.needCheck_checkBox.Visible = false;
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 567);
+            this.Controls.Add(this.needCheck_checkBox);
             this.Controls.Add(this.tcpServer_checkBox);
             this.Controls.Add(this.ignorePlc_checkBox);
             this.Controls.Add(this.trigger1_checkBox);
             this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadIni);
             this.Controls.Add(this.btn_SaveIni);
-            this.Controls.Add(this.btn_Form3);
             this.Controls.Add(this.btn_Form2);
             this.Controls.Add(this.btn_Form1);
             this.Controls.Add(this.panel1);
@@ -205,5 +219,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.CheckBox trigger1_checkBox;
         private System.Windows.Forms.CheckBox ignorePlc_checkBox;
         private System.Windows.Forms.CheckBox tcpServer_checkBox;
+        private System.Windows.Forms.CheckBox needCheck_checkBox;
     }
 }

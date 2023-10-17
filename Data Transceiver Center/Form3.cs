@@ -297,24 +297,50 @@ namespace Data_Transceiver_Center
 
             Console.WriteLine("task t3:发送打印机");
 
-
-            // 校验 并与PLC通信
+            // MES3
             var t4 = Task.Run(() =>
             {
-                string result = f1.GetCheckResult();
-                if (result == "OK")
+
+                url3 = f1.GetUrl(f1.GetMesAddr(), "printCallBack", f1.GetMes3prt());
+
+                getJson3 = HttpUitls.Get(url3);
+
+                MethodInvoker mi2 = new MethodInvoker(() =>
+                {
+                    f1.refreshMes3(url3, getJson3);
+                });
+                BeginInvoke(mi2);
+            });
+
+            Console.WriteLine("task t4：Json3:" + getJson3);
+
+            // 校验 并与PLC通信
+            var t5 = Task.Run(() =>
+            {
+                string checkResult = f1.GetCheckResult();
+                //如果必须校验，则在此处阻塞，等待校验
+                if (!needCheck_checkBox.Checked)
+                {
+                    while (checkResult == "")
+                    {
+                        checkResult = f1.GetCheckResult();
+                        Thread.Sleep(500);
+                    }
+                }
+
+                if (checkResult == "OK")
                 {
                     scn = CommunicationProtocol.checkOK;
-                    Console.WriteLine("task t4：校验结果OK");
+                    Console.WriteLine("task t5：校验结果OK");
                 }
-                if (result == "NG")
+                if (checkResult == "NG")
                 {
                     scn = CommunicationProtocol.checkNG;
-                    Console.WriteLine("task t4：校验结果NG");
+                    Console.WriteLine("task t5：校验结果NG");
                 }
-                if (result == "")
+                if (checkResult == "")
                 {
-                    Console.WriteLine("task t4：未校验");
+                    Console.WriteLine("task t5：未校验");
                     return;
                 }
                 // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
@@ -329,28 +355,9 @@ namespace Data_Transceiver_Center
                     scn = plcRegValue.Item3;
 
                     this.BeginInvoke(mi0);
-                    Console.WriteLine("task t4：已发送校验结果给PLC");
+                    Console.WriteLine("task t5：已发送校验结果给PLC");
                 }
             });
-            await t4;
-
-            // MES3
-            var t5 = Task.Run(() =>
-            {
-
-                url3 = f1.GetUrl(f1.GetMesAddr(), "printCallBack", f1.GetMes3prt());
-
-                getJson3 = HttpUitls.Get(url3);
-
-                MethodInvoker mi2 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes3(url3, getJson3);
-                });
-                BeginInvoke(mi2);
-            });
-
-            Console.WriteLine("task t5：Json3:" + getJson3);
-
         }
 
         /// <summary>
