@@ -695,7 +695,9 @@ namespace Data_Transceiver_Center
             // 
             // label_zplTemp
             // 
+            this.label_zplTemp.BackColor = System.Drawing.SystemColors.ControlDark;
             this.label_zplTemp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label_zplTemp.ForeColor = System.Drawing.SystemColors.Control;
             this.label_zplTemp.Location = new System.Drawing.Point(3, 187);
             this.label_zplTemp.Name = "label_zplTemp";
             this.label_zplTemp.Size = new System.Drawing.Size(152, 26);

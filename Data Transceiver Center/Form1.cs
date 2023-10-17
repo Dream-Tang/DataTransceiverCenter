@@ -727,11 +727,32 @@ namespace Data_Transceiver_Center
             string mesAddr = myIni.Read("mesAddr", "Form1");
             string lineCount = myIni.Read("lineCount","Form1");
             string testHttp = myIni.Read("testHttp", "Form1");
+            string zplTemplate = myIni.Read("zplTemplate","Form1");
 
             txtBox_zplPath.Text = filePathZPL;
             txtBox_prtPath.Text = prtName;
             txtBox_mesAddr.Text = mesAddr;
             txtBox_position.Text = lineCount;
+            label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
+            // 读入ZPL模板
+            try
+            {
+                cmd_template = new StringBuilder();
+                cmd_template.Clear();
+                cmd_template.Append(LoadZplTemplate(zplTemplate));
+                if (!(cmd_template.ToString() == ""))
+                {
+                    label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
+                }
+                else
+                {
+                    label_zplTemp.Text = "错误的模板";
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
 
             this.testHttpAPI = Convert.ToBoolean(testHttp);
         }
@@ -908,7 +929,14 @@ namespace Data_Transceiver_Center
                 cmd_template = new StringBuilder();
                 cmd_template.Clear();
                 cmd_template.Append(LoadZplTemplate(file));
-                label_zplTemp.Text = file.Substring(file.LastIndexOf("\\")+1);
+                if (!(cmd_template.ToString()==""))
+                {
+                    label_zplTemp.Text = file.Substring(file.LastIndexOf("\\") + 1);
+                }
+                else
+                {
+                    label_zplTemp.Text = "错误的模板";
+                }
             }
             catch (Exception)
             {
@@ -925,19 +953,19 @@ namespace Data_Transceiver_Center
             if (!readStr.Contains("^XA"))
             {
                 Console.WriteLine("ZPL_template error,missing ^XA");
-                MessageBox.Show("ZPL模板格式有误，缺少起始指令：^XA");
+                MessageBox.Show("错误的模板，缺少起始指令：^XA");
                 return "";
             }
             else if (!readStr.Contains("^XZ"))
             {
                 Console.WriteLine("ZPL_template error,missing ^XZ");
-                MessageBox.Show("ZPL模板格式有误，缺少结束指令：^XZ");
+                MessageBox.Show("错误的模板，缺少结束指令：^XZ");
                 return "";
             }
             else if (!readStr.Contains("^FD"))
             {
                 Console.WriteLine("ZPL_template error,missing ^FD");
-                MessageBox.Show("ZPL模板格式有误，缺少字符指令：^FD");
+                MessageBox.Show("错误的模板，缺少字符指令：^FD");
                 return "";
             }
             else

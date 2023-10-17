@@ -32,6 +32,8 @@ namespace Data_Transceiver_Center
             f1 = new Form1();   // 实例化f1
             f2 = new Form2();   // 实例化f2
             f4 = new Form4();   // 实例化f2
+            this.tcpServer_checkBox.Checked = true;
+            this.trigger1_checkBox.Checked = true;
         }
 
         // 打开页面1
@@ -134,7 +136,12 @@ namespace Data_Transceiver_Center
         // task4：获取CheckResult，读取判定结果，写PLC
         private async void AutoRunMode()
         {
-            short cam, prt, scn;
+            short cam=-1, prt=-1, scn=-1;
+            Tuple<short,short,short> plcRegValue;
+            MethodInvoker mi0 = new MethodInvoker(() =>
+            {
+                f1.refreshPLC(cam, prt, scn);
+            });
             // 读PLC
             if (ignorePlc_checkBox.Checked)
             {
@@ -142,23 +149,25 @@ namespace Data_Transceiver_Center
                 cam = -1;
                 prt = -1;
                 scn = -1;
+
+                this.BeginInvoke(mi0);
             }
             else
             {
                 //(cam, prt, scn) = f2.ReadPlc();   // .net4.8特性
-                cam = f2.ReadPlc().Item1;
-                prt = f2.ReadPlc().Item2;
-                scn = f2.ReadPlc().Item3;
-            }
-            MethodInvoker mi0 = new MethodInvoker(() =>
-            {
-                f1.refreshPLC(cam, prt, scn);
-            });
-            this.BeginInvoke(mi0);
+                plcRegValue = f2.ReadPlc();
 
-            if (cam == -1&prt==-1&scn==-1)
-            {
-                return;
+                cam = plcRegValue.Item1;
+                prt = plcRegValue.Item2;
+                scn = plcRegValue.Item3;
+
+                this.BeginInvoke(mi0);
+
+                // PLC未连接，读取数值为-1，直接返回
+                if (cam == -1 & prt == -1 & scn == -1)
+                {
+                    return;
+                }
             }
 
             string url1 = "";
@@ -211,7 +220,7 @@ namespace Data_Transceiver_Center
                 BeginInvoke(mi1);
             });
             await t1;
-            Console.WriteLine("Json1:" + getJson1);
+            Console.WriteLine("task t1：Json1:" + getJson1);
             cam = CommunicationProtocol.camOK;
 
             // MES2
@@ -256,31 +265,35 @@ namespace Data_Transceiver_Center
                 BeginInvoke(mi2);
             });
             await t2;
-            Console.WriteLine("Json2:" + getJson2);
+            Console.WriteLine("task t2：Json2:" + getJson2);
 
             // 打印（需要等待prt信号为ready）
             var t3 = Task.Run(() =>
             {
-                prt = f2.ReadPlc().Item2;
-                while (!(prt == CommunicationProtocol.prtReady))
+                if (!ignorePlc_checkBox.Checked)
                 {
-                    cam = f2.ReadPlc().Item1;
                     prt = f2.ReadPlc().Item2;
-                    scn = f2.ReadPlc().Item3;
-                    MethodInvoker mi2 = new MethodInvoker(() =>
+                    while (!(prt == CommunicationProtocol.prtReady))
                     {
-                        f1.refreshPLC(cam, prt, scn);
-                    });
-                    BeginInvoke(mi2);
-                    Thread.Sleep(500);
-                }
+                        plcRegValue = f2.ReadPlc();
+
+                        cam = plcRegValue.Item1;
+                        prt = plcRegValue.Item2;
+                        scn = plcRegValue.Item3;
+
+                        this.BeginInvoke(mi0);
+                        Thread.Sleep(500);
+                    }
+                    prt = CommunicationProtocol.prtComplete;
+                    f2.WritePlc(cam, prt, scn);
+                    this.BeginInvoke(mi0);
+                    Console.WriteLine("task t3：已收到prtReady信号");
+                }   
             });
             await t3;
 
             f1.makeZpl_btn_Click(null, null);
             f1.sendToPrt_btn_Click(null, null);
-            prt = CommunicationProtocol.prtComplete;
-            f2.WritePlc(cam, prt, scn);
 
             Console.WriteLine("task t3:发送打印机");
 
@@ -292,28 +305,32 @@ namespace Data_Transceiver_Center
                 if (result == "OK")
                 {
                     scn = CommunicationProtocol.checkOK;
+                    Console.WriteLine("task t4：校验结果OK");
                 }
                 if (result == "NG")
                 {
                     scn = CommunicationProtocol.checkNG;
+                    Console.WriteLine("task t4：校验结果NG");
                 }
                 if (result == "")
                 {
+                    Console.WriteLine("task t4：未校验");
                     return;
                 }
+                // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
                 if (!ignorePlc_checkBox.Checked)
                 {
-                    f2.WritePlc(cam, prt, scn);
-                    cam = f2.ReadPlc().Item1;
-                    prt = f2.ReadPlc().Item2;
-                    scn = f2.ReadPlc().Item3; 
-                    MethodInvoker mi2 = new MethodInvoker(() =>
-                    {
-                        f1.refreshPLC(cam, prt, scn);
-                    });
-                    BeginInvoke(mi2);
+                    f2.WritePlc(cam, prt, scn); 
+                    
+                    plcRegValue = f2.ReadPlc();
+
+                    cam = plcRegValue.Item1;
+                    prt = plcRegValue.Item2;
+                    scn = plcRegValue.Item3;
+
+                    this.BeginInvoke(mi0);
+                    Console.WriteLine("task t4：已发送校验结果给PLC");
                 }
-                //this.BeginInvoke(mi0);
             });
             await t4;
 
@@ -332,7 +349,7 @@ namespace Data_Transceiver_Center
                 BeginInvoke(mi2);
             });
 
-            Console.WriteLine("Json3:" + getJson3);
+            Console.WriteLine("task t5：Json3:" + getJson3);
 
         }
 
@@ -361,18 +378,25 @@ namespace Data_Transceiver_Center
             var t1 = Task.Run(() =>
             {
                 short cam, prt, scn;
+                Tuple<short, short, short> plcRegValue;
+
                 while (trigger1_checkBox.Checked)
                 {
                     // F1 触发后，将trigSingner置为working状态
                     if (f1.trigSigner == Form1.STATUS_WORKING)
                     {
-                        // 触发放行
-                        cam = CommunicationProtocol.camOK;
-                        prt = f2.ReadPlc().Item2;
-                        scn = f2.ReadPlc().Item3;
-                        f2.WritePlc(cam, prt, scn);
-
-                        Console.WriteLine("自动运行已触发");
+                        // 未禁用PLC，则执行，禁用则跳过
+                        if (!ignorePlc_checkBox.Checked)
+                        {
+                            // 触发放行
+                            plcRegValue = f2.ReadPlc();
+                            cam = CommunicationProtocol.camOK;
+                            prt = plcRegValue.Item2;
+                            scn = plcRegValue.Item3;
+                            f2.WritePlc(cam, prt, scn);
+                        }
+                        
+                        Console.WriteLine("trigger：自动运行已触发");
                         Action action = () =>
                         {
                             AutoRunMode();
