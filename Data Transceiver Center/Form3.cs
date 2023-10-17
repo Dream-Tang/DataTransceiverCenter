@@ -268,34 +268,41 @@ namespace Data_Transceiver_Center
             Console.WriteLine("task t2：Json2:" + getJson2);
 
             // 打印（需要等待prt信号为ready）
-            var t3 = Task.Run(() =>
+            if (fogID != "解析出错")
             {
-                if (!ignorePlc_checkBox.Checked)
+                var t3 = Task.Run(() =>
                 {
-                    prt = f2.ReadPlc().Item2;
-                    while (!(prt == CommunicationProtocol.prtReady))
+                    if (!ignorePlc_checkBox.Checked)
                     {
-                        plcRegValue = f2.ReadPlc();
+                        prt = f2.ReadPlc().Item2;
+                        while (!(prt == CommunicationProtocol.prtReady))
+                        {
+                            plcRegValue = f2.ReadPlc();
 
-                        cam = plcRegValue.Item1;
-                        prt = plcRegValue.Item2;
-                        scn = plcRegValue.Item3;
+                            cam = plcRegValue.Item1;
+                            prt = plcRegValue.Item2;
+                            scn = plcRegValue.Item3;
 
+                            this.BeginInvoke(mi0);
+                            Thread.Sleep(500);
+                        }
+                        prt = CommunicationProtocol.prtComplete;
+                        f2.WritePlc(cam, prt, scn);
                         this.BeginInvoke(mi0);
-                        Thread.Sleep(500);
+                        Console.WriteLine("task t3：已收到prtReady信号");
                     }
-                    prt = CommunicationProtocol.prtComplete;
-                    f2.WritePlc(cam, prt, scn);
-                    this.BeginInvoke(mi0);
-                    Console.WriteLine("task t3：已收到prtReady信号");
-                }   
-            });
-            await t3;
+                }); 
+                await t3;
 
-            f1.makeZpl_btn_Click(null, null);
-            f1.sendToPrt_btn_Click(null, null);
+                f1.makeZpl_btn_Click(null, null);
+                f1.sendToPrt_btn_Click(null, null);
 
-            Console.WriteLine("task t3:发送打印机");
+                Console.WriteLine("task t3:发送打印机");
+            }
+            else
+            {
+                Console.WriteLine("task t3：FOG ID解析出错，跳过打印");
+            }
 
             // MES3
             var t4 = Task.Run(() =>
@@ -311,7 +318,6 @@ namespace Data_Transceiver_Center
                 });
                 BeginInvoke(mi2);
             });
-
             Console.WriteLine("task t4：Json3:" + getJson3);
 
             // 校验 并与PLC通信

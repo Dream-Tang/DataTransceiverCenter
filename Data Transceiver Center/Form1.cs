@@ -28,6 +28,7 @@ namespace Data_Transceiver_Center
         private static string testHttpUrl = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
         public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
+        public string zplTemplatePath = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
         internal int mes1Status = STATUS_WAIT;
@@ -403,7 +404,7 @@ namespace Data_Transceiver_Center
         }
 
 
-        // 自动选项打开
+        // 锁定设置选项
         private void lockSettings_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             string Lock_setting_status = "Lock";
@@ -418,14 +419,20 @@ namespace Data_Transceiver_Center
             LockSetting(Lock_setting_status);
         }
 
+        // 串口数据 文本框更新
         private void serialRead_txtBox_TextChanged(object sender, EventArgs e)
         {
             txtBox_scnCode.Text = txtBox_serialRead.Text;
             CheckScnPrtCode();
         }
 
+        // FOG ID 文本框更新
         private void fogId_txtBox_TextChanged(object sender, EventArgs e)
         {
+            if (txtBox_fogId.Text=="解析出错")
+            {
+                return;
+            }
             if (txtBox_prtCode.Text != "")
             {
                 lastPrtCode_label.Text = txtBox_prtCode.Text;  // 保存旧值
@@ -740,6 +747,7 @@ namespace Data_Transceiver_Center
             txtBox_mesAddr.Text = mesAddr;
             txtBox_position.Text = lineCount;
             cobBox_SeriPortNum.Text = seriPortNum;
+            zplTemplatePath = zplTemplate;
             label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
             
             // 加载ZPL模板
@@ -786,13 +794,16 @@ namespace Data_Transceiver_Center
             string prtName = txtBox_prtPath.Text ;
             string mesAddr = txtBox_mesAddr.Text ;
             string lineCount = txtBox_position.Text ;
-            string testHttp = "False" + "\r\n"; // 确保每次保存ini后关闭调试模式
+            string seriPortNum = cobBox_SeriPortNum.Text;
+            string testHttp = "False" ; // 确保每次保存ini后关闭调试模式
 
             myIni.Write("filePathZPL", filePathZPL, "Form1");
             myIni.Write("prtName", prtName, "Form1");
             myIni.Write("mesAddr", mesAddr, "Form1");
             myIni.Write("lineCount", lineCount, "Form1");
             myIni.Write("testHttp", testHttp, "Form1");
+            myIni.Write("zplTemplate", zplTemplatePath,"Form1");
+            myIni.Write("seriPortNum", seriPortNum, "Form1");
         }
 
         // 刷新端口号
@@ -890,7 +901,14 @@ namespace Data_Transceiver_Center
                 try
                 {
                     // 将多行文本框的最后一行取出给veriCode文本框
-                    txtBox_veriCode.Text = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
+                    string tcpReceive = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
+                    
+                    // noRead 过滤
+                    if (tcpReceive =="noRead")
+                    {
+                        return;
+                    }
+                    txtBox_veriCode.Text = tcpReceive;
                 }
                 catch (Exception)
                 {
@@ -940,6 +958,7 @@ namespace Data_Transceiver_Center
                 cmd_template.Append(LoadZplTemplate(file));
                 if (!(cmd_template.ToString()==""))
                 {
+                    zplTemplatePath = file.ToString();
                     label_zplTemp.Text = file.Substring(file.LastIndexOf("\\") + 1);
                 }
                 else
