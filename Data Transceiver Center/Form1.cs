@@ -907,8 +907,8 @@ namespace Data_Transceiver_Center
                     // 将多行文本框的最后一行取出给veriCode文本框
                     string tcpReceive = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
                     
-                    // noRead 过滤
-                    if (tcpReceive =="noRead")
+                    // NoRead 过滤
+                    if (tcpReceive =="NoRead")
                     {
                         return;
                     }
