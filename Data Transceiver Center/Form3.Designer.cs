@@ -33,9 +33,9 @@ namespace Data_Transceiver_Center
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form3));
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.btn_Form3 = new System.Windows.Forms.Button();
             this.btn_Form1 = new System.Windows.Forms.Button();
             this.btn_Form2 = new System.Windows.Forms.Button();
-            this.btn_Form3 = new System.Windows.Forms.Button();
             this.btn_SaveIni = new System.Windows.Forms.Button();
             this.btn_LoadIni = new System.Windows.Forms.Button();
             this.autoRun_btn = new System.Windows.Forms.Button();
@@ -69,6 +69,17 @@ namespace Data_Transceiver_Center
             this.label1.TabIndex = 0;
             this.label1.Text = "广告位招租";
             // 
+            // btn_Form3
+            // 
+            this.btn_Form3.Location = new System.Drawing.Point(155, 12);
+            this.btn_Form3.Name = "btn_Form3";
+            this.btn_Form3.Size = new System.Drawing.Size(81, 57);
+            this.btn_Form3.TabIndex = 3;
+            this.btn_Form3.Text = "页面3";
+            this.btn_Form3.UseVisualStyleBackColor = true;
+            this.btn_Form3.Visible = false;
+            this.btn_Form3.Click += new System.EventHandler(this.btn_form3Open);
+            // 
             // btn_Form1
             // 
             this.btn_Form1.Location = new System.Drawing.Point(27, 25);
@@ -88,17 +99,6 @@ namespace Data_Transceiver_Center
             this.btn_Form2.Text = "页面2";
             this.btn_Form2.UseVisualStyleBackColor = true;
             this.btn_Form2.Click += new System.EventHandler(this.btn_form2Open);
-            // 
-            // btn_Form3
-            // 
-            this.btn_Form3.Location = new System.Drawing.Point(155, 12);
-            this.btn_Form3.Name = "btn_Form3";
-            this.btn_Form3.Size = new System.Drawing.Size(81, 57);
-            this.btn_Form3.TabIndex = 3;
-            this.btn_Form3.Text = "页面3";
-            this.btn_Form3.UseVisualStyleBackColor = true;
-            this.btn_Form3.Visible = false;
-            this.btn_Form3.Click += new System.EventHandler(this.btn_form3Open);
             // 
             // btn_SaveIni
             // 
@@ -173,9 +173,10 @@ namespace Data_Transceiver_Center
             this.needCheck_checkBox.Name = "needCheck_checkBox";
             this.needCheck_checkBox.Size = new System.Drawing.Size(72, 16);
             this.needCheck_checkBox.TabIndex = 10;
-            this.needCheck_checkBox.Text = "必须校验";
+            this.needCheck_checkBox.Text = "需要校验";
             this.needCheck_checkBox.UseVisualStyleBackColor = true;
             this.needCheck_checkBox.Visible = false;
+            this.needCheck_checkBox.CheckedChanged += new System.EventHandler(this.t5CheckTask);
             // 
             // Form3
             // 

@@ -47,6 +47,8 @@ namespace Data_Transceiver_Center
         internal const int CONNECT_EXCEPTION = 4;
         internal const int CONVERT_EXCEPTION = 5;
 
+        string checkResult = "";
+
         //public uint veriCodeCount; // 扫码计数
         //private uint veriHistoryLines;  // 扫码列表行数
 
@@ -382,54 +384,61 @@ namespace Data_Transceiver_Center
             }
         }
 
-        private void LockSetting(string status)
+        // 串口中断事件：当有数据收到时执行。将收到的数据按ASCII转换显示
+        private void SerialPort1_DataRecived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            if (status  == "Lock")
+            try
             {
-                txtBox_zplPath.Enabled = false;
-                txtBox_prtPath.Enabled = false;
-                txtBox_mesAddr.Enabled = false;
-                txtBox_position.Enabled = false;
-                label_zplTemp.Enabled = false;
-            }
-            else if (status == "UnLock")
-            {
-                timer1.Enabled = false;
-                txtBox_zplPath.Enabled = true;
-                txtBox_prtPath.Enabled = true;
-                txtBox_mesAddr.Enabled = true;
-                txtBox_position.Enabled = true;
-                label_zplTemp.Enabled = true;
-            }
-        }
+                // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
+                //string portData = serialPort1.ReadExisting(); // 读所有缓存数据
+                string portData = serialPort1.ReadTo("\r\n");
 
+                seriStatus = STATUS_READY;
 
-        // 锁定设置选项
-        private void lockSettings_checkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            string Lock_setting_status = "Lock";
-           if(lockSettings_checkBox.Checked == true)
-            {
-                Lock_setting_status = "Lock";
+                // 因为要访问UI资源，所以需要使用invoke方式同步ui
+
+                // 跨线程修改UI，使用methodinvoker工具类
+                MethodInvoker mi = new MethodInvoker(() =>
+                {
+                    txtBox_serialRead.Clear();
+                    txtBox_serialRead.Text = portData.Trim(); //  移出头部和尾部空白字符
+                });
+                BeginInvoke(mi);
             }
-            else
+            catch (Exception ex)
             {
-                Lock_setting_status = "UnLock";
+                if (!this.lockSettings_checkBox.Checked)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                seriStatus = STATUS_WAIT;
+                return;
             }
-            LockSetting(Lock_setting_status);
         }
 
         // 串口数据 文本框更新
         private void serialRead_txtBox_TextChanged(object sender, EventArgs e)
         {
             txtBox_scnCode.Text = txtBox_serialRead.Text;
+        }
+
+        // 校验扫码 文本框变化
+        private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
+        {
             CheckScnPrtCode();
         }
 
-        // FOG ID 文本框更新
+        // 打印码 文本框变化
+        private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
+        {
+            // CheckScnPrtCode();
+            pictureBox1.Image = SetBarCode128(txtBox_prtCode.Text);
+        }
+
+        // FOG ID（MES2） 文本框变化
         private void fogId_txtBox_TextChanged(object sender, EventArgs e)
         {
-            if (txtBox_fogId.Text=="解析出错")
+            if (txtBox_fogId.Text == "解析出错")
             {
                 return;
             }
@@ -438,17 +447,6 @@ namespace Data_Transceiver_Center
                 lastPrtCode_label.Text = txtBox_prtCode.Text;  // 保存旧值
             }
             txtBox_prtCode.Text = txtBox_fogId.Text;  // 传入新值
-        }
-
-        private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
-        {
-            CheckScnPrtCode();
-            pictureBox1.Image = SetBarCode128(txtBox_prtCode.Text);
-        }
-
-        private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
-        {
-            CheckScnPrtCode();
         }
 
         // 将ZPL指令输出到txt文档
@@ -552,11 +550,11 @@ namespace Data_Transceiver_Center
 
         }
 
-
         #region "C# 后台刷新UI的方法"
         // C# 中后台刷新UI的方法
         // 声明一个委托，以准备跨线程修改UI的属性
         public delegate void RefreshUI(Control c, object o);
+
         // 刷新的方法
         public void refreshUI(Control C, object o)
         {
@@ -658,40 +656,6 @@ namespace Data_Transceiver_Center
             LockSetting("Lock");
         }
 
-        // 串口中断事件：当有数据收到时执行。将收到的数据按ASCII转换显示
-        private void SerialPort1_DataRecived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
-        {
-            try
-            {
-                // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
-                //string portData = serialPort1.ReadExisting(); // 读所有缓存数据
-                string portData = serialPort1.ReadTo("\r\n");
-
-                seriStatus = STATUS_READY;
-
-                // 因为要访问UI资源，所以需要使用invoke方式同步ui
-
-                // 跨线程修改UI，使用methodinvoker工具类
-                MethodInvoker mi = new MethodInvoker(() => 
-                {
-                    txtBox_serialRead.Clear();
-                    txtBox_serialRead.Text = portData.Trim(); //  移出头部和尾部空白字符
-                    //scnCode_txtBox.Text = serialRead_txtBox.Text;
-
-                });
-                BeginInvoke(mi);     
-            }
-            catch (Exception ex)
-            {
-                if (!this.lockSettings_checkBox.Checked)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                seriStatus = STATUS_WAIT;
-                return;
-            }
-        }
-
         // 串口收到hexString = "46 32 33 36 31 35 30 36 37 39 35 0D"的数，转换成byte[]形式返回
         // 通过System.Text.Encoding.ASCII.GetString(byte[] buf)，可以将buf按ascii转换成string
         private byte[] ToBytesFromHexString(string hexString)
@@ -725,6 +689,42 @@ namespace Data_Transceiver_Center
                 });
             });
             t1.Start();
+        }
+
+        // 锁定设置选项
+        private void lockSettings_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            string Lock_setting_status = "Lock";
+            if (lockSettings_checkBox.Checked == true)
+            {
+                Lock_setting_status = "Lock";
+            }
+            else
+            {
+                Lock_setting_status = "UnLock";
+            }
+            LockSetting(Lock_setting_status);
+        }
+
+        private void LockSetting(string status)
+        {
+            if (status == "Lock")
+            {
+                txtBox_zplPath.Enabled = false;
+                txtBox_prtPath.Enabled = false;
+                txtBox_mesAddr.Enabled = false;
+                txtBox_position.Enabled = false;
+                label_zplTemp.Enabled = false;
+            }
+            else if (status == "UnLock")
+            {
+                timer1.Enabled = false;
+                txtBox_zplPath.Enabled = true;
+                txtBox_prtPath.Enabled = true;
+                txtBox_mesAddr.Enabled = true;
+                txtBox_position.Enabled = true;
+                label_zplTemp.Enabled = true;
+            }
         }
 
         // 从ini读出数据到页面
@@ -816,43 +816,47 @@ namespace Data_Transceiver_Center
 
         private string CheckScnPrtCode()
         {
-            string chckResult = "";
             // prtCode和ScnCode都不为空时，进行一次校验
-            if ((seriStatus==STATUS_READY) & (txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
+            if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
             {
                 if (txtBox_scnCode.Text == txtBox_prtCode.Text)
                 {
                     txtBox_chckResult.Text = "校验 OK：扫描码与打印码一致";
-                    chckResult = "OK";
+                    checkResult = "OK";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
                     this.OK_NG_label.Text = "OK";
-                    Console.WriteLine("Check result:OK");
+                    Console.WriteLine("    Check result:OK");
                 }
                 else
                 {
                     txtBox_chckResult.Text = "校验 NG：扫描码与打印码不同";
-                    chckResult = "NG";
+                    checkResult = "NG";
                     this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     this.OK_NG_label.Text =  "NG";
-                    Console.WriteLine("Check result:NG");
+                    Console.WriteLine("    Check result:NG");
                 }
                 // 校验完成后清空旧数据
 
-                seriStatus = STATUS_WAIT;
+                //seriStatus = STATUS_WAIT;
 
                 lastPrtCode_label.Text = txtBox_prtCode.Text;
                 //txtBox_scnCode.Text = "";
-                //txtBox_prtCode.Text = "";
-                Console.WriteLine("已执行校验");
+                txtBox_prtCode.Text = "";
             }
-            return chckResult;
+            return checkResult;
         }
 
+        // 获取校验数据，public对外接口
         public string GetCheckResult()
         {
             string chckResult;
             chckResult = CheckScnPrtCode();
             return chckResult;
+        }
+
+        public void SetCheckResult(string str)
+        {
+            checkResult = str;
         }
 
         /// <summary>
@@ -891,7 +895,7 @@ namespace Data_Transceiver_Center
                 if (txtBox_veriCodeHistory.Lines.Length > maxLines)
                 {
                     // 截去顶行
-                    txtBox_veriCodeHistory.Text = txtBox_veriCodeHistory.Text.Substring(txtBox_veriCodeHistory.Lines[0].Length+1);
+                    //txtBox_veriCodeHistory.Text = txtBox_veriCodeHistory.Text.Substring(txtBox_veriCodeHistory.Lines[0].Length+1);
                     // veriCodeCount = veriCodeCount - 1;
                     // 光标到最后
                     txtBox_veriCodeHistory.Select(txtBox_veriCodeHistory.Text.Length,0);

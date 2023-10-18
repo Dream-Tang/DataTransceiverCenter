@@ -34,6 +34,8 @@ namespace Data_Transceiver_Center
             f4 = new Form4();   // 实例化f2
             this.tcpServer_checkBox.Checked = true;
             this.trigger1_checkBox.Checked = true;
+            this.needCheck_checkBox.Checked = true;
+
         }
 
         // 打开页面1
@@ -320,50 +322,6 @@ namespace Data_Transceiver_Center
             });
             Console.WriteLine("task t4：Json3:" + getJson3);
 
-            // 校验 并与PLC通信
-            var t5 = Task.Run(() =>
-            {
-                string checkResult = f1.GetCheckResult();
-                //如果必须校验，则在此处阻塞，等待校验
-                if (!needCheck_checkBox.Checked)
-                {
-                    while (checkResult == "")
-                    {
-                        checkResult = f1.GetCheckResult();
-                        Thread.Sleep(500);
-                    }
-                }
-
-                if (checkResult == "OK")
-                {
-                    scn = CommunicationProtocol.checkOK;
-                    Console.WriteLine("task t5：校验结果OK");
-                }
-                if (checkResult == "NG")
-                {
-                    scn = CommunicationProtocol.checkNG;
-                    Console.WriteLine("task t5：校验结果NG");
-                }
-                if (checkResult == "")
-                {
-                    Console.WriteLine("task t5：未校验");
-                    return;
-                }
-                // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
-                if (!ignorePlc_checkBox.Checked)
-                {
-                    f2.WritePlc(cam, prt, scn); 
-                    
-                    plcRegValue = f2.ReadPlc();
-
-                    cam = plcRegValue.Item1;
-                    prt = plcRegValue.Item2;
-                    scn = plcRegValue.Item3;
-
-                    this.BeginInvoke(mi0);
-                    Console.WriteLine("task t5：已发送校验结果给PLC");
-                }
-            });
         }
 
         /// <summary>
@@ -388,11 +346,12 @@ namespace Data_Transceiver_Center
 
         private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
         {
+            short cam = -1, prt = -1, scn = -1;
+            Tuple<short, short, short> plcRegValue;
+
+            // 二维码触发输入
             var t1 = Task.Run(() =>
             {
-                short cam, prt, scn;
-                Tuple<short, short, short> plcRegValue;
-
                 while (trigger1_checkBox.Checked)
                 {
                     // F1 触发后，将trigSingner置为working状态
@@ -422,6 +381,69 @@ namespace Data_Transceiver_Center
                     Thread.Sleep(1000);
                 }
             });
+        }
+
+        private void t5CheckTask(object sender, EventArgs e)
+        {
+            // 校验 并与PLC通信
+            var t5 = Task.Run(() =>
+            {
+                while (needCheck_checkBox.Checked)
+                {
+                    if (f1.seriStatus == Form1.STATUS_READY)
+                    {
+                        Action action = () =>
+                        {
+                            t5CheckTask();
+                        };
+                        f1.seriStatus = Form1.STATUS_WAIT;
+                        Invoke(action);
+                    }
+                    Thread.Sleep(500);
+                }
+            });
+        }
+
+        // 校验任务t5
+        private void t5CheckTask()
+        {
+            short cam = -1, prt = -1, scn = -1;
+            Tuple<short, short, short> plcRegValue;
+
+            string checkResult = f1.GetCheckResult();
+
+            if (checkResult == "OK")
+            {
+                scn = CommunicationProtocol.checkOK;
+                Console.WriteLine("task t5：校验结果OK");
+                f1.seriStatus = Form1.STATUS_WAIT;
+            }
+            if (checkResult == "NG")
+            {
+                scn = CommunicationProtocol.checkNG;
+                Console.WriteLine("task t5：校验结果NG");
+                f1.seriStatus = Form1.STATUS_WAIT;
+            }
+            if (checkResult == "")
+            {
+                Console.WriteLine("task t5：未校验");
+                return;
+            }
+            // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
+            if (!ignorePlc_checkBox.Checked)
+            {
+                plcRegValue = f2.ReadPlc();
+                cam = plcRegValue.Item1;
+                prt = plcRegValue.Item2;
+                f2.WritePlc(cam, prt, scn);
+                MethodInvoker mi0 = new MethodInvoker(() =>
+                {
+                    f1.refreshPLC(cam, prt, scn);
+                });
+                this.BeginInvoke(mi0);
+                Console.WriteLine("task t5：已发送校验结果给PLC");
+            }
+            f1.SetCheckResult("");
         }
 
         private void tcpServer_checkBox_CheckedChanged(object sender, EventArgs e)
