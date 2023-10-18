@@ -779,10 +779,8 @@ namespace Data_Transceiver_Center
             }
             catch (Exception)
             {
-
                 return;
             }
-
 
             this.testHttpAPI = Convert.ToBoolean(testHttp);
         }

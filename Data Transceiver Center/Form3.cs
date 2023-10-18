@@ -110,6 +110,7 @@ namespace Data_Transceiver_Center
             try
             {
                 f1.LoadIniSettings(file);
+                connectPlc_checkBox.Checked = true;
             }
             catch (Exception)
             {
@@ -537,9 +538,26 @@ namespace Data_Transceiver_Center
 
         }
 
-        private void btn_PLCConnect_Click(object sender, EventArgs e)
+        private void connectPlc_checkBox_CheckStateChanged(object sender, EventArgs e)
         {
-            f2.btn_Open_Click(null,null);
+            if (connectPlc_checkBox.Checked)
+            {
+                f2.btn_Open_Click(null,null);
+                if (f2.GetReturnCode()== "0x00000000 [HEX]")
+                {
+                    lable_PlcConnectStatus.Text = "PLC 已连接";
+                }
+                else
+                {
+                    connectPlc_checkBox.Checked = false;
+                    lable_PlcConnectStatus.Text = "PLC 无法连接";
+                }
+            }
+            else
+            {
+                f2.btn_Close_Click(null,null);
+                lable_PlcConnectStatus.Text = "PLC 已断开";
+            }
         }
     }
 }

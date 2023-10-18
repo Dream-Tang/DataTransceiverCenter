@@ -104,7 +104,7 @@ namespace Data_Transceiver_Center
 
         #endregion "刷新寄存器rediobutton"
 
-        private void btn_Close_Click(object sender, EventArgs e)
+        public void btn_Close_Click(object sender, EventArgs e)
         {
             int iReturnCode;    //Return code
             checkBox1.Checked = false;
@@ -747,6 +747,11 @@ namespace Data_Transceiver_Center
             }
         }
 
+        public string GetReturnCode()
+        {
+            string returnCode = txt_ReturnCode.Text;
+            return returnCode;
+        }
 
     }
 }
