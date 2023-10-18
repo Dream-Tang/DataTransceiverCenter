@@ -37,6 +37,8 @@ namespace Data_Transceiver_Center
         internal int prtStatus = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
         internal int trigSigner = STATUS_WAIT;      // 触发信号状态，当二维码输入时，表示有触发信号，可执行全流程操作
         internal int seriStatus = STATUS_WAIT;      // 串口状态，当串口传入数据时，ready；校验结束后，wait。
+        internal string tcpNoReadStr = "NoRead";
+
 
         // 通信标志位数值定义
         internal const int STATUS_WAIT = -1;
@@ -908,7 +910,7 @@ namespace Data_Transceiver_Center
                     string tcpReceive = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
                     
                     // NoRead 过滤
-                    if (tcpReceive =="NoRead")
+                    if (tcpReceive.Contains(tcpNoReadStr))
                     {
                         return;
                     }

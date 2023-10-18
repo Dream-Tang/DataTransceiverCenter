@@ -537,5 +537,9 @@ namespace Data_Transceiver_Center
 
         }
 
+        private void btn_PLCConnect_Click(object sender, EventArgs e)
+        {
+            f2.btn_Open_Click(null,null);
+        }
     }
 }

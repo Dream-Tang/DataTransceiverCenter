@@ -44,6 +44,7 @@ namespace Data_Transceiver_Center
             this.ignorePlc_checkBox = new System.Windows.Forms.CheckBox();
             this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
             this.needCheck_checkBox = new System.Windows.Forms.CheckBox();
+            this.connectPlc_checkBox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,6 +54,7 @@ namespace Data_Transceiver_Center
             this.panel1.AutoSize = true;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.needCheck_checkBox);
             this.panel1.Controls.Add(this.btn_Form3);
             this.panel1.Location = new System.Drawing.Point(128, 12);
             this.panel1.Name = "panel1";
@@ -169,7 +171,7 @@ namespace Data_Transceiver_Center
             // needCheck_checkBox
             // 
             this.needCheck_checkBox.AutoSize = true;
-            this.needCheck_checkBox.Location = new System.Drawing.Point(8, 408);
+            this.needCheck_checkBox.Location = new System.Drawing.Point(242, 12);
             this.needCheck_checkBox.Name = "needCheck_checkBox";
             this.needCheck_checkBox.Size = new System.Drawing.Size(72, 16);
             this.needCheck_checkBox.TabIndex = 10;
@@ -178,12 +180,22 @@ namespace Data_Transceiver_Center
             this.needCheck_checkBox.Visible = false;
             this.needCheck_checkBox.CheckedChanged += new System.EventHandler(this.t5CheckTask);
             // 
+            // connectPlc_checkBox
+            // 
+            this.connectPlc_checkBox.AutoSize = true;
+            this.connectPlc_checkBox.Location = new System.Drawing.Point(8, 408);
+            this.connectPlc_checkBox.Name = "connectPlc_checkBox";
+            this.connectPlc_checkBox.Size = new System.Drawing.Size(66, 16);
+            this.connectPlc_checkBox.TabIndex = 11;
+            this.connectPlc_checkBox.Text = "连接PLC";
+            this.connectPlc_checkBox.UseVisualStyleBackColor = true;
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 567);
-            this.Controls.Add(this.needCheck_checkBox);
+            this.Controls.Add(this.connectPlc_checkBox);
             this.Controls.Add(this.tcpServer_checkBox);
             this.Controls.Add(this.ignorePlc_checkBox);
             this.Controls.Add(this.trigger1_checkBox);
@@ -221,5 +233,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.CheckBox ignorePlc_checkBox;
         private System.Windows.Forms.CheckBox tcpServer_checkBox;
         private System.Windows.Forms.CheckBox needCheck_checkBox;
+        private System.Windows.Forms.CheckBox connectPlc_checkBox;
     }
 }

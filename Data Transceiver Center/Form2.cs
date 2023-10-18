@@ -146,7 +146,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        private void btn_Open_Click(object sender, EventArgs e)
+        public void btn_Open_Click(object sender, EventArgs e)
         {
             int iReturnCode;				//Return code
             int iLogicalStationNumber;      //LogicalStationNumber for ActUtlType
