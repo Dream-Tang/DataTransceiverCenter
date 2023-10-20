@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions; // 正则表达式
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -469,7 +470,14 @@ namespace Data_Transceiver_Center
                 int index_FS = zpl_cmd.IndexOf("^FS");
 
                 cmd_template.Remove(index_FD, index_FS-index_FD);
-                cmd_template.Insert(index_FD, line);
+
+                // 利用正则表达式替换字符串中的值
+                string strSplit1 = Regex.Replace(line,"[0-9]","",RegexOptions.IgnoreCase);
+                string strSplit2 = Regex.Replace(line,"[a-z]","",RegexOptions.IgnoreCase);
+
+                string prtLine = strSplit1 + ">;" + strSplit2;
+
+                cmd_template.Insert(index_FD, prtLine);
 
             }
 
@@ -823,7 +831,7 @@ namespace Data_Transceiver_Center
                 {
                     txtBox_chckResult.Text = "校验 OK：扫描码与打印码一致";
                     checkResult = "OK";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
                     this.OK_NG_label.Text = "OK";
                     Console.WriteLine("    Check result:OK");
                 }
@@ -831,7 +839,7 @@ namespace Data_Transceiver_Center
                 {
                     txtBox_chckResult.Text = "校验 NG：扫描码与打印码不同";
                     checkResult = "NG";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
                     this.OK_NG_label.Text =  "NG";
                     Console.WriteLine("    Check result:NG");
                 }

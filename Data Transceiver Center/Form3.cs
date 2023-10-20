@@ -546,17 +546,23 @@ namespace Data_Transceiver_Center
                 if (f2.GetReturnCode()== "0x00000000 [HEX]")
                 {
                     lable_PlcConnectStatus.Text = "PLC 已连接";
+                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
+                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
                 }
                 else
                 {
                     connectPlc_checkBox.Checked = false;
                     lable_PlcConnectStatus.Text = "PLC 无法连接";
+                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
+                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
                 }
             }
             else
             {
                 f2.btn_Close_Click(null,null);
                 lable_PlcConnectStatus.Text = "PLC 已断开";
+                lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
+                lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
             }
         }
     }
