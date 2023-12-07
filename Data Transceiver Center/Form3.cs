@@ -141,6 +141,7 @@ namespace Data_Transceiver_Center
         {
             short cam=-1, prt=-1, scn=-1;
             Tuple<short,short,short> plcRegValue;
+
             MethodInvoker mi0 = new MethodInvoker(() =>
             {
                 f1.refreshPLC(cam, prt, scn);
@@ -210,6 +211,18 @@ namespace Data_Transceiver_Center
                     {
                         MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
                         mesID = msrt1.data.id;
+                        
+                        // 传输camOK信号给PLC，触发放行
+                        // 未禁用PLC，则执行，禁用则跳过
+                        if (!ignorePlc_checkBox.Checked)
+                        {
+                            // 触发放行
+                            plcRegValue = f2.ReadPlc();
+                            cam = CommunicationProtocol.camOK;
+                            prt = plcRegValue.Item2;
+                            scn = plcRegValue.Item3;
+                            f2.WritePlc(cam, prt, scn);
+                        }
                     }
                     catch (Exception)
                     {
@@ -224,7 +237,7 @@ namespace Data_Transceiver_Center
             });
             await t1;
             Console.WriteLine("task t1：Json1:" + getJson1);
-            cam = CommunicationProtocol.camOK;
+            //cam = CommunicationProtocol.camOK;
 
             // MES2
             var t2 = Task.Run(() =>
@@ -259,6 +272,17 @@ namespace Data_Transceiver_Center
                     catch (Exception)
                     {
                         fogID = "解析出错";
+                        if (!ignorePlc_checkBox.Checked)
+                        {
+                            // 发送camNG信号
+                            plcRegValue = f2.ReadPlc();
+                            cam = CommunicationProtocol.camNG;
+                            prt = plcRegValue.Item2;
+                            scn = plcRegValue.Item3;
+                            f2.WritePlc(cam, prt, scn);
+                        }
+                        f1.SetCheckResult("FOG ID NG");
+                        //MessageBox.Show("FOG ID 出错，请确认 MES 上是否有对应单号");
                     }
                 }
                 MethodInvoker mi2 = new MethodInvoker(() =>
@@ -358,17 +382,17 @@ namespace Data_Transceiver_Center
                     // F1 触发后，将trigSingner置为working状态
                     if (f1.trigSigner == Form1.STATUS_WORKING)
                     {
-                        // 未禁用PLC，则执行，禁用则跳过
+                        //未禁用PLC，则执行，禁用则跳过
                         if (!ignorePlc_checkBox.Checked)
                         {
                             // 触发放行
                             plcRegValue = f2.ReadPlc();
-                            cam = CommunicationProtocol.camOK;
+                            cam = CommunicationProtocol.camReset;
                             prt = plcRegValue.Item2;
                             scn = plcRegValue.Item3;
                             f2.WritePlc(cam, prt, scn);
                         }
-                        
+
                         Console.WriteLine("trigger：自动运行已触发");
                         Action action = () =>
                         {
@@ -563,6 +587,22 @@ namespace Data_Transceiver_Center
                 lable_PlcConnectStatus.Text = "PLC 已断开";
                 lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
                 lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
+            }
+        }
+
+        private void btn_Retry_fog_Click(object sender, EventArgs e)
+        {
+            short cam = -1, prt = -1, scn = -1;
+            Tuple<short, short, short> plcRegValue;
+
+            if (!ignorePlc_checkBox.Checked)
+            {
+                // 发送camNG信号
+                plcRegValue = f2.ReadPlc();
+                cam = CommunicationProtocol.camRetry;
+                prt = plcRegValue.Item2;
+                scn = plcRegValue.Item3;
+                f2.WritePlc(cam, prt, scn);
             }
         }
     }

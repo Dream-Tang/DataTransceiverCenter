@@ -22,9 +22,11 @@ namespace Data_Transceiver_Center
         //允许相机拍照 = 1
         // 扫描OK放行 = 11
         // 扫描NG报警 取料 = 12
+        public const short camReset = 0;
         public const short camAllow = 1;
         public const short camOK = 11;
         public const short camNG = 12;
+        public const short camRetry = 13;
         // 打印机信号
         // 取标平台准备好 = 1
         // 标打印完成 = 11

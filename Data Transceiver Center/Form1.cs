@@ -865,6 +865,21 @@ namespace Data_Transceiver_Center
         public void SetCheckResult(string str)
         {
             checkResult = str;
+            if (str == "OK")
+            {
+                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                this.OK_NG_label.Text = "OK";
+            }
+            else if (str == "NG")
+            {
+                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                this.OK_NG_label.Text = "NG";
+            }
+            else if (str == "FOG ID NG")
+            {
+                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                this.OK_NG_label.Text = "FOG ID NG";
+            }
         }
 
         /// <summary>

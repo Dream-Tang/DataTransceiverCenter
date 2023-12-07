@@ -50,6 +50,7 @@ namespace Data_Transceiver_Center
             this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
             this.connectPlc_checkBox = new System.Windows.Forms.CheckBox();
             this.lable_PlcConnectStatus = new System.Windows.Forms.Label();
+            this.btn_Retry_fog = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -67,49 +68,6 @@ namespace Data_Transceiver_Center
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(725, 550);
             this.panel1.TabIndex = 0;
-            // 
-            // panel2
-            // 
-            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.label2);
-            this.panel2.Controls.Add(this.radioBtn_IgnorePlc);
-            this.panel2.Controls.Add(this.radioBtn_ConnectPlc);
-            this.panel2.Location = new System.Drawing.Point(258, 12);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(114, 68);
-            this.panel2.TabIndex = 13;
-            this.panel2.Visible = false;
-            // 
-            // label2
-            // 
-            this.label2.BackColor = System.Drawing.SystemColors.ControlText;
-            this.label2.ForeColor = System.Drawing.SystemColors.Control;
-            this.label2.Location = new System.Drawing.Point(68, 18);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(44, 35);
-            this.label2.TabIndex = 13;
-            this.label2.Text = "PLC状态";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // radioBtn_IgnorePlc
-            // 
-            this.radioBtn_IgnorePlc.AutoSize = true;
-            this.radioBtn_IgnorePlc.Location = new System.Drawing.Point(3, 15);
-            this.radioBtn_IgnorePlc.Name = "radioBtn_IgnorePlc";
-            this.radioBtn_IgnorePlc.Size = new System.Drawing.Size(65, 16);
-            this.radioBtn_IgnorePlc.TabIndex = 11;
-            this.radioBtn_IgnorePlc.Text = "屏蔽PLC";
-            this.radioBtn_IgnorePlc.UseVisualStyleBackColor = true;
-            // 
-            // radioBtn_ConnectPlc
-            // 
-            this.radioBtn_ConnectPlc.AutoSize = true;
-            this.radioBtn_ConnectPlc.Location = new System.Drawing.Point(3, 37);
-            this.radioBtn_ConnectPlc.Name = "radioBtn_ConnectPlc";
-            this.radioBtn_ConnectPlc.Size = new System.Drawing.Size(65, 16);
-            this.radioBtn_ConnectPlc.TabIndex = 12;
-            this.radioBtn_ConnectPlc.Text = "连接PLC";
-            this.radioBtn_ConnectPlc.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -156,7 +114,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_Form2
             // 
-            this.btn_Form2.Location = new System.Drawing.Point(27, 119);
+            this.btn_Form2.Location = new System.Drawing.Point(27, 113);
             this.btn_Form2.Name = "btn_Form2";
             this.btn_Form2.Size = new System.Drawing.Size(81, 57);
             this.btn_Form2.TabIndex = 2;
@@ -186,7 +144,7 @@ namespace Data_Transceiver_Center
             // 
             // autoRun_btn
             // 
-            this.autoRun_btn.Location = new System.Drawing.Point(27, 240);
+            this.autoRun_btn.Location = new System.Drawing.Point(27, 181);
             this.autoRun_btn.Name = "autoRun_btn";
             this.autoRun_btn.Size = new System.Drawing.Size(81, 57);
             this.autoRun_btn.TabIndex = 6;
@@ -252,11 +210,22 @@ namespace Data_Transceiver_Center
             this.lable_PlcConnectStatus.Text = "PLC状态";
             this.lable_PlcConnectStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btn_Retry_fog
+            // 
+            this.btn_Retry_fog.Location = new System.Drawing.Point(27, 251);
+            this.btn_Retry_fog.Name = "btn_Retry_fog";
+            this.btn_Retry_fog.Size = new System.Drawing.Size(81, 57);
+            this.btn_Retry_fog.TabIndex = 14;
+            this.btn_Retry_fog.Text = "重试一次扫码";
+            this.btn_Retry_fog.UseVisualStyleBackColor = true;
+            this.btn_Retry_fog.Click += new System.EventHandler(this.btn_Retry_fog_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(861, 567);
+            this.Controls.Add(this.btn_Retry_fog);
             this.Controls.Add(this.lable_PlcConnectStatus);
             this.Controls.Add(this.connectPlc_checkBox);
             this.Controls.Add(this.tcpServer_checkBox);
@@ -304,5 +273,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lable_PlcConnectStatus;
+        private System.Windows.Forms.Button btn_Retry_fog;
     }
 }
