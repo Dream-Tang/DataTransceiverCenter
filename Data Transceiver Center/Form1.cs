@@ -835,16 +835,12 @@ namespace Data_Transceiver_Center
                 {
                     SetLbChkCode("验码OK");
                     checkResult = "OK";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
-                    this.OK_NG_label.Text = "OK";
                     Console.WriteLine("    Check result:OK");
                 }
                 else
                 {
                     SetLbChkCode("验码NG");
                     checkResult = "NG";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
-                    this.OK_NG_label.Text =  "NG";
                     Console.WriteLine("    Check result:NG");
                 }
                 // 校验完成后清空旧数据
