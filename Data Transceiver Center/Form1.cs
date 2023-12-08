@@ -52,6 +52,8 @@ namespace Data_Transceiver_Center
 
         string checkResult = "";
 
+        public string retryRead = "";
+
         //public uint veriCodeCount; // 扫码计数
         //private uint veriHistoryLines;  // 扫码列表行数
 
@@ -470,10 +472,11 @@ namespace Data_Transceiver_Center
                 int index_FS = zpl_cmd.IndexOf("^FS");
 
                 cmd_template.Remove(index_FD, index_FS-index_FD);
+                cmd_template.Insert(index_FD, line);
 
                 // 利用正则表达式替换字符串中的值
-                string strSplit1 = Regex.Replace(line,"[0-9]","",RegexOptions.IgnoreCase);
-                string strSplit2 = Regex.Replace(line,"[a-z]","",RegexOptions.IgnoreCase);
+                string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);
+                string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);
 
                 string prtLine = strSplit1 + ">;" + strSplit2;
 
@@ -822,24 +825,25 @@ namespace Data_Transceiver_Center
             cobBox_SeriPortNum.Items.AddRange(comPort);
         }
 
-        private string CheckScnPrtCode()
+        // 进行一次验码
+        public string CheckScnPrtCode()
         {
             // prtCode和ScnCode都不为空时，进行一次校验
             if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
             {
                 if (txtBox_scnCode.Text == txtBox_prtCode.Text)
                 {
-                    txtBox_chckResult.Text = "校验 OK：扫描码与打印码一致";
+                    SetLbChkCode("验码OK");
                     checkResult = "OK";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
                     this.OK_NG_label.Text = "OK";
                     Console.WriteLine("    Check result:OK");
                 }
                 else
                 {
-                    txtBox_chckResult.Text = "校验 NG：扫描码与打印码不同";
+                    SetLbChkCode("验码NG");
                     checkResult = "NG";
-                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
+                    this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     this.OK_NG_label.Text =  "NG";
                     Console.WriteLine("    Check result:NG");
                 }
@@ -849,7 +853,7 @@ namespace Data_Transceiver_Center
 
                 lastPrtCode_label.Text = txtBox_prtCode.Text;
                 //txtBox_scnCode.Text = "";
-                txtBox_prtCode.Text = "";
+                //txtBox_prtCode.Text = "";
             }
             return checkResult;
         }
@@ -862,24 +866,94 @@ namespace Data_Transceiver_Center
             return chckResult;
         }
 
-        public void SetCheckResult(string str)
+        // 三个模块的头尾提示标签
+        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"
         {
-            checkResult = str;
-            if (str == "OK")
+            switch (str)
             {
-                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
-                this.OK_NG_label.Text = "OK";
+                case "验码OK":
+                    lb_ChkCode.Text = "验码OK";
+                    lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    lb_ChkCodeNote.Text = "请继续投放";
+                    lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    break;
+
+                case "验码NG":
+                    lb_ChkCode.Text = "验码NG";
+                    lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ChkCodeNote.Text = "请重新验码";
+                    lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                case "手动验码":
+                    lb_ChkCode.Text = "手动验码中";
+                    lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ChkCodeNote.Text = "手动验码中";
+                    lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                default:
+                    break;
             }
-            else if (str == "NG")
+        }
+
+        public void SetLbReadCode(string str) // str = "读码OK" 或 "读码NG", "手动读码"
+        {
+            switch (str)
             {
-                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
-                this.OK_NG_label.Text = "NG";
+                case "读码OK":
+                    lb_ReadCode.Text = "读码OK";
+                    lb_ReadCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    lb_ReadCodeNote.Text = "请继续投放";
+                    lb_ReadCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    break;
+
+                case "读码NG":
+                    lb_ReadCode.Text = "读码NG";
+                    lb_ReadCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ReadCodeNote.Text = "请确认工单已录入";
+                    lb_ReadCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                case "手动读码":
+                    lb_ReadCode.Text = "手动读码中";
+                    lb_ReadCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ReadCodeNote.Text = "手动读码中";
+                    lb_ReadCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                default:
+                    break;
             }
-            else if (str == "FOG ID NG")
+
+        }
+
+        public void SetLbPrtCode(string str) // str = "打印OK" 或 "打印NG"
+        {
+            switch (str)
             {
-                this.OK_NG_label.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
-                this.OK_NG_label.Text = "FOG ID NG";
+                case "打印OK":
+                    lb_PrtCode.Text = "FOG ID";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    lb_PrtCodeNote.Text = "请继续投放";
+                    lb_PrtCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    break;
+
+                case "打印NG":
+                    lb_PrtCode.Text = "打印NG";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_PrtCodeNote.Text = "请重新打印";
+                    lb_PrtCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                default:
+                    break;
             }
+        }
+
+        public void ClearSerial()
+        {
+            txtBox_serialRead.Text = "";
         }
 
         /// <summary>
@@ -1036,6 +1110,11 @@ namespace Data_Transceiver_Center
         private void txtBox_veriCodeHistory_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             txtBox_veriCodeHistory.Clear();
+        }
+
+        private void btn_RetryRead_Click(object sender, EventArgs e)
+        {
+            retryRead = "Retry Read";
         }
     }
 }

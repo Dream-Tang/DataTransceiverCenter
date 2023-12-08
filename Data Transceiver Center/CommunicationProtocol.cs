@@ -38,10 +38,23 @@ namespace Data_Transceiver_Center
         public const short scannerStart = 1;
         public const short scannerComplete = 11;
         // 核验信号
+        // 未校验， = 0
         // 判定数据OK，放行 = 12
         // 判定数据NG，报警 = 13
+        public const short checkLose = 1;
         public const short checkOK = 12;
         public const short checkNG = 13;
+        #endregion
+
+        #region "Form1调用信号"
+
+        public const string readCodeOK = "读码OK";
+        public const string readCodeNG = "读码NG";
+        public const string prtCodeOK = "打印OK";
+        public const string prtCodeNG = "打印NG";
+        public const string chkCodeOK = "验码OK";
+        public const string chkCodeNG = "验码NG";
+
         #endregion
     }
 }

@@ -265,6 +265,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <None Include="Resources\Image1.png" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="ActUtlTypeLib1">
