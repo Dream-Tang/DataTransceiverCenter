@@ -455,10 +455,9 @@ namespace Data_Transceiver_Center
         }
 
         // 将ZPL指令输出到txt文档
-        // TO DO：后续尝试通过加载模板的方式来更改打印的格式设置
         private void CmdToTxt(string filePathZPL, string line)
         {
-            // ZPL文件生成
+            // ZPL文件生成，使用模板来生成，替换模板中 ^FD到^FS之间的文本
             string zpl_cmd = cmd_template.ToString();
             if (zpl_cmd == "")
             {
@@ -468,22 +467,20 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                int index_FD = zpl_cmd.IndexOf("^FD")+3;
+                int index_FD = zpl_cmd.IndexOf("^FD")+3; // 找到模板中^FD到^FS之间的位置
                 int index_FS = zpl_cmd.IndexOf("^FS");
 
-                cmd_template.Remove(index_FD, index_FS-index_FD);
-                cmd_template.Insert(index_FD, line);
+                cmd_template.Remove(index_FD, index_FS-index_FD);// 移出模板中^FD到^FS之间的内容
 
-                // 利用正则表达式替换字符串中的值
-                string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);
-                string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);
+                // 利用正则表达式替换字符串中的值，此处替换为""，相当于提取字符串中的对应字符
+                string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);// 提取字母部分
+                string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);// 提取数字部分
 
-                string prtLine = strSplit1 + ">;" + strSplit2;
+                string prtLine = strSplit1 + ">;" + strSplit2; // 输入的打印码，已被处理
 
                 cmd_template.Insert(index_FD, prtLine);
 
             }
-
 
             // ZPL文件保存
             try
