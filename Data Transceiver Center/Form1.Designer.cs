@@ -138,7 +138,7 @@ namespace Data_Transceiver_Center
             // btn_sendToPrt
             // 
             this.btn_sendToPrt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_sendToPrt.Location = new System.Drawing.Point(4, 234);
+            this.btn_sendToPrt.Location = new System.Drawing.Point(4, 237);
             this.btn_sendToPrt.Name = "btn_sendToPrt";
             this.btn_sendToPrt.Size = new System.Drawing.Size(151, 26);
             this.btn_sendToPrt.TabIndex = 3;
@@ -353,9 +353,9 @@ namespace Data_Transceiver_Center
             this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2_1.Location = new System.Drawing.Point(2, 2);
             this.label2_1.Name = "label2_1";
-            this.label2_1.Size = new System.Drawing.Size(49, 14);
+            this.label2_1.Size = new System.Drawing.Size(85, 14);
             this.label2_1.TabIndex = 43;
-            this.label2_1.Text = "MES api";
+            this.label2_1.Text = "发给MES的消息";
             // 
             // label1_5
             // 
@@ -409,9 +409,9 @@ namespace Data_Transceiver_Center
             this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2_2.Location = new System.Drawing.Point(404, 3);
             this.label2_2.Name = "label2_2";
-            this.label2_2.Size = new System.Drawing.Size(55, 14);
+            this.label2_2.Size = new System.Drawing.Size(85, 14);
             this.label2_2.TabIndex = 53;
-            this.label2_2.Text = "JSON消息";
+            this.label2_2.Text = "MES回复的消息";
             // 
             // txtBox_jsonMsg
             // 
@@ -547,7 +547,7 @@ namespace Data_Transceiver_Center
             // camValue_label
             // 
             this.camValue_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.camValue_label.Location = new System.Drawing.Point(59, 57);
+            this.camValue_label.Location = new System.Drawing.Point(59, 20);
             this.camValue_label.Name = "camValue_label";
             this.camValue_label.Size = new System.Drawing.Size(20, 17);
             this.camValue_label.TabIndex = 56;
@@ -568,7 +568,7 @@ namespace Data_Transceiver_Center
             // scnValue_label
             // 
             this.scnValue_label.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.scnValue_label.Location = new System.Drawing.Point(59, 21);
+            this.scnValue_label.Location = new System.Drawing.Point(59, 56);
             this.scnValue_label.Name = "scnValue_label";
             this.scnValue_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.scnValue_label.Size = new System.Drawing.Size(20, 14);
@@ -578,7 +578,7 @@ namespace Data_Transceiver_Center
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(3, 57);
+            this.label4.Location = new System.Drawing.Point(3, 20);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(55, 17);
             this.label4.TabIndex = 62;
@@ -587,7 +587,7 @@ namespace Data_Transceiver_Center
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(3, 21);
+            this.label2.Location = new System.Drawing.Point(3, 56);
             this.label2.Name = "label2";
             this.label2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.label2.Size = new System.Drawing.Size(55, 17);
@@ -699,7 +699,6 @@ namespace Data_Transceiver_Center
             this.btn_RetryRead.Text = "手动读码";
             this.btn_RetryRead.UseVisualStyleBackColor = true;
             this.btn_RetryRead.Visible = false;
-            this.btn_RetryRead.Click += new System.EventHandler(this.btn_RetryRead_Click);
             // 
             // panel4
             // 
@@ -797,7 +796,7 @@ namespace Data_Transceiver_Center
             // button2
             // 
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(4, 233);
+            this.button2.Location = new System.Drawing.Point(4, 237);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(150, 27);
             this.button2.TabIndex = 62;

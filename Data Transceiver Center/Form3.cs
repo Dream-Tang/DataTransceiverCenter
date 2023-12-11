@@ -238,21 +238,25 @@ namespace Data_Transceiver_Center
                 {
                     Random rnd = new Random();
                     string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //我们的接口
+                    //测试用的接口
                     url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
                     getJson2 = HttpUitls.Get(url2);
                     try
                     {
                         testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
                         fogID = rt.nu;
-
+                        // 发送camOK信号
+                        UpdatePLCReg(cam:CommunicationProtocol.camOK);
+                        // 更新form1页面
                         Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeOK); };
                         Invoke(action);
                     }
                     catch (Exception)
                     {
                         fogID = "解析出错";
-
+                        // 发送camNG
+                        UpdatePLCReg(cam: CommunicationProtocol.camNG);
+                        // 更新form1页面
                         Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeNG); };
                         Invoke(action);
                     }
@@ -267,30 +271,17 @@ namespace Data_Transceiver_Center
                         MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
                         fogID = msrt2.data.fogId;
                         // 发送camOK信号
-                        if (!ignorePlc_checkBox.Checked)
-                        {
-                            // 发送camNG信号
-                            plcRegValue = f2.ReadPlc();
-                            cam = CommunicationProtocol.camOK;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-                            f2.WritePlc(cam, prt, scn);
-                        }
+                        UpdatePLCReg(cam:CommunicationProtocol.camOK);
+                        // 更新form1页面
                         Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeOK); };
                         Invoke(action);
                     }
                     catch (Exception)
                     {
                         fogID = "解析出错";
-                        if (!ignorePlc_checkBox.Checked)
-                        {
-                            // 发送camNG信号
-                            plcRegValue = f2.ReadPlc();
-                            cam = CommunicationProtocol.camNG;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-                            f2.WritePlc(cam, prt, scn);
-                        }
+                        // 发送camNG
+                        UpdatePLCReg(cam: CommunicationProtocol.camNG);
+                        // 更新form1页面
                         Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeNG);};
                         Invoke(action);
                     }
@@ -323,8 +314,8 @@ namespace Data_Transceiver_Center
                             this.BeginInvoke(mi0);
                             Thread.Sleep(500);
                         }
-                        prt = CommunicationProtocol.prtComplete;
-                        f2.WritePlc(cam, prt, scn);
+                        // 写入prtOK
+                        UpdatePLCReg(prt:CommunicationProtocol.prtComplete);
                         this.BeginInvoke(mi0);
                         Console.WriteLine("task t3：已收到prtReady信号");
                     }
@@ -383,6 +374,7 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // 触发自动执行
         private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
         {
             short cam = -1, prt = -1, scn = -1;
@@ -490,6 +482,7 @@ namespace Data_Transceiver_Center
         }
 
 
+        // TCP接收复选框按钮
         private void tcpServer_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             if (tcpServer_checkBox.Checked)
@@ -504,6 +497,7 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // TCP服务器
         private void TcpServer()
         {
             try
@@ -581,6 +575,7 @@ namespace Data_Transceiver_Center
 
         }
 
+        // 连接PLC复现按钮
         private void connectPlc_checkBox_CheckStateChanged(object sender, EventArgs e)
         {
             if (connectPlc_checkBox.Checked)
@@ -609,40 +604,46 @@ namespace Data_Transceiver_Center
             }
         }
 
-        public void btn_Retry_fog_Click(object sender, EventArgs e)
+        // 更新PLC寄存器，向PLC进行通信，发送状态
+        private void UpdatePLCReg(short cam=-1, short prt=-1, short scn=-1)
         {
-            short cam = -1, prt = -1, scn = -1;
             Tuple<short, short, short> plcRegValue;
 
+            //未禁用PLC，则执行，禁用则跳过
             if (!ignorePlc_checkBox.Checked)
             {
-                // 发送camNG信号
+                // 触发放行
                 plcRegValue = f2.ReadPlc();
-                cam = CommunicationProtocol.camRetry;
-                prt = plcRegValue.Item2;
-                scn = plcRegValue.Item3;
+                if (cam == -1)
+                {
+                    cam = plcRegValue.Item1;
+                }
+                if (prt == -1)
+                {
+                    prt = plcRegValue.Item2;
+                }
+                if (scn == -1)
+                {
+                    scn = plcRegValue.Item3;
+                }
                 f2.WritePlc(cam, prt, scn);
             }
-            f1.SetLbReadCode("手动读码");
         }
 
+        // 手动读码按钮
+        public void btn_Retry_fog_Click(object sender, EventArgs e)
+        {
+            f1.SetLbReadCode("手动读码");
+            UpdatePLCReg(cam: CommunicationProtocol.camRetry);
+        }
+
+        // 手动验码按钮
         public void btn_RetryChk_Click(object sender, EventArgs e)
         {
-            short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
-
-            if (!ignorePlc_checkBox.Checked)
-            {
-                // 发送camNG信号
-                plcRegValue = f2.ReadPlc();
-                cam = plcRegValue.Item1;
-                prt = plcRegValue.Item2;
-                scn = CommunicationProtocol.checkLose;
-                f2.WritePlc(cam, prt, scn);
-            }
             f1.ClearSerial();
-            f1.SetLbReadCode("手动验码");
-            f1.seriStatus = Form1.STATUS_READY;
+            f1.SetLbChkCode("手动验码");
+            f1.seriStatus = Form1.STATUS_WAIT;
+            UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
         }
     }
 }

@@ -130,9 +130,9 @@ namespace Data_Transceiver_Center
             this.label1.Font = new System.Drawing.Font("微软雅黑", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label1.Location = new System.Drawing.Point(32, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 28);
+            this.label1.Size = new System.Drawing.Size(157, 28);
             this.label1.TabIndex = 0;
-            this.label1.Text = "广告位招租";
+            this.label1.Text = "公司LOGO图片";
             // 
             // needCheck_checkBox
             // 
@@ -205,9 +205,9 @@ namespace Data_Transceiver_Center
             this.trigger1_checkBox.AutoSize = true;
             this.trigger1_checkBox.Location = new System.Drawing.Point(8, 532);
             this.trigger1_checkBox.Name = "trigger1_checkBox";
-            this.trigger1_checkBox.Size = new System.Drawing.Size(108, 16);
+            this.trigger1_checkBox.Size = new System.Drawing.Size(72, 16);
             this.trigger1_checkBox.TabIndex = 7;
-            this.trigger1_checkBox.Text = "二维码输入触发";
+            this.trigger1_checkBox.Text = "自动流程";
             this.trigger1_checkBox.UseVisualStyleBackColor = true;
             this.trigger1_checkBox.CheckedChanged += new System.EventHandler(this.trigger1_CheckBox_CheckedChanged);
             // 

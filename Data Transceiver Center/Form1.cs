@@ -195,10 +195,10 @@ namespace Data_Transceiver_Center
                                 this.mes1Status = CONVERT_EXCEPTION;
                                 Console.WriteLine("mes1Status: {0}", mes1Status);
                                 if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
-                            {
+                                {
                                     MessageBox.Show("JsonConver解析出错");
                                 }
-                                txtBox_mesId.Text = "##############";
+                                txtBox_mesId.Text = "MES未回复Line ID";
                             }
                         }
                     });
@@ -224,8 +224,8 @@ namespace Data_Transceiver_Center
             if (txtBox_veriCode.Text == "")
             {
                 if (!lockSettings_checkBox.Checked)
-                { MessageBox.Show("视觉码未获取"); }
-                txtBox_jsonMsg.Text = "Mes2:\r\n 视觉码未获取";
+                { MessageBox.Show("还未获取玻璃码"); }
+                txtBox_jsonMsg.Text = "Mes2:\r\n 还未获取玻璃码";
                 return;
             }
             else { txtBox_mesApi.Text = api_url; }
@@ -265,7 +265,7 @@ namespace Data_Transceiver_Center
                             {
                                 MessageBox.Show("JsonConver解析出错");
                             }
-                            txtBox_fogId.Text = "##############";
+                            txtBox_fogId.Text = "MES未回复FOG ID";
                         }
                     }
                 });
@@ -471,14 +471,15 @@ namespace Data_Transceiver_Center
                 int index_FS = zpl_cmd.IndexOf("^FS");
 
                 cmd_template.Remove(index_FD, index_FS-index_FD);// 移出模板中^FD到^FS之间的内容
+                cmd_template.Insert(index_FD, line);
 
                 // 利用正则表达式替换字符串中的值，此处替换为""，相当于提取字符串中的对应字符
-                string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);// 提取字母部分
-                string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);// 提取数字部分
+                //string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);// 提取字母部分
+                //string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);// 提取数字部分
 
-                string prtLine = strSplit1 + ">;" + strSplit2; // 输入的打印码，已被处理
+                //string prtLine = strSplit1 + ">;" + strSplit2; // 输入的打印码，已被处理
 
-                cmd_template.Insert(index_FD, prtLine);
+                //cmd_template.Insert(index_FD, prtLine);
 
             }
 
@@ -860,7 +861,7 @@ namespace Data_Transceiver_Center
         }
 
         // 三个模块的头尾提示标签
-        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"
+        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码"
         {
             switch (str)
             {
@@ -881,7 +882,7 @@ namespace Data_Transceiver_Center
                 case "手动验码":
                     lb_ChkCode.Text = "手动验码中";
                     lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
-                    lb_ChkCodeNote.Text = "手动验码中";
+                    lb_ChkCodeNote.Text = "请重新扫码";
                     lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     break;
 
@@ -911,7 +912,7 @@ namespace Data_Transceiver_Center
                 case "手动读码":
                     lb_ReadCode.Text = "手动读码中";
                     lb_ReadCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
-                    lb_ReadCodeNote.Text = "手动读码中";
+                    lb_ReadCodeNote.Text = "请重新读玻璃码";
                     lb_ReadCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     break;
 
@@ -1105,9 +1106,6 @@ namespace Data_Transceiver_Center
             txtBox_veriCodeHistory.Clear();
         }
 
-        private void btn_RetryRead_Click(object sender, EventArgs e)
-        {
-            retryRead = "Retry Read";
-        }
+
     }
 }
