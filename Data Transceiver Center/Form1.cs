@@ -21,7 +21,7 @@ namespace Data_Transceiver_Center
 
         private StringBuilder cmd_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
 
-        private string mesAddr =   "https://" +  "192.168.50.7:7199";
+        private string mesAddr =   "http://" +  "192.168.50.7:7199";
         private static string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
         private static string mes1Par = "position&par=";
         private static string mes2Par = "print&par=";
@@ -144,7 +144,7 @@ namespace Data_Transceiver_Center
 
             #region SetUrl1
             // http 接口
-            string mesAddr = "https://" +  txtBox_mesAddr.Text;
+            string mesAddr = "http://" +  txtBox_mesAddr.Text;
             string api_url = mesAddr + apiToken +  mes1Par  + txtBox_position.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
@@ -216,7 +216,7 @@ namespace Data_Transceiver_Center
             rt.data = dt;
 
             // http 接口
-            string mesAddr = "https://" + txtBox_mesAddr.Text;
+            string mesAddr = "http://" + txtBox_mesAddr.Text;
             string api_url = mesAddr + apiToken + mes2Par + txtBox_veriCode.Text + ',' + txtBox_mesId.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
@@ -280,7 +280,7 @@ namespace Data_Transceiver_Center
             MesRoot3 rt = new MesRoot3();
 
             // http 接口
-            string mesAddr = "https://" + txtBox_mesAddr.Text;
+            string mesAddr = "http://" + txtBox_mesAddr.Text;
             string api_url = mesAddr + apiToken + mes3Par + txtBox_fogId.Text;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI) { api_url = testHttpUrl; }
@@ -606,7 +606,7 @@ namespace Data_Transceiver_Center
         public string GetUrl(string addr, string pluginarg = "", string par = "", string mesApi = "")
         {
             // http 接口。若直接参数传入mesApi，则直接用mesApi，若没有直接传入，则根据参数来合成。
-            string api_url = "https://" + addr +  apiToken + pluginarg + "&par=" + par;
+            string api_url = "http://" + addr +  apiToken + pluginarg + "&par=" + par;
             // 设置一个HttpApi测试后门，通过ini改写testHttpAPI为true时，将通过以接通网站测试Json读取。
             if (testHttpAPI)
             {
