@@ -243,5 +243,62 @@ namespace Data_Transceiver_Center
             return AddressIP;
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int pBarmaximum = 10;
+            Task t1 = new Task(() =>
+            {
+                // 跨线程修改UI，使用methodinvoker工具类
+                MethodInvoker mi = new MethodInvoker(() =>
+                {
+                    startProgressBar(pBarmaximum, pBar1);
+                });
+                this.BeginInvoke(mi);
+            });
+            t1.Start();
+        }
+
+        private delegate void deleProgressBar(int BarMax, ProgressBar pBar); //设置进度条委托
+
+        public void startProgressBar(int pBarmaximum, ProgressBar pBar)
+        {
+            if (this.InvokeRequired)
+            {
+                deleProgressBar startPBar = new deleProgressBar(startProgressBar);
+                this.Invoke(startPBar, new object[] { pBarmaximum, pBar });
+            }
+            else
+            {
+                pBar.Value = 0;
+            }
+            pBar1.Visible = true;
+            pBar1.Minimum = 0;
+            pBar1.Maximum = pBarmaximum;
+            pBar1.Value = 0;
+            pBar1.Step = 1;
+
+            for (int i = 0; i < pBarmaximum; i++)
+            {
+                System.Threading.Thread.Sleep(300);
+                pBar1.PerformStep();
+            }
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            timer1.Enabled = true;
+            timer1.Start();
+            button4.Enabled = false;
+            button4.BackColor = System.Drawing.SystemColors.ControlDark;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Enabled = false;
+            button4.Enabled = true;
+            button4.BackColor = System.Drawing.SystemColors.ControlLightLight;
+        }
     }
+
 }

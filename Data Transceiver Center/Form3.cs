@@ -635,6 +635,10 @@ namespace Data_Transceiver_Center
         {
             f1.SetLbReadCode("手动读码");
             UpdatePLCReg(cam: CommunicationProtocol.camRetry);
+            btn_RetryRead.Enabled = false;
+            btn_RetryRead.BackColor = System.Drawing.SystemColors.ControlDark;
+            timer2.Enabled = true;
+            timer2.Start();
         }
 
         // 手动验码按钮
@@ -644,6 +648,20 @@ namespace Data_Transceiver_Center
             f1.SetLbChkCode("手动验码");
             f1.seriStatus = Form1.STATUS_WAIT;
             UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
+            btn_RetryChk.Enabled = false;
+            btn_RetryChk.BackColor = System.Drawing.SystemColors.ControlDark;
+            timer2.Enabled = true;
+            timer2.Start();
         }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            timer2.Enabled = false;
+            btn_RetryChk.Enabled = true;
+            btn_RetryRead.Enabled = true;
+            btn_RetryRead.BackColor = System.Drawing.SystemColors.Control;
+            btn_RetryChk.BackColor = System.Drawing.SystemColors.Control;
+        }
+
     }
 }
