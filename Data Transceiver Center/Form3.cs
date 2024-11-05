@@ -33,8 +33,8 @@ namespace Data_Transceiver_Center
             f2 = new Form2();   // 实例化f2
             f4 = new Form4();   // 实例化f2
             this.tcpServer_checkBox.Checked = true;
-            this.trigger1_checkBox.Checked = true;
-            this.needCheck_checkBox.Checked = true;
+            this.autoRun_checkBox.Checked = true;
+            this.ignoreCheck_checkBox.Checked = true;
 
         }
 
@@ -66,7 +66,7 @@ namespace Data_Transceiver_Center
             f4.TopLevel = false;
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            //f4.Show();      // 将窗口4进行显示
+            f4.Show();      // 将窗口4进行显示
         }
 
         // 保存配置
@@ -352,6 +352,17 @@ namespace Data_Transceiver_Center
             });
             Console.WriteLine("task t4：Json3:" + getJson3);
 
+            // t5校验
+            var t5 = Task.Run(() => 
+            {
+                if (ignoreCheck_checkBox.Checked)
+                {
+                    f1.ignoreCheck = true;
+                    t5CheckTask();
+                }
+            });
+            await t5;
+            Console.WriteLine("task t5：Check:" );
         }
 
         /// <summary>
@@ -383,7 +394,7 @@ namespace Data_Transceiver_Center
             // 二维码触发输入
             var t1 = Task.Run(() =>
             {
-                while (trigger1_checkBox.Checked)
+                while (autoRun_checkBox.Checked)
                 {
                     // F1 触发后，将trigSingner置为working状态
                     if (f1.trigSigner == Form1.STATUS_WORKING)
@@ -414,13 +425,22 @@ namespace Data_Transceiver_Center
             });
         }
 
-        private void t5CheckTask(object sender, EventArgs e)
+        private void t5CheckTask(object sender, EventArgs e) // 
         {
+            if (ignoreCheck_checkBox.Checked)
+            {
+                f1.ignoreCheck = true;
+            }
+            else 
+            {
+                f1.ignoreCheck = false;
+            }
             // 校验 并与PLC通信
             var t5 = Task.Run(() =>
             {
-                while (needCheck_checkBox.Checked)
+                while (!ignoreCheck_checkBox.Checked)
                 {
+                    f1.ignoreCheck = false;
                     if (f1.seriStatus == Form1.STATUS_READY)
                     {
                         Action action = () =>
@@ -440,24 +460,22 @@ namespace Data_Transceiver_Center
         {
             short cam = -1, prt = -1, scn = -1;
             Tuple<short, short, short> plcRegValue;
+            string checkResult = "";
 
-            string checkResult = f1.GetCheckResult();
+            Action action = () => { checkResult = f1.GetCheckResult(); };
+            Invoke(action);
 
             if (checkResult == "OK")
             {
                 scn = CommunicationProtocol.checkOK;
                 Console.WriteLine("task t5：校验结果OK");
                 f1.seriStatus = Form1.STATUS_WAIT;
-                Action action = () => { f1.SetLbChkCode(CommunicationProtocol.chkCodeOK); };
-                Invoke(action);
             }
             if (checkResult == "NG")
             {
                 scn = CommunicationProtocol.checkNG;
                 Console.WriteLine("task t5：校验结果NG");
                 f1.seriStatus = Form1.STATUS_WAIT;
-                Action action = () => { f1.SetLbChkCode(CommunicationProtocol.chkCodeNG); };
-                Invoke(action);
             }
             if (checkResult == "")
             {
@@ -465,6 +483,8 @@ namespace Data_Transceiver_Center
                 Console.WriteLine("task t5：未校验");
                 return; // 此处会一直等待校验结果
             }
+
+           
             // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
             if (!ignorePlc_checkBox.Checked)
             {

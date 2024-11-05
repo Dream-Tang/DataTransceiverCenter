@@ -30,6 +30,7 @@ namespace Data_Transceiver_Center
 
         public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
         public string zplTemplatePath = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        public bool ignoreCheck = false;
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
         internal int mes1Status = STATUS_WAIT;
@@ -824,22 +825,31 @@ namespace Data_Transceiver_Center
         }
 
         // 进行一次验码
-        public string CheckScnPrtCode()
+        private string CheckScnPrtCode()
         {
-            // prtCode和ScnCode都不为空时，进行一次校验
-            if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
+            if (ignoreCheck)    // 屏蔽校验
             {
-                if (txtBox_scnCode.Text == txtBox_prtCode.Text)
+                checkResult = "OK";
+                SetLbChkCode(CommunicationProtocol.chkCodeIG);
+                Console.WriteLine("    Check result:ignore");
+            }
+            else
+            {
+                // prtCode和ScnCode都不为空时，进行一次校验
+                if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
                 {
-                    SetLbChkCode("验码OK");
-                    checkResult = "OK";
-                    Console.WriteLine("    Check result:OK");
-                }
-                else
-                {
-                    SetLbChkCode("验码NG");
-                    checkResult = "NG";
-                    Console.WriteLine("    Check result:NG");
+                    if (txtBox_scnCode.Text == txtBox_prtCode.Text)
+                    {
+                        checkResult = "OK";
+                        SetLbChkCode(CommunicationProtocol.chkCodeOK);
+                        Console.WriteLine("    Check result:OK");
+                    }
+                    else
+                    {
+                        checkResult = "NG";
+                        SetLbChkCode(CommunicationProtocol.chkCodeNG);
+                        Console.WriteLine("    Check result:NG");
+                    }
                 }
                 // 校验完成后清空旧数据
 
@@ -861,7 +871,7 @@ namespace Data_Transceiver_Center
         }
 
         // 三个模块的头尾提示标签
-        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码"
+        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码","屏蔽校验"
         {
             switch (str)
             {
@@ -884,6 +894,13 @@ namespace Data_Transceiver_Center
                     lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
                     lb_ChkCodeNote.Text = "请重新扫码";
                     lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    break;
+
+                case "屏蔽校验":
+                    lb_ChkCode.Text = "校验已屏蔽";
+                    lb_ChkCode.BackColor = System.Drawing.SystemColors.GrayText;
+                    lb_ChkCodeNote.Text = "校验已屏蔽";
+                    lb_ChkCodeNote.BackColor = System.Drawing.SystemColors.GrayText;
                     break;
 
                 default:

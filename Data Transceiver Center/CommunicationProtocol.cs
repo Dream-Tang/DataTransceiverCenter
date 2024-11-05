@@ -54,6 +54,7 @@ namespace Data_Transceiver_Center
         public const string prtCodeNG = "打印NG";
         public const string chkCodeOK = "验码OK";
         public const string chkCodeNG = "验码NG";
+        public const string chkCodeIG = "屏蔽校验";
 
         #endregion
     }
