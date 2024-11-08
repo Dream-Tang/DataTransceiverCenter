@@ -541,8 +541,7 @@ namespace Data_Transceiver_Center
             // 
             // Form2
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(597, 514);
             this.ControlBox = false;
             this.Controls.Add(this.分割线1);

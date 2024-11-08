@@ -63,27 +63,24 @@ namespace Data_Transceiver_Center
             // 
             this.label1_5.AutoSize = true;
             this.label1_5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_5.Location = new System.Drawing.Point(21, 76);
-            this.label1_5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1_5.Location = new System.Drawing.Point(14, 51);
             this.label1_5.Name = "label1_5";
-            this.label1_5.Size = new System.Drawing.Size(64, 20);
+            this.label1_5.Size = new System.Drawing.Size(43, 14);
             this.label1_5.TabIndex = 59;
             this.label1_5.Text = "打印码";
             // 
             // prtCode_txtBox
             // 
-            this.prtCode_txtBox.Location = new System.Drawing.Point(20, 102);
-            this.prtCode_txtBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.prtCode_txtBox.Location = new System.Drawing.Point(13, 68);
             this.prtCode_txtBox.Name = "prtCode_txtBox";
-            this.prtCode_txtBox.Size = new System.Drawing.Size(200, 28);
+            this.prtCode_txtBox.Size = new System.Drawing.Size(135, 21);
             this.prtCode_txtBox.TabIndex = 58;
             this.prtCode_txtBox.TextChanged += new System.EventHandler(this.prtCode_txtBox_TextChanged);
             // 
             // pictureBox2
             // 
             this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox2.Location = new System.Drawing.Point(21, 140);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pictureBox2.Location = new System.Drawing.Point(14, 93);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(134, 59);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -94,10 +91,9 @@ namespace Data_Transceiver_Center
             // 
             this.label4_2.AutoSize = true;
             this.label4_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4_2.Location = new System.Drawing.Point(296, 140);
-            this.label4_2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4_2.Location = new System.Drawing.Point(197, 93);
             this.label4_2.Name = "label4_2";
-            this.label4_2.Size = new System.Drawing.Size(82, 20);
+            this.label4_2.Size = new System.Drawing.Size(55, 14);
             this.label4_2.TabIndex = 67;
             this.label4_2.Text = "监控位置";
             // 
@@ -110,10 +106,9 @@ namespace Data_Transceiver_Center
             // fileWatcher_chkbox
             // 
             this.fileWatcher_chkbox.AutoSize = true;
-            this.fileWatcher_chkbox.Location = new System.Drawing.Point(296, 76);
-            this.fileWatcher_chkbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.fileWatcher_chkbox.Location = new System.Drawing.Point(197, 51);
             this.fileWatcher_chkbox.Name = "fileWatcher_chkbox";
-            this.fileWatcher_chkbox.Size = new System.Drawing.Size(124, 22);
+            this.fileWatcher_chkbox.Size = new System.Drawing.Size(84, 16);
             this.fileWatcher_chkbox.TabIndex = 68;
             this.fileWatcher_chkbox.Text = "文件夹监控";
             this.fileWatcher_chkbox.UseVisualStyleBackColor = true;
@@ -123,47 +118,42 @@ namespace Data_Transceiver_Center
             // 
             this.label4_3.AutoSize = true;
             this.label4_3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4_3.Location = new System.Drawing.Point(296, 190);
-            this.label4_3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4_3.Location = new System.Drawing.Point(197, 127);
             this.label4_3.Name = "label4_3";
-            this.label4_3.Size = new System.Drawing.Size(82, 20);
+            this.label4_3.Size = new System.Drawing.Size(55, 14);
             this.label4_3.TabIndex = 69;
             this.label4_3.Text = "监控状态";
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(21, 387);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox1.Location = new System.Drawing.Point(14, 258);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(200, 234);
+            this.textBox1.Size = new System.Drawing.Size(135, 157);
             this.textBox1.TabIndex = 70;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(296, 387);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox2.Location = new System.Drawing.Point(197, 258);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(200, 28);
+            this.textBox2.Size = new System.Drawing.Size(135, 21);
             this.textBox2.TabIndex = 71;
             // 
             // tcpPort_txtBox
             // 
-            this.tcpPort_txtBox.Location = new System.Drawing.Point(576, 219);
-            this.tcpPort_txtBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tcpPort_txtBox.Location = new System.Drawing.Point(384, 146);
             this.tcpPort_txtBox.Name = "tcpPort_txtBox";
-            this.tcpPort_txtBox.Size = new System.Drawing.Size(157, 28);
+            this.tcpPort_txtBox.Size = new System.Drawing.Size(106, 21);
             this.tcpPort_txtBox.TabIndex = 72;
             // 
             // client_radBtn
             // 
             this.client_radBtn.AutoSize = true;
-            this.client_radBtn.Location = new System.Drawing.Point(8, 4);
-            this.client_radBtn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.client_radBtn.Location = new System.Drawing.Point(5, 3);
             this.client_radBtn.Name = "client_radBtn";
-            this.client_radBtn.Size = new System.Drawing.Size(87, 22);
+            this.client_radBtn.Size = new System.Drawing.Size(59, 16);
             this.client_radBtn.TabIndex = 74;
             this.client_radBtn.TabStop = true;
             this.client_radBtn.Text = "客户端";
@@ -173,20 +163,18 @@ namespace Data_Transceiver_Center
             // 
             this.panel1.Controls.Add(this.server_radBtn);
             this.panel1.Controls.Add(this.client_radBtn);
-            this.panel1.Location = new System.Drawing.Point(576, 124);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Location = new System.Drawing.Point(384, 83);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(266, 36);
+            this.panel1.Size = new System.Drawing.Size(177, 24);
             this.panel1.TabIndex = 75;
             this.panel1.Visible = false;
             // 
             // server_radBtn
             // 
             this.server_radBtn.AutoSize = true;
-            this.server_radBtn.Location = new System.Drawing.Point(172, 4);
-            this.server_radBtn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.server_radBtn.Location = new System.Drawing.Point(115, 3);
             this.server_radBtn.Name = "server_radBtn";
-            this.server_radBtn.Size = new System.Drawing.Size(87, 22);
+            this.server_radBtn.Size = new System.Drawing.Size(59, 16);
             this.server_radBtn.TabIndex = 75;
             this.server_radBtn.TabStop = true;
             this.server_radBtn.Text = "服务端";
@@ -195,29 +183,26 @@ namespace Data_Transceiver_Center
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(524, 183);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Location = new System.Drawing.Point(349, 122);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(26, 18);
+            this.label1.Size = new System.Drawing.Size(17, 12);
             this.label1.TabIndex = 76;
             this.label1.Text = "IP";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(524, 224);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(349, 149);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(44, 18);
+            this.label2.Size = new System.Drawing.Size(29, 12);
             this.label2.TabIndex = 77;
             this.label2.Text = "端口";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(744, 216);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Location = new System.Drawing.Point(496, 144);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(140, 34);
+            this.button1.Size = new System.Drawing.Size(93, 23);
             this.button1.TabIndex = 78;
             this.button1.Text = "开启TCP接收";
             this.button1.UseVisualStyleBackColor = true;
@@ -225,10 +210,9 @@ namespace Data_Transceiver_Center
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(744, 172);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button2.Location = new System.Drawing.Point(496, 115);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(140, 34);
+            this.button2.Size = new System.Drawing.Size(93, 23);
             this.button2.TabIndex = 79;
             this.button2.Text = "获取本地IP";
             this.button2.UseVisualStyleBackColor = true;
@@ -236,36 +220,34 @@ namespace Data_Transceiver_Center
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(584, 278);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox3.Location = new System.Drawing.Point(389, 185);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(200, 28);
+            this.textBox3.Size = new System.Drawing.Size(135, 21);
             this.textBox3.TabIndex = 80;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(495, 282);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Location = new System.Drawing.Point(330, 188);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(80, 18);
+            this.label3.Size = new System.Drawing.Size(53, 12);
             this.label3.TabIndex = 81;
             this.label3.Text = "接收数据";
             // 
             // IPAddr_cobBox
             // 
             this.IPAddr_cobBox.FormattingEnabled = true;
-            this.IPAddr_cobBox.Location = new System.Drawing.Point(576, 172);
-            this.IPAddr_cobBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.IPAddr_cobBox.Location = new System.Drawing.Point(384, 115);
             this.IPAddr_cobBox.Name = "IPAddr_cobBox";
-            this.IPAddr_cobBox.Size = new System.Drawing.Size(157, 26);
+            this.IPAddr_cobBox.Size = new System.Drawing.Size(106, 20);
             this.IPAddr_cobBox.TabIndex = 84;
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(296, 507);
+            this.button3.Location = new System.Drawing.Point(197, 338);
+            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(225, 40);
+            this.button3.Size = new System.Drawing.Size(150, 27);
             this.button3.TabIndex = 86;
             this.button3.Text = "button3";
             this.button3.UseVisualStyleBackColor = true;
@@ -273,16 +255,18 @@ namespace Data_Transceiver_Center
             // 
             // pBar1
             // 
-            this.pBar1.Location = new System.Drawing.Point(296, 573);
+            this.pBar1.Location = new System.Drawing.Point(197, 382);
+            this.pBar1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pBar1.Name = "pBar1";
-            this.pBar1.Size = new System.Drawing.Size(225, 40);
+            this.pBar1.Size = new System.Drawing.Size(150, 27);
             this.pBar1.TabIndex = 85;
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(576, 507);
+            this.button4.Location = new System.Drawing.Point(384, 338);
+            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(225, 40);
+            this.button4.Size = new System.Drawing.Size(150, 27);
             this.button4.TabIndex = 87;
             this.button4.Text = "button4";
             this.button4.UseVisualStyleBackColor = true;
@@ -295,9 +279,8 @@ namespace Data_Transceiver_Center
             // 
             // Form4
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1107, 826);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
+            this.ClientSize = new System.Drawing.Size(738, 551);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.pBar1);
@@ -319,7 +302,6 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.label1_5);
             this.Controls.Add(this.prtCode_txtBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Form4";
             this.Text = "Form4";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
