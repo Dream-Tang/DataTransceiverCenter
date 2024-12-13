@@ -55,6 +55,10 @@ namespace Data_Transceiver_Center
 
         public string retryRead = "";
 
+        public delegate void btnOnClickDelegate();
+        public event btnOnClickDelegate btnRetryRead;
+        public event btnOnClickDelegate btnRetryChk;
+
         //public uint veriCodeCount; // 扫码计数
         //private uint veriHistoryLines;  // 扫码列表行数
 
@@ -1123,6 +1127,38 @@ namespace Data_Transceiver_Center
             txtBox_veriCodeHistory.Clear();
         }
 
+        private void btn_RetryRead_Click(object sender, EventArgs e)
+        {
+            SetLbReadCode("手动读码");
+            btn_RetryRead.Enabled = false;
+            btn_RetryRead.BackColor = System.Drawing.SystemColors.ControlDark;
+            timer2.Enabled = true;
+            timer2.Start();
+            // 接收外部的委托：
+            btnRetryRead?.Invoke();
+        }
+
+        private void btn_RetryChk_Click(object sender, EventArgs e)
+        {
+            ClearSerial();
+            SetLbChkCode("手动验码");
+            seriStatus = Form1.STATUS_WAIT;
+            btn_RetryChk.Enabled = false;
+            btn_RetryChk.BackColor = System.Drawing.SystemColors.ControlDark;
+            timer2.Enabled = true;
+            timer2.Start();
+            // 接收外部的委托:
+            btnRetryChk?.Invoke();
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            timer2.Enabled = false;
+            btn_RetryChk.Enabled = true;
+            btn_RetryRead.Enabled = true;
+            btn_RetryRead.BackColor = System.Drawing.SystemColors.Control;
+            btn_RetryChk.BackColor = System.Drawing.SystemColors.Control;
+        }
 
     }
 }

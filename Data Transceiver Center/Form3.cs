@@ -35,6 +35,8 @@ namespace Data_Transceiver_Center
             this.tcpServer_checkBox.Checked = true;
             this.autoRun_checkBox.Checked = true;
             this.ignoreCheck_checkBox.Checked = true;
+            f1.btnRetryRead += new Form1.btnOnClickDelegate(btn_RetryRead_Click);
+            f1.btnRetryChk += new Form1.btnOnClickDelegate(btn_RetryChk_Click);
 
         }
 
@@ -45,8 +47,6 @@ namespace Data_Transceiver_Center
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f1);    // 将窗体1加入容器panel1
             f1.Show();      // 将窗口1进行显示
-            btn_RetryRead.Visible = true;
-            btn_RetryChk.Visible = true;
         }
 
         // 打开页面2
@@ -56,8 +56,6 @@ namespace Data_Transceiver_Center
             panel1.Controls.Clear();    // 清空原容器上的控件
             panel1.Controls.Add(f2);    // 将窗体2加入容器panel1
             f2.Show();      // 将窗口2进行显示
-            btn_RetryRead.Visible = false;
-            btn_RetryChk.Visible = false;
         }
 
         // 打开页面3
@@ -651,36 +649,17 @@ namespace Data_Transceiver_Center
         }
 
         // 手动读码按钮
-        public void btn_Retry_fog_Click(object sender, EventArgs e)
+        public void btn_RetryRead_Click()
         {
-            f1.SetLbReadCode("手动读码");
+            // 给PLC发送信号
             UpdatePLCReg(cam: CommunicationProtocol.camRetry);
-            btn_RetryRead.Enabled = false;
-            btn_RetryRead.BackColor = System.Drawing.SystemColors.ControlDark;
-            timer2.Enabled = true;
-            timer2.Start();
         }
 
         // 手动验码按钮
-        public void btn_RetryChk_Click(object sender, EventArgs e)
+        public void btn_RetryChk_Click()
         {
-            f1.ClearSerial();
-            f1.SetLbChkCode("手动验码");
-            f1.seriStatus = Form1.STATUS_WAIT;
+            // 给PLC发送信号
             UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
-            btn_RetryChk.Enabled = false;
-            btn_RetryChk.BackColor = System.Drawing.SystemColors.ControlDark;
-            timer2.Enabled = true;
-            timer2.Start();
-        }
-
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            timer2.Enabled = false;
-            btn_RetryChk.Enabled = true;
-            btn_RetryRead.Enabled = true;
-            btn_RetryRead.BackColor = System.Drawing.SystemColors.Control;
-            btn_RetryChk.BackColor = System.Drawing.SystemColors.Control;
         }
 
     }

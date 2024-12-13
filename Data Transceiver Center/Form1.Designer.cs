@@ -95,9 +95,10 @@ namespace Data_Transceiver_Center
             this.panel5 = new System.Windows.Forms.Panel();
             this.lb_ChkCode = new System.Windows.Forms.Label();
             this.lb_ChkCodeNote = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btn_RetryChk = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.pnl_Mes.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -692,13 +693,13 @@ namespace Data_Transceiver_Center
             // btn_RetryRead
             // 
             this.btn_RetryRead.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_RetryRead.Location = new System.Drawing.Point(5, 237);
+            this.btn_RetryRead.Location = new System.Drawing.Point(4, 237);
             this.btn_RetryRead.Name = "btn_RetryRead";
             this.btn_RetryRead.Size = new System.Drawing.Size(150, 27);
             this.btn_RetryRead.TabIndex = 61;
             this.btn_RetryRead.Text = "手动读码";
             this.btn_RetryRead.UseVisualStyleBackColor = true;
-            this.btn_RetryRead.Visible = false;
+            this.btn_RetryRead.Click += new System.EventHandler(this.btn_RetryRead_Click);
             // 
             // panel4
             // 
@@ -712,7 +713,7 @@ namespace Data_Transceiver_Center
             this.panel4.Controls.Add(this.pictureBox1);
             this.panel4.Controls.Add(this.btn_makeZpl);
             this.panel4.Controls.Add(this.btn_sendToPrt);
-            this.panel4.Location = new System.Drawing.Point(241, 56);
+            this.panel4.Location = new System.Drawing.Point(241, 57);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(163, 297);
             this.panel4.TabIndex = 66;
@@ -756,7 +757,7 @@ namespace Data_Transceiver_Center
             this.panel5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel5.Controls.Add(this.lb_ChkCode);
             this.panel5.Controls.Add(this.lb_ChkCodeNote);
-            this.panel5.Controls.Add(this.button2);
+            this.panel5.Controls.Add(this.btn_RetryChk);
             this.panel5.Controls.Add(this.txtBox_serialRead);
             this.panel5.Controls.Add(this.serialPort_label);
             this.panel5.Controls.Add(this.btn_reloadPort);
@@ -767,7 +768,7 @@ namespace Data_Transceiver_Center
             this.panel5.Controls.Add(this.comboBox2);
             this.panel5.Controls.Add(this.label3_2);
             this.panel5.Controls.Add(this.cobBox_SeriPortNum);
-            this.panel5.Location = new System.Drawing.Point(484, 56);
+            this.panel5.Location = new System.Drawing.Point(484, 57);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(163, 297);
             this.panel5.TabIndex = 67;
@@ -793,16 +794,16 @@ namespace Data_Transceiver_Center
             this.lb_ChkCodeNote.Size = new System.Drawing.Size(163, 28);
             this.lb_ChkCodeNote.TabIndex = 65;
             // 
-            // button2
+            // btn_RetryChk
             // 
-            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(4, 237);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(150, 27);
-            this.button2.TabIndex = 62;
-            this.button2.Text = "手动验码";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Visible = false;
+            this.btn_RetryChk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_RetryChk.Location = new System.Drawing.Point(4, 237);
+            this.btn_RetryChk.Name = "btn_RetryChk";
+            this.btn_RetryChk.Size = new System.Drawing.Size(150, 27);
+            this.btn_RetryChk.TabIndex = 62;
+            this.btn_RetryChk.Text = "手动验码";
+            this.btn_RetryChk.UseVisualStyleBackColor = true;
+            this.btn_RetryChk.Click += new System.EventHandler(this.btn_RetryChk_Click);
             // 
             // pictureBox2
             // 
@@ -823,6 +824,11 @@ namespace Data_Transceiver_Center
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox3.TabIndex = 70;
             this.pictureBox3.TabStop = false;
+            // 
+            // timer2
+            // 
+            this.timer2.Interval = 2500;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // Form1
             // 
@@ -936,13 +942,14 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label lb_ReadCode;
         private System.Windows.Forms.Button btn_RetryRead;
         private System.Windows.Forms.Label lb_PrtCode;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btn_RetryChk;
         private System.Windows.Forms.Label lb_ReadCodeNote;
         private System.Windows.Forms.Label lb_PrtCodeNote;
         private System.Windows.Forms.Label lb_ChkCodeNote;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Label lb_ChkCode;
+        private System.Windows.Forms.Timer timer2;
         //private System.Windows.Forms.Label veriCount_label;
         //private System.Windows.Forms.Label label6;
     }

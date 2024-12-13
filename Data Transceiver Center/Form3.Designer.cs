@@ -50,9 +50,6 @@ namespace Data_Transceiver_Center
             this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
             this.connectPlc_checkBox = new System.Windows.Forms.CheckBox();
             this.lable_PlcConnectStatus = new System.Windows.Forms.Label();
-            this.btn_RetryRead = new System.Windows.Forms.Button();
-            this.btn_RetryChk = new System.Windows.Forms.Button();
-            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -253,41 +250,10 @@ namespace Data_Transceiver_Center
             this.lable_PlcConnectStatus.Text = "PLC状态";
             this.lable_PlcConnectStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // btn_RetryRead
-            // 
-            this.btn_RetryRead.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_RetryRead.Location = new System.Drawing.Point(141, 308);
-            this.btn_RetryRead.Name = "btn_RetryRead";
-            this.btn_RetryRead.Size = new System.Drawing.Size(150, 27);
-            this.btn_RetryRead.TabIndex = 15;
-            this.btn_RetryRead.Text = "手动读码";
-            this.btn_RetryRead.UseVisualStyleBackColor = true;
-            this.btn_RetryRead.Visible = false;
-            this.btn_RetryRead.Click += new System.EventHandler(this.btn_Retry_fog_Click);
-            // 
-            // btn_RetryChk
-            // 
-            this.btn_RetryChk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_RetryChk.Location = new System.Drawing.Point(617, 302);
-            this.btn_RetryChk.Name = "btn_RetryChk";
-            this.btn_RetryChk.Size = new System.Drawing.Size(150, 27);
-            this.btn_RetryChk.TabIndex = 16;
-            this.btn_RetryChk.Text = "手动验码";
-            this.btn_RetryChk.UseVisualStyleBackColor = true;
-            this.btn_RetryChk.Visible = false;
-            this.btn_RetryChk.Click += new System.EventHandler(this.btn_RetryChk_Click);
-            // 
-            // timer2
-            // 
-            this.timer2.Interval = 2500;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
-            // 
             // Form3
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(811, 643);
-            this.Controls.Add(this.btn_RetryChk);
-            this.Controls.Add(this.btn_RetryRead);
             this.Controls.Add(this.ignoreCheck_checkBox);
             this.Controls.Add(this.lable_PlcConnectStatus);
             this.Controls.Add(this.btn_Form3);
@@ -337,8 +303,5 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lable_PlcConnectStatus;
-        private System.Windows.Forms.Button btn_RetryRead;
-        private System.Windows.Forms.Button btn_RetryChk;
-        private System.Windows.Forms.Timer timer2;
     }
 }
