@@ -21,7 +21,9 @@ namespace Data_Transceiver_Center
 
         private StringBuilder cmd_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
 
+#pragma warning disable CS0414 // 字段“Form1.mesAddr”已被赋值，但从未使用过它的值
         private string mesAddr =   "http://" +  "192.168.50.7:7199";
+#pragma warning restore CS0414 // 字段“Form1.mesAddr”已被赋值，但从未使用过它的值
         private static string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
         private static string mes1Par = "position&par=";
         private static string mes2Par = "print&par=";
