@@ -13,7 +13,7 @@ namespace Data_Transceiver_Center
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form3());
+            Application.Run(new mainForm());
         }
     }
 }

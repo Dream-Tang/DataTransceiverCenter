@@ -24,11 +24,11 @@ namespace Data_Transceiver_Center
 #pragma warning disable CS0414 // 字段“Form1.mesAddr”已被赋值，但从未使用过它的值
         private string mesAddr =   "http://" +  "192.168.50.7:7199";
 #pragma warning restore CS0414 // 字段“Form1.mesAddr”已被赋值，但从未使用过它的值
-        private static string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
-        private static string mes1Par = "position&par=";
-        private static string mes2Par = "print&par=";
-        private static string mes3Par = "printCallBack&par=";
-        private static string testHttpUrl = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
+        private string apiToken =  "/service/BlNC5ActionServlet?token=64FF3EE5BE7FCBDEF35F0E890A5DE47A&path=data&uid=1001A210000000000CY1&pk_corp=1001&pluginarg=";
+        private string mes1Par = "  &par=";
+        private string mes2Par = "print&par=";
+        private string mes3Par = "printCallBack&par=";
+        private string testHttpUrl = "http://www.kuaidi100.com/query?type=shunfeng&postid=367847964498";
 
         public bool testHttpAPI = false;   // HttpApi 通信功能测试后门，通过ini加载为true时，url使用testHttpUrl
         public string zplTemplatePath = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
@@ -754,20 +754,30 @@ namespace Data_Transceiver_Center
             // string Read(string Key,string Section = null)
             string filePathZPL = myIni.Read("filePathZPL", "Form1");
             string prtName = myIni.Read("prtName", "Form1");
-            string mesAddr = myIni.Read("mesAddr", "Form1");
             string lineCount = myIni.Read("lineCount","Form1");
             string testHttp = myIni.Read("testHttp", "Form1");
-            string zplTemplate = myIni.Read("zplTemplate","Form1");
-            string seriPortNum = myIni.Read("seriPortNum","Form1");
+            string zplTemplate = myIni.Read("zplTemplate", "Form1");
+            string seriPortNum = myIni.Read("seriPortNum", "Form1");
+
+            string mesAddr = myIni.Read("mesAddr", "MesSettings");
+            string apiToken = myIni.Read("apiToken", "MesSettings");
+            string mes1Par = myIni.Read("mes1Par", "MesSettings");
+            string mes2Par = myIni.Read("mes2Par", "MesSettings");
+            string mes3Par = myIni.Read("mes3Par", "MesSettings");
 
             txtBox_zplPath.Text = filePathZPL;
             txtBox_prtPath.Text = prtName;
-            txtBox_mesAddr.Text = mesAddr;
             txtBox_position.Text = lineCount;
             cobBox_SeriPortNum.Text = seriPortNum;
             zplTemplatePath = zplTemplate;
             label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
-            
+
+            txtBox_mesAddr.Text = mesAddr;
+            this.mes1Par = mes1Par;
+            this.mes2Par = mes2Par;
+            this.mes3Par = mes3Par;
+
+
             // 加载ZPL模板
             try
             {
@@ -815,7 +825,7 @@ namespace Data_Transceiver_Center
 
             myIni.Write("filePathZPL", filePathZPL, "Form1");
             myIni.Write("prtName", prtName, "Form1");
-            myIni.Write("mesAddr", mesAddr, "Form1");
+            myIni.Write("mesAddr", mesAddr, "MesSettings");
             myIni.Write("lineCount", lineCount, "Form1");
             myIni.Write("testHttp", testHttp, "Form1");
             myIni.Write("zplTemplate", zplTemplatePath,"Form1");

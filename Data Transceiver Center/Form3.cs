@@ -1,539 +1,168 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZXing.Common;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
 
 
 namespace Data_Transceiver_Center
 {
     public partial class Form3 : Form
     {
-        public Form1 f1;    // 创建窗口1 窗口变量
-        public Form2 f2;    // 创建窗口2 窗口变量
-        public Form4 f4;    // 创建窗口2 窗口变量
-
-        IPAddress localAddr = IPAddress.Parse("0.0.0.0"); // 本地所有网络地址
-        Int32 localPortNum = Int32.Parse("8080");  // TCP服务器的端口
-
-        TcpListener server = null;
-
+        private IPAddress LocalIPAddr;
+        private Int32 LocalPortNum;
         public Form3()
         {
             InitializeComponent();
         }
 
-        private void Form3_Load(object sender, EventArgs e)
-        {
-            this.Text = Application.ProductName + "  V" + Application.ProductVersion;
-            f1 = new Form1();   // 实例化f1
-            f2 = new Form2();   // 实例化f2
-            f4 = new Form4();   // 实例化f2
-            this.tcpServer_checkBox.Checked = true;
-            this.autoRun_checkBox.Checked = true;
-            this.ignoreCheck_checkBox.Checked = true;
-            f1.btnRetryRead += new Form1.btnOnClickDelegate(btn_RetryRead_Click);
-            f1.btnRetryChk += new Form1.btnOnClickDelegate(btn_RetryChk_Click);
-
-        }
-
-        // 打开页面1
-        private void btn_form1Open(object sender, EventArgs e)
-        {
-            f1.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f1);    // 将窗体1加入容器panel1
-            f1.Show();      // 将窗口1进行显示
-        }
-
-        // 打开页面2
-        private void btn_form2Open(object sender, EventArgs e)
-        {
-            f2.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f2);    // 将窗体2加入容器panel1
-            f2.Show();      // 将窗口2进行显示
-        }
-
-        // 打开页面3
-        private void btn_form3Open(object sender, EventArgs e)
-        {
-            f4.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            f4.Show();      // 将窗口4进行显示
-        }
-
-        // 保存配置
-        private void btnSaveIni_Click(object sender, EventArgs e)
-        {
-            // 选择文件夹路径
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            // 提示信息
-            dialog.Description = "请选择ini保存位置";
-            string iniPath = "";
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                iniPath = dialog.SelectedPath + "\\settings.ini";
-            }
-            try
-            {
-                f1.SaveIniSettings(iniPath);
-                MessageBox.Show("已保存，文件位置：" + iniPath);
-            }
-            catch (Exception)
-            {
-                return;
-            }
-
-        }
-
-        // 加载配置
-        private void btnLoadIni_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
-            dialog.Multiselect = false; // 是否可以选择多个 文件
-            dialog.Title = "请选择setting.ini文件";
-            dialog.Filter = "ini文件(*.ini)|*.ini";
-            string file = "";
-            try
-            {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    file = dialog.FileName;
-                }
-            }
-            catch (Exception)
-            { return; }
-
-            try
-            {
-                f1.LoadIniSettings(file);
-                connectPlc_checkBox.Checked = true;
-            }
-            catch (Exception)
-            {
-                return;
-            }
-        }
-
-        // 自动模式按钮（执行一个循环）：
-        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
-        // task0：读PLC
-        // task1：（启动条件）读csv=》mes1=》mes2
-        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
-        // task3：refalsh()=>methedInvoke();
-        // task4：获取CheckResult，读取判定结果，写PLC
-        private void autoRun_btn_Click(object sender, EventArgs e)
-        {
-            AutoRunMode();
-        }
-
-        // 自动模式：
-        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
-        // task0：读PLC
-        // task1：（启动条件）读csv=》mes1=》mes2
-        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
-        // task3：refalsh()=>methedInvoke();
-        // task4：获取CheckResult，读取判定结果，写PLC
-        private async void AutoRunMode()
-        {
-            short cam=-1, prt=-1, scn=-1;
-            Tuple<short,short,short> plcRegValue;
-
-            MethodInvoker mi0 = new MethodInvoker(() =>
-            {
-                f1.refreshPLC(cam, prt, scn);
-            });
-            // 读PLC
-            if (ignorePlc_checkBox.Checked)
-            {
-                //(cam, prt, scn) = (-1, -1, -1);   // .net4.8特性
-                cam = -1;
-                prt = -1;
-                scn = -1;
-
-                this.BeginInvoke(mi0);
-            }
-            else
-            {
-                //(cam, prt, scn) = f2.ReadPlc();   // .net4.8特性
-                plcRegValue = f2.ReadPlc();
-
-                cam = plcRegValue.Item1;
-                prt = plcRegValue.Item2;
-                scn = plcRegValue.Item3;
-
-                this.BeginInvoke(mi0);
-
-                // PLC未连接，读取数值为-1，直接返回
-                if (cam == -1 & prt == -1 & scn == -1)
-                {
-                    return;
-                }
-            }
-
-            string url1 = "";
-            string url2 = "";
-            string url3 = "";
-
-            string getJson1 = "getJson1", getJson2 = "getJson2", getJson3 = "getJson3";
-
-            string mesID = "";
-            string fogID = "";
-
-            // MES1 
-            var t1 = Task.Run(() =>
-            {
-                if (f1.testHttpAPI)
-                {
-                    Random rnd = new Random();
-                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //随机数生成快递单号，用来查询数据，测试Json
-                    url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson1 = HttpUitls.Get(url1);
-                    try
-                    {
-                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
-                        mesID = rt.nu;
-                    }
-                    catch (Exception)
-                    {
-                        mesID = "解析出错";
-                    }
-                }
-                else
-                {
-                    url1 = f1.GetUrl(f1.GetMesAddr(), "position", f1.GetMes1prt());
-                    getJson1 = HttpUitls.Get(url1);
-                    try
-                    {
-                        MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
-                        mesID = msrt1.data.id;
-                    }
-                    catch (Exception)
-                    {
-                        mesID = "解析出错";
-                    }
-                }
-                MethodInvoker mi1 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes1(url1, getJson1, mesID);
-                });
-                BeginInvoke(mi1);
-            });
-            await t1;
-            Console.WriteLine("task t1：Json1:" + getJson1);
-            //cam = CommunicationProtocol.camOK;
-
-            // MES2
-            var t2 = Task.Run(() =>
-            {
-                if (f1.testHttpAPI)
-                {
-                    Random rnd = new Random();
-                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //测试用的接口
-                    url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson2 = HttpUitls.Get(url2);
-                    try
-                    {
-                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
-                        fogID = rt.nu;
-                        // 发送camOK信号
-                        UpdatePLCReg(cam:CommunicationProtocol.camOK);
-                        // 更新form1页面
-                        Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeOK); };
-                        Invoke(action);
-                    }
-                    catch (Exception)
-                    {
-                        fogID = "解析出错";
-                        // 发送camNG
-                        UpdatePLCReg(cam: CommunicationProtocol.camNG);
-                        // 更新form1页面
-                        Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeNG); };
-                        Invoke(action);
-                    }
-
-                }
-                else
-                {
-                    url2 = f1.GetUrl(f1.GetMesAddr(), "print", f1.GetMes2prt());
-                    getJson2 = HttpUitls.Get(url2);
-                    try
-                    {
-                        MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
-                        fogID = msrt2.data.fogId;
-                        // 发送camOK信号
-                        UpdatePLCReg(cam:CommunicationProtocol.camOK);
-                        // 更新form1页面
-                        Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeOK); };
-                        Invoke(action);
-                    }
-                    catch (Exception)
-                    {
-                        fogID = "解析出错";
-                        // 发送camNG
-                        UpdatePLCReg(cam: CommunicationProtocol.camNG);
-                        // 更新form1页面
-                        Action action = () => { f1.SetLbReadCode(CommunicationProtocol.readCodeNG);};
-                        Invoke(action);
-                    }
-                }
-                MethodInvoker mi2 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes2(url2, getJson2, fogID);
-                });
-                BeginInvoke(mi2);
-            });
-            await t2;
-            Console.WriteLine("task t2：Json2:" + getJson2);
-
-            // 打印（需要等待prt信号为ready）
-            if (fogID != "解析出错")
-            {
-                var t3 = Task.Run(() =>
-                {
-                    if (!ignorePlc_checkBox.Checked)
-                    {
-                        prt = f2.ReadPlc().Item2;
-                        while (!(prt == CommunicationProtocol.prtReady))
-                        {
-                            plcRegValue = f2.ReadPlc();
-
-                            cam = plcRegValue.Item1;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-
-                            this.BeginInvoke(mi0);
-                            Thread.Sleep(500);
-                        }
-                        // 写入prtOK
-                        UpdatePLCReg(prt:CommunicationProtocol.prtComplete);
-                        this.BeginInvoke(mi0);
-                        Console.WriteLine("task t3：已收到prtReady信号");
-                    }
-                }); 
-                await t3;
-
-                f1.makeZpl_btn_Click(null, null);
-                f1.sendToPrt_btn_Click(null, null);
-
-                Console.WriteLine("task t3:发送打印机");
-                Action action = () => { f1.SetLbPrtCode(CommunicationProtocol.prtCodeOK); };
-                Invoke(action);
-            }
-            else
-            {
-                Console.WriteLine("task t3：FOG ID解析出错，跳过打印");
-                Action action = () => { f1.SetLbPrtCode(CommunicationProtocol.prtCodeNG); };
-                Invoke(action);
-            }
-
-            // MES3
-            var t4 = Task.Run(() =>
-            {
-
-                url3 = f1.GetUrl(f1.GetMesAddr(), "printCallBack", f1.GetMes3prt());
-
-                getJson3 = HttpUitls.Get(url3);
-
-                MethodInvoker mi2 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes3(url3, getJson3);
-                });
-                BeginInvoke(mi2);
-            });
-            Console.WriteLine("task t4：Json3:" + getJson3);
-
-            // t5校验
-            var t5 = Task.Run(() => 
-            {
-                if (ignoreCheck_checkBox.Checked)
-                {
-                    f1.ignoreCheck = true;
-                    t5CheckTask();
-                }
-            });
-            await t5;
-            Console.WriteLine("task t5：Check:" );
-        }
-
         /// <summary>
-        /// 文件监控，当有文件改变，则触发事件。filechanged会被多次触发，使用lastRead和lastWrite的时间对比，来避免重复触发
+        /// 将生成的条码设置到pictureBox
         /// </summary>
-        /// 
-        DateTime lastRead = DateTime.Now;
+        /// <param name="barCodeStr">条形码对应的字符串</param>
+
+        public static Image SetBarCode128(string barCodeStr, int height=40)
+        {
+            try
+            {
+                EncodingOptions encodingOptions = new EncodingOptions();
+                //encodingOptions.Width = width;
+                encodingOptions.Height = 40;
+                ZXing.BarcodeWriter wr = new ZXing.BarcodeWriter();
+                wr.Options = encodingOptions;
+                wr.Format = ZXing.BarcodeFormat.CODE_128;
+                Bitmap barCodeImg = wr.Write(barCodeStr);
+                return barCodeImg;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("barCode转换出错，存在无法转换的字符");
+                Console.WriteLine("barCode转换出错，存在无法转换的字符");
+                return null;
+            }
+        }
+
+        private void prtCode_txtBox_TextChanged(object sender, EventArgs e)
+        {
+            string barCodeStr = prtCode_txtBox.Text;
+            pictureBox2.Image = SetBarCode128(barCodeStr);
+        }
+
+        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (fileWatcher_chkbox.Checked)
+            {
+                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                string fileWatchPath = appPath.Substring(0, appPath.IndexOf("DataTransceiverCenter") + 21);
+                label4_2.Text = "监控：" + fileWatchPath;
+                Console.WriteLine(fileWatchPath);
+                this.fileSystemWatcher1.Path = fileWatchPath;
+                fileSystemWatcher1.EnableRaisingEvents = true;
+                MessageBox.Show("文件夹监控已打开，文件夹内有文件修改，将触发事件");
+            }
+            else
+            {
+                label4_2.Text = "fileSystemWatcher 关闭";
+                fileSystemWatcher1.EnableRaisingEvents = false;
+                MessageBox.Show("文件夹监控已关闭");
+            }
+            
+        }
+
+        DateTime lastRead = DateTime.MinValue;
+
         private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
         {
             DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
-            if (lastWriteTime != lastRead)
+            if (lastWriteTime!=lastRead)
             {
                 Console.WriteLine("changend");
+                label4_3.Text = lastWriteTime + ": file changed";
                 lastRead = lastWriteTime;
-                AutoRunMode();
             }
             else
             {
                 Console.WriteLine(lastRead);
             }
+            
         }
 
-        // 触发自动执行
-        private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
-
-            // 二维码触发输入
-            var t1 = Task.Run(() =>
+            if (textBox1.Lines.Length > 0)
             {
-                while (autoRun_checkBox.Checked)
-                {
-                    // F1 触发后，将trigSingner置为working状态
-                    if (f1.trigSigner == Form1.STATUS_WORKING)
-                    {
-                        //未禁用PLC，则执行，禁用则跳过
-                        if (!ignorePlc_checkBox.Checked)
-                        {
-                            // 触发放行
-                            plcRegValue = f2.ReadPlc();
-                            cam = CommunicationProtocol.camReset;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-                            f2.WritePlc(cam, prt, scn);
-                        }
-
-                        Console.WriteLine("trigger：自动运行已触发");
-                        Action action = () =>
-                        {
-                            AutoRunMode();
-                        };
-                        f1.trigSigner = Form1.STATUS_WAIT;
-                        //f1.veriCodeCount = f1.veriCodeCount + 1;
-
-                        Invoke(action);
-                    }
-                    Thread.Sleep(1000);
-                }
-            });
-        }
-
-        private void t5CheckTask(object sender, EventArgs e) // 
-        {
-            if (ignoreCheck_checkBox.Checked)
-            {
-                f1.ignoreCheck = true;
-            }
-            else 
-            {
-                f1.ignoreCheck = false;
-            }
-            // 校验 并与PLC通信
-            var t5 = Task.Run(() =>
-            {
-                while (!ignoreCheck_checkBox.Checked)
-                {
-                    f1.ignoreCheck = false;
-                    if (f1.seriStatus == Form1.STATUS_READY)
-                    {
-                        Action action = () =>
-                        {
-                            t5CheckTask();
-                        };
-                        f1.seriStatus = Form1.STATUS_WAIT;
-                        Invoke(action);
-                    }
-                    Thread.Sleep(500);
-                }
-            });
-        }
-
-        // 校验任务t5
-        private void t5CheckTask()
-        {
-            short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
-            string checkResult = "";
-
-            Action action = () => { checkResult = f1.GetCheckResult(); };
-            Invoke(action);
-
-            if (checkResult == "OK")
-            {
-                scn = CommunicationProtocol.checkOK;
-                Console.WriteLine("task t5：校验结果OK");
-                f1.seriStatus = Form1.STATUS_WAIT;
-            }
-            if (checkResult == "NG")
-            {
-                scn = CommunicationProtocol.checkNG;
-                Console.WriteLine("task t5：校验结果NG");
-                f1.seriStatus = Form1.STATUS_WAIT;
-            }
-            if (checkResult == "")
-            {
-                scn = CommunicationProtocol.checkLose;
-                Console.WriteLine("task t5：未校验");
-                return; // 此处会一直等待校验结果
-            }
-
-           
-            // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
-            if (!ignorePlc_checkBox.Checked)
-            {
-                plcRegValue = f2.ReadPlc();
-                cam = plcRegValue.Item1;
-                prt = plcRegValue.Item2;
-                f2.WritePlc(cam, prt, scn);
-                MethodInvoker mi0 = new MethodInvoker(() =>
-                {
-                    f1.refreshPLC(cam, prt, scn);
-                });
-                this.BeginInvoke(mi0);
-                Console.WriteLine("task t5：已发送校验结果给PLC");
-            }
-        }
-
-
-        // TCP接收复选框按钮
-        private void tcpServer_checkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (tcpServer_checkBox.Checked)
-            {
-                server = new TcpListener(localAddr, localPortNum);
-                server.Start();
-                Task.Run(TcpServer);
+                textBox2.Text = textBox1.Lines[textBox1.Lines.Length-1];
             }
             else
             {
-                server.Stop();
+                textBox2.Text = null;
             }
         }
 
-        // TCP服务器
-        private void TcpServer()
+        private void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                //server = new TcpListener(localAddr, localPortNum);
-                //server.Start();
+                LocalIPAddr = IPAddress.Parse(IPAddr_cobBox.Text);
+                LocalPortNum = Int32.Parse(tcpPort_txtBox.Text);
+            }
+            catch (Exception)
+            {
+
+                MessageBox.Show("IP或端口设置出错");
+            }
+
+            Task.Run(TcpServer);
+            if (button1.Text=="开启TCP接收")
+            {
+                button1.Text = "关闭TCP接收";
+            }
+            else
+            {
+                button1.Text = "开启TCP接收";
+            }
+            
+        }
+
+        // 打开tcpServer服务
+        private void TcpServer()
+        {
+
+            TcpListener server = null;
+            try
+            {
+                //string ip = "0.0.0.0";    //服务器侦听所有地址，服务器不用设置地址，客户端设置服务器地址即可。
+                //string port = 13000;      // Set the TcpListener on port 13000.
+                //Int32 localPort  = Int32.Parse(port) ;
+                //IPAddress localAddr = IPAddress.Parse(ip);
+
+                // TcpListener server = new TcpListener(port);
+                server = new TcpListener(LocalIPAddr, LocalPortNum);
+
+                // Start listening for client requests.
+                server.Start();
 
                 // Buffer for reading data
                 Byte[] bytes = new Byte[256];
                 String data = null;
 
+                // Enter the listening loop.
                 while (true)
                 {
                     Console.WriteLine("Waiting for a connection... ");
 
                     // Perform a blocking call to accept requests.
                     // You could also use server.AcceptSocket() here.
-                    TcpClient client = server.AcceptTcpClient();
+                   TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Connected!");
 
                     data = null;
@@ -544,41 +173,32 @@ namespace Data_Transceiver_Center
                     int i;
 
                     // Loop to receive all the data sent by the client.
-                    while (tcpServer_checkBox.Checked && (i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
-                        if (tcpServer_checkBox.Checked)
+                        // Translate data bytes to a ASCII string.
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        Console.WriteLine("Received: {0}", data);
+
+                        MethodInvoker mi = new MethodInvoker(()=>
                         {
-                            // Translate data bytes to a ASCII string.
-                            data = System.Text.Encoding.Default.GetString(bytes, 0, i);
-                            Console.WriteLine("Received: {0}", data);
+                            textBox3.Text = data;
+                        });
+                        BeginInvoke(mi);
 
-                            MethodInvoker mi = new MethodInvoker(() =>
-                            {
-                                f1.txtBox_veriCodeHistory.AppendText(data + "\r\n");
-                            });
-                            BeginInvoke(mi);
+                        // Process the data sent by the client.
+                        string sendData = data.ToUpper();
 
-                            // Process the data sent by the client.
-                            //string sendData = data.ToUpper();
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(sendData);
 
-                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+                        // Send back a response.
+                        stream.Write(msg, 0, msg.Length);
+                        Console.WriteLine("Sent: {0}", data);
 
-                            // Send back a response.
-                            stream.Write(msg, 0, msg.Length);
-                            Console.WriteLine("Sent: {0}", data);
-                        }
-                        else
-                        {
-                            stream.Close();
-                            client.Close();
-                            server.Stop();
-                        }
                         Thread.Sleep(100);
                     }
 
                     Thread.Sleep(100);
 
-                    client.GetStream().Close();
                     client.Close();
                 }
             }
@@ -591,76 +211,94 @@ namespace Data_Transceiver_Center
                 server.Stop();
             }
 
+            Console.WriteLine("\nHit enter to continue...");
+            Console.Read();
+
+    }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            GetLocalIp();
         }
 
-        // 连接PLC复现按钮
-        private void connectPlc_checkBox_CheckStateChanged(object sender, EventArgs e)
+        public string GetLocalIp() 
         {
-            if (connectPlc_checkBox.Checked)
+            string AddressIP = string.Empty;
+            IPAddr_cobBox.Items.Clear();
+
+            foreach (IPAddress _IPAddress in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
             {
-                f2.btn_Open_Click(null,null);
-                if (f2.GetReturnCode()== "0x00000000 [HEX]")
+                if (_IPAddress.AddressFamily.ToString() == "InterNetwork")
                 {
-                    lable_PlcConnectStatus.Text = "PLC 已连接";
-                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
-                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
+                    AddressIP = _IPAddress.ToString();
                 }
-                else
+                if (AddressIP!="")
                 {
-                    connectPlc_checkBox.Checked = false;
-                    lable_PlcConnectStatus.Text = "PLC 无法连接";
-                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
-                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
+                    IPAddr_cobBox.Items.Add (AddressIP);
                 }
+            }
+
+            IPAddr_cobBox.Items.Add(AddressIP);
+            IPAddr_cobBox.SelectedIndex = 0;
+            return AddressIP;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            int pBarmaximum = 10;
+            Task t1 = new Task(() =>
+            {
+                // 跨线程修改UI，使用methodinvoker工具类
+                MethodInvoker mi = new MethodInvoker(() =>
+                {
+                    startProgressBar(pBarmaximum, pBar1);
+                });
+                this.BeginInvoke(mi);
+            });
+            t1.Start();
+        }
+
+        private delegate void deleProgressBar(int BarMax, ProgressBar pBar); //设置进度条委托
+
+        public void startProgressBar(int pBarmaximum, ProgressBar pBar)
+        {
+            if (this.InvokeRequired)
+            {
+                deleProgressBar startPBar = new deleProgressBar(startProgressBar);
+                this.Invoke(startPBar, new object[] { pBarmaximum, pBar });
             }
             else
             {
-                f2.btn_Close_Click(null,null);
-                lable_PlcConnectStatus.Text = "PLC 已断开";
-                lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
-                lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
+                pBar.Value = 0;
             }
-        }
+            pBar1.Visible = true;
+            pBar1.Minimum = 0;
+            pBar1.Maximum = pBarmaximum;
+            pBar1.Value = 0;
+            pBar1.Step = 1;
 
-        // 更新PLC寄存器，向PLC进行通信，发送状态
-        private void UpdatePLCReg(short cam=-1, short prt=-1, short scn=-1)
-        {
-            Tuple<short, short, short> plcRegValue;
-
-            //未禁用PLC，则执行，禁用则跳过
-            if (!ignorePlc_checkBox.Checked)
+            for (int i = 0; i < pBarmaximum; i++)
             {
-                // 触发放行
-                plcRegValue = f2.ReadPlc();
-                if (cam == -1)
-                {
-                    cam = plcRegValue.Item1;
-                }
-                if (prt == -1)
-                {
-                    prt = plcRegValue.Item2;
-                }
-                if (scn == -1)
-                {
-                    scn = plcRegValue.Item3;
-                }
-                f2.WritePlc(cam, prt, scn);
+                System.Threading.Thread.Sleep(300);
+                pBar1.PerformStep();
             }
+
         }
 
-        // 手动读码按钮
-        public void btn_RetryRead_Click()
+        private void button4_Click(object sender, EventArgs e)
         {
-            // 给PLC发送信号
-            UpdatePLCReg(cam: CommunicationProtocol.camRetry);
+            timer1.Enabled = true;
+            timer1.Start();
+            button4.Enabled = false;
+            button4.BackColor = System.Drawing.SystemColors.ControlDark;
         }
 
-        // 手动验码按钮
-        public void btn_RetryChk_Click()
+        private void timer1_Tick(object sender, EventArgs e)
         {
-            // 给PLC发送信号
-            UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
+            timer1.Enabled = false;
+            button4.Enabled = true;
+            button4.BackColor = System.Drawing.SystemColors.ControlLightLight;
         }
-
     }
+
 }

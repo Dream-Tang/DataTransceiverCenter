@@ -1,0 +1,307 @@
+﻿
+namespace Data_Transceiver_Center
+{
+    partial class mainForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.radioBtn_IgnorePlc = new System.Windows.Forms.RadioButton();
+            this.radioBtn_ConnectPlc = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
+            this.ignoreCheck_checkBox = new System.Windows.Forms.CheckBox();
+            this.btn_Form3 = new System.Windows.Forms.Button();
+            this.btn_Form1 = new System.Windows.Forms.Button();
+            this.btn_Form2 = new System.Windows.Forms.Button();
+            this.btn_SaveIni = new System.Windows.Forms.Button();
+            this.btn_LoadIni = new System.Windows.Forms.Button();
+            this.autoRun_btn = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
+            this.ignorePlc_checkBox = new System.Windows.Forms.CheckBox();
+            this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
+            this.connectPlc_checkBox = new System.Windows.Forms.CheckBox();
+            this.lable_PlcConnectStatus = new System.Windows.Forms.Label();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // panel1
+            // 
+            this.panel1.AutoScroll = true;
+            this.panel1.AutoSize = true;
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.panel2);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Location = new System.Drawing.Point(128, 12);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(749, 732);
+            this.panel1.TabIndex = 0;
+            // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.radioBtn_IgnorePlc);
+            this.panel2.Controls.Add(this.radioBtn_ConnectPlc);
+            this.panel2.Location = new System.Drawing.Point(39, 79);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(182, 68);
+            this.panel2.TabIndex = 13;
+            this.panel2.Visible = false;
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.SystemColors.ControlText;
+            this.label2.ForeColor = System.Drawing.SystemColors.Control;
+            this.label2.Location = new System.Drawing.Point(105, 15);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(44, 35);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "PLC状态";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // radioBtn_IgnorePlc
+            // 
+            this.radioBtn_IgnorePlc.AutoSize = true;
+            this.radioBtn_IgnorePlc.Location = new System.Drawing.Point(3, 15);
+            this.radioBtn_IgnorePlc.Name = "radioBtn_IgnorePlc";
+            this.radioBtn_IgnorePlc.Size = new System.Drawing.Size(65, 16);
+            this.radioBtn_IgnorePlc.TabIndex = 11;
+            this.radioBtn_IgnorePlc.Text = "屏蔽PLC";
+            this.radioBtn_IgnorePlc.UseVisualStyleBackColor = true;
+            // 
+            // radioBtn_ConnectPlc
+            // 
+            this.radioBtn_ConnectPlc.AutoSize = true;
+            this.radioBtn_ConnectPlc.Location = new System.Drawing.Point(3, 37);
+            this.radioBtn_ConnectPlc.Name = "radioBtn_ConnectPlc";
+            this.radioBtn_ConnectPlc.Size = new System.Drawing.Size(65, 16);
+            this.radioBtn_ConnectPlc.TabIndex = 12;
+            this.radioBtn_ConnectPlc.Text = "连接PLC";
+            this.radioBtn_ConnectPlc.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("微软雅黑", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label1.Location = new System.Drawing.Point(32, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(157, 28);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "公司LOGO图片";
+            // 
+            // ignoreCheck_checkBox
+            // 
+            this.ignoreCheck_checkBox.AutoSize = true;
+            this.ignoreCheck_checkBox.Location = new System.Drawing.Point(8, 385);
+            this.ignoreCheck_checkBox.Name = "ignoreCheck_checkBox";
+            this.ignoreCheck_checkBox.Size = new System.Drawing.Size(72, 16);
+            this.ignoreCheck_checkBox.TabIndex = 10;
+            this.ignoreCheck_checkBox.Text = "屏蔽校验";
+            this.ignoreCheck_checkBox.UseVisualStyleBackColor = true;
+            this.ignoreCheck_checkBox.CheckedChanged += new System.EventHandler(this.t5CheckTask);
+            // 
+            // btn_Form3
+            // 
+            this.btn_Form3.Location = new System.Drawing.Point(27, 173);
+            this.btn_Form3.Name = "btn_Form3";
+            this.btn_Form3.Size = new System.Drawing.Size(81, 46);
+            this.btn_Form3.TabIndex = 3;
+            this.btn_Form3.Text = "打印机设置";
+            this.btn_Form3.UseVisualStyleBackColor = true;
+            this.btn_Form3.Visible = false;
+            this.btn_Form3.Click += new System.EventHandler(this.btn_form3Open);
+            // 
+            // btn_Form1
+            // 
+            this.btn_Form1.Location = new System.Drawing.Point(27, 25);
+            this.btn_Form1.Name = "btn_Form1";
+            this.btn_Form1.Size = new System.Drawing.Size(81, 57);
+            this.btn_Form1.TabIndex = 1;
+            this.btn_Form1.Text = "工作流程";
+            this.btn_Form1.UseVisualStyleBackColor = true;
+            this.btn_Form1.Click += new System.EventHandler(this.btn_form1Open);
+            // 
+            // btn_Form2
+            // 
+            this.btn_Form2.Location = new System.Drawing.Point(27, 97);
+            this.btn_Form2.Name = "btn_Form2";
+            this.btn_Form2.Size = new System.Drawing.Size(81, 57);
+            this.btn_Form2.TabIndex = 2;
+            this.btn_Form2.Text = "PLC通信";
+            this.btn_Form2.UseVisualStyleBackColor = true;
+            this.btn_Form2.Click += new System.EventHandler(this.btn_form2Open);
+            // 
+            // btn_SaveIni
+            // 
+            this.btn_SaveIni.Location = new System.Drawing.Point(8, 675);
+            this.btn_SaveIni.Name = "btn_SaveIni";
+            this.btn_SaveIni.Size = new System.Drawing.Size(54, 54);
+            this.btn_SaveIni.TabIndex = 4;
+            this.btn_SaveIni.Text = "保存配置";
+            this.btn_SaveIni.UseVisualStyleBackColor = true;
+            this.btn_SaveIni.Click += new System.EventHandler(this.btnSaveIni_Click);
+            // 
+            // btn_LoadIni
+            // 
+            this.btn_LoadIni.Location = new System.Drawing.Point(68, 675);
+            this.btn_LoadIni.Name = "btn_LoadIni";
+            this.btn_LoadIni.Size = new System.Drawing.Size(54, 54);
+            this.btn_LoadIni.TabIndex = 5;
+            this.btn_LoadIni.Text = "加载配置";
+            this.btn_LoadIni.UseVisualStyleBackColor = true;
+            this.btn_LoadIni.Click += new System.EventHandler(this.btnLoadIni_Click);
+            // 
+            // autoRun_btn
+            // 
+            this.autoRun_btn.Location = new System.Drawing.Point(27, 294);
+            this.autoRun_btn.Name = "autoRun_btn";
+            this.autoRun_btn.Size = new System.Drawing.Size(81, 57);
+            this.autoRun_btn.TabIndex = 6;
+            this.autoRun_btn.Text = "自动一次";
+            this.autoRun_btn.UseVisualStyleBackColor = true;
+            this.autoRun_btn.Click += new System.EventHandler(this.autoRun_btn_Click);
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 2500;
+            this.timer1.Tick += new System.EventHandler(this.autoRun_btn_Click);
+            // 
+            // autoRun_checkBox
+            // 
+            this.autoRun_checkBox.AutoSize = true;
+            this.autoRun_checkBox.Location = new System.Drawing.Point(8, 582);
+            this.autoRun_checkBox.Name = "autoRun_checkBox";
+            this.autoRun_checkBox.Size = new System.Drawing.Size(72, 16);
+            this.autoRun_checkBox.TabIndex = 7;
+            this.autoRun_checkBox.Text = "自动流程";
+            this.autoRun_checkBox.UseVisualStyleBackColor = true;
+            this.autoRun_checkBox.CheckedChanged += new System.EventHandler(this.trigger1_CheckBox_CheckedChanged);
+            // 
+            // ignorePlc_checkBox
+            // 
+            this.ignorePlc_checkBox.AutoSize = true;
+            this.ignorePlc_checkBox.Location = new System.Drawing.Point(8, 413);
+            this.ignorePlc_checkBox.Name = "ignorePlc_checkBox";
+            this.ignorePlc_checkBox.Size = new System.Drawing.Size(66, 16);
+            this.ignorePlc_checkBox.TabIndex = 8;
+            this.ignorePlc_checkBox.Text = "屏蔽PLC";
+            this.ignorePlc_checkBox.UseVisualStyleBackColor = true;
+            // 
+            // tcpServer_checkBox
+            // 
+            this.tcpServer_checkBox.AutoSize = true;
+            this.tcpServer_checkBox.Location = new System.Drawing.Point(9, 610);
+            this.tcpServer_checkBox.Name = "tcpServer_checkBox";
+            this.tcpServer_checkBox.Size = new System.Drawing.Size(66, 16);
+            this.tcpServer_checkBox.TabIndex = 9;
+            this.tcpServer_checkBox.Text = "TCP接收";
+            this.tcpServer_checkBox.UseVisualStyleBackColor = true;
+            this.tcpServer_checkBox.CheckedChanged += new System.EventHandler(this.tcpServer_checkBox_CheckedChanged);
+            // 
+            // connectPlc_checkBox
+            // 
+            this.connectPlc_checkBox.AutoSize = true;
+            this.connectPlc_checkBox.Location = new System.Drawing.Point(8, 441);
+            this.connectPlc_checkBox.Name = "connectPlc_checkBox";
+            this.connectPlc_checkBox.Size = new System.Drawing.Size(66, 16);
+            this.connectPlc_checkBox.TabIndex = 11;
+            this.connectPlc_checkBox.Text = "连接PLC";
+            this.connectPlc_checkBox.UseVisualStyleBackColor = true;
+            this.connectPlc_checkBox.CheckStateChanged += new System.EventHandler(this.connectPlc_checkBox_CheckStateChanged);
+            // 
+            // lable_PlcConnectStatus
+            // 
+            this.lable_PlcConnectStatus.BackColor = System.Drawing.SystemColors.ControlText;
+            this.lable_PlcConnectStatus.ForeColor = System.Drawing.SystemColors.Control;
+            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(5, 490);
+            this.lable_PlcConnectStatus.Name = "lable_PlcConnectStatus";
+            this.lable_PlcConnectStatus.Size = new System.Drawing.Size(117, 48);
+            this.lable_PlcConnectStatus.TabIndex = 14;
+            this.lable_PlcConnectStatus.Text = "PLC状态";
+            this.lable_PlcConnectStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // Form3
+            // 
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
+            this.ClientSize = new System.Drawing.Size(891, 757);
+            this.Controls.Add(this.ignoreCheck_checkBox);
+            this.Controls.Add(this.lable_PlcConnectStatus);
+            this.Controls.Add(this.btn_Form3);
+            this.Controls.Add(this.connectPlc_checkBox);
+            this.Controls.Add(this.tcpServer_checkBox);
+            this.Controls.Add(this.ignorePlc_checkBox);
+            this.Controls.Add(this.autoRun_checkBox);
+            this.Controls.Add(this.autoRun_btn);
+            this.Controls.Add(this.btn_LoadIni);
+            this.Controls.Add(this.btn_SaveIni);
+            this.Controls.Add(this.btn_Form2);
+            this.Controls.Add(this.btn_Form1);
+            this.Controls.Add(this.panel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.Name = "Form3";
+            this.Text = "Data Transceiver Center";
+            this.Load += new System.EventHandler(this.Form3_Load);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button btn_Form1;
+        private System.Windows.Forms.Button btn_Form2;
+        private System.Windows.Forms.Button btn_Form3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btn_SaveIni;
+        private System.Windows.Forms.Button btn_LoadIni;
+        private System.Windows.Forms.Button autoRun_btn;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.CheckBox autoRun_checkBox;
+        private System.Windows.Forms.CheckBox ignorePlc_checkBox;
+        private System.Windows.Forms.CheckBox tcpServer_checkBox;
+        private System.Windows.Forms.CheckBox ignoreCheck_checkBox;
+        private System.Windows.Forms.CheckBox connectPlc_checkBox;
+        private System.Windows.Forms.RadioButton radioBtn_IgnorePlc;
+        private System.Windows.Forms.RadioButton radioBtn_ConnectPlc;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lable_PlcConnectStatus;
+    }
+}

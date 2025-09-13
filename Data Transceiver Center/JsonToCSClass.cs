@@ -161,4 +161,28 @@ namespace Data_Transceiver_Center
         /// </summary>
         public string msg { get; set; }
     }
+
+    public class MesSettiong
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public string apiToken { get; set; }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public string mes1Par { get; set; }
+
+        /// <summary>
+        /// 成功
+        /// </summary>
+        public string mes2Par { get; set; }
+
+        /// <summary>
+        /// 成功
+        /// </summary>
+        public string mes3Par { get; set; }
+
+    }
 }
