@@ -14,97 +14,130 @@ namespace Data_Transceiver_Center
         private short rd_prtRegisterValue;
         private short rd_scannerRegisterValue;
 
+        // 在Form2类中添加私有变量（线程安全的标志位）
+        private readonly object _lockObj = new object();
+        private bool _isRefreshing = false;
+
         public Form2()
         {
             InitializeComponent();
         }
 
-        #region "刷新ControlBox组件"
+        #region "刷新ControlBox组件"，lock控制线程数量
         private void ReflashControlBox()
         {
+            // 检查是否正在刷新，若正在执行则直接返回（避免重复创建线程）
+            lock (_lockObj)
+            {
+                if (_isRefreshing)
+                    return;
+                _isRefreshing = true;
+            }
+
             Task.Run(() => {
-                MethodInvoker mi = new MethodInvoker(() => 
-                { 
-                    try
+                try
+                {
+                    MethodInvoker mi = new MethodInvoker(() =>
                     {
-                        rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-                        rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-                        rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
-                    }
-                    catch (Exception)
+                        try
+                        {
+                            rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+                            rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+                            rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+                        }
+                        catch (Exception)
+                        {
+                            timer1.Enabled = false;
+                            checkBox1.Checked = false;
+                            txt_LogicalStationNumber.Enabled = true;
+                            Console.WriteLine("PLC掉线");
+                            return;
+                        }
+
+                        rd_CamAllow.Checked = false;
+                        rd_CamOK.Checked = false;
+                        rd_CamNG.Checked = false;
+                        switch (rd_camRegisterValue)
+                        {
+                            case CommunicationProtocol.camAllow:
+                                rd_CamAllow.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.camOK:
+                                rd_CamOK.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.camNG:
+                                rd_CamNG.Checked = true;
+                                break;
+                        }
+
+                        rd_PrtReady.Checked = false;
+                        rd_PrtComplete.Checked = false;
+                        switch (rd_prtRegisterValue)
+                        {
+                            case CommunicationProtocol.prtReady:
+                                rd_PrtReady.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.prtComplete:
+                                rd_PrtComplete.Checked = true;
+                                break;
+                        }
+
+                        rd_ScannerStart.Checked = false;
+                        rd_ScannerComplete.Checked = false;
+                        rd_checkOK.Checked = false;
+                        rd_checkNG.Checked = false;
+                        switch (rd_scannerRegisterValue)
+                        {
+                            case CommunicationProtocol.scannerStart:
+                                rd_ScannerStart.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.scannerComplete:
+                                rd_ScannerComplete.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.checkOK:
+                                rd_checkOK.Checked = true;
+                                break;
+
+                            case CommunicationProtocol.checkNG:
+                                rd_checkNG.Checked = true;
+                                break;
+                        }
+
+                        label11.Text = rd_camRegisterValue.ToString();
+                        label12.Text = rd_prtRegisterValue.ToString();
+                        label13.Text = rd_scannerRegisterValue.ToString();
+                    });
+                    BeginInvoke(mi);
+                }
+                finally 
+                {
+                    // 任务执行完成后，重置标志位（无论成功失败都需释放）
+                    lock (_lockObj)
                     {
-                        timer1.Enabled = false;
-                        checkBox1.Checked = false;
-                        txt_LogicalStationNumber.Enabled = true;
-                        Console.WriteLine("PLC掉线");
-                        return;
+                        _isRefreshing = false;
                     }
-            
-                    rd_CamAllow.Checked = false;
-                    rd_CamOK.Checked = false;
-                    rd_CamNG.Checked = false;
-                    switch (rd_camRegisterValue)
-                    {
-                        case CommunicationProtocol.camAllow:
-                            rd_CamAllow.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.camOK:
-                            rd_CamOK.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.camNG:
-                            rd_CamNG.Checked = true;
-                            break;
-                    }
-
-                    rd_PrtReady.Checked = false;
-                    rd_PrtComplete.Checked = false;
-                    switch (rd_prtRegisterValue)
-                    {
-                        case CommunicationProtocol.prtReady:
-                            rd_PrtReady.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.prtComplete:
-                            rd_PrtComplete.Checked = true;
-                            break;
-                    }
-
-                    rd_ScannerStart.Checked = false;
-                    rd_ScannerComplete.Checked = false;
-                    rd_checkOK.Checked = false;
-                    rd_checkNG.Checked = false;
-                    switch (rd_scannerRegisterValue)
-                    {
-                        case CommunicationProtocol.scannerStart:
-                            rd_ScannerStart.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.scannerComplete:
-                            rd_ScannerComplete.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.checkOK:
-                            rd_checkOK.Checked = true;
-                            break;
-
-                        case CommunicationProtocol.checkNG:
-                            rd_checkNG.Checked = true;
-                            break;
-                    }
-
-                    label11.Text = rd_camRegisterValue.ToString();
-                    label12.Text = rd_prtRegisterValue.ToString();
-                    label13.Text = rd_scannerRegisterValue.ToString();
-                });
-                BeginInvoke(mi);
+                }  
             });
         }
 
         #endregion "刷新寄存器rediobutton"
 
         public void btn_Close_Click(object sender, EventArgs e)
+        {
+            OpenPlcConnection();
+        }
+
+        public void btn_Open_Click(object sender, EventArgs e)
+        {
+            ClosePlcConnection();
+        }
+
+        public void OpenPlcConnection()
         {
             int iReturnCode;    //Return code
             checkBox1.Checked = false;
@@ -146,7 +179,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        public void btn_Open_Click(object sender, EventArgs e)
+        public void ClosePlcConnection() 
         {
             int iReturnCode;				//Return code
             int iLogicalStationNumber;      //LogicalStationNumber for ActUtlType
@@ -173,7 +206,7 @@ namespace Data_Transceiver_Center
                 //axActUtlType1.ActPassword = txt_Password.Text;
 
                 //The Open method is executed.
-                
+
                 iReturnCode = axActUtlType1.Open();
                 //When the Open method is succeeded, disable the TextBox of 'LogocalStationNumber'.
                 //When the Open method is succeeded, make the EventHandler of ActUtlType Controle.
@@ -349,6 +382,7 @@ namespace Data_Transceiver_Center
 
         #region "读取PLC寄存器数据"
 
+        // 优化读取寄存器的函数，确保线程安全
         private string ReadDeviceRandom(string szDeviceName)
         {
             int iReturnCode;				//Return code
@@ -558,6 +592,13 @@ namespace Data_Transceiver_Center
                 try
                 {
                     int timer1Interval = Convert.ToInt32(txt_Timer1Interval.Text);
+                    // 校验最小间隔（例如最小100ms，根据实际通信耗时调整）
+                    if (timer1Interval < 100)
+                    {
+                        MessageBox.Show("刷新间隔过小，可能导致线程累积，请设置更大值（建议≥100ms）");
+                        checkBox1.Checked = false;
+                        return;
+                    }
                     timer1.Interval = timer1Interval;
                 }
                 catch (Exception exp)
@@ -581,7 +622,7 @@ namespace Data_Transceiver_Center
         private void timer1_Tick(object sender, EventArgs e)
         {
             Console.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff:ffffff"));
-            Console.WriteLine("timer1 触发");
+            Console.WriteLine("PLC寄存器读取 定时器 触发");
             ReflashControlBox();
         }
 

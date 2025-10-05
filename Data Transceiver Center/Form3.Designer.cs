@@ -29,314 +29,298 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.label1_5 = new System.Windows.Forms.Label();
-            this.prtCode_txtBox = new System.Windows.Forms.TextBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.label4_2 = new System.Windows.Forms.Label();
-            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
-            this.fileWatcher_chkbox = new System.Windows.Forms.CheckBox();
-            this.label4_3 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.tcpPort_txtBox = new System.Windows.Forms.TextBox();
-            this.client_radBtn = new System.Windows.Forms.RadioButton();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.server_radBtn = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.txtBox_mesUrl = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.IPAddr_cobBox = new System.Windows.Forms.ComboBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.pBar1 = new System.Windows.Forms.ProgressBar();
-            this.button4 = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
-            this.panel1.SuspendLayout();
+            this.txtBox_stepId = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtBox_lineId = new System.Windows.Forms.TextBox();
+            this.lable5 = new System.Windows.Forms.Label();
+            this.txtBox_panelId = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtBox_eqpId = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtBox_fixture = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label2_2 = new System.Windows.Forms.Label();
+            this.txtBox_responseData = new System.Windows.Forms.TextBox();
+            this.label2_1 = new System.Windows.Forms.Label();
+            this.txtBox_postData = new System.Windows.Forms.TextBox();
+            this.btn_apiTest = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.btn_SaveJson = new System.Windows.Forms.Button();
+            this.btn_LoadJson = new System.Windows.Forms.Button();
+            this.pnl_InputParameters = new System.Windows.Forms.Panel();
+            this.pnl_InputParameters.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // label1_5
-            // 
-            this.label1_5.AutoSize = true;
-            this.label1_5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1_5.Location = new System.Drawing.Point(14, 51);
-            this.label1_5.Name = "label1_5";
-            this.label1_5.Size = new System.Drawing.Size(43, 14);
-            this.label1_5.TabIndex = 59;
-            this.label1_5.Text = "打印码";
-            // 
-            // prtCode_txtBox
-            // 
-            this.prtCode_txtBox.Location = new System.Drawing.Point(13, 68);
-            this.prtCode_txtBox.Name = "prtCode_txtBox";
-            this.prtCode_txtBox.Size = new System.Drawing.Size(135, 21);
-            this.prtCode_txtBox.TabIndex = 58;
-            this.prtCode_txtBox.TextChanged += new System.EventHandler(this.prtCode_txtBox_TextChanged);
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox2.Location = new System.Drawing.Point(14, 93);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(134, 59);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox2.TabIndex = 63;
-            this.pictureBox2.TabStop = false;
-            // 
-            // label4_2
-            // 
-            this.label4_2.AutoSize = true;
-            this.label4_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4_2.Location = new System.Drawing.Point(197, 93);
-            this.label4_2.Name = "label4_2";
-            this.label4_2.Size = new System.Drawing.Size(55, 14);
-            this.label4_2.TabIndex = 67;
-            this.label4_2.Text = "监控位置";
-            // 
-            // fileSystemWatcher1
-            // 
-            this.fileSystemWatcher1.EnableRaisingEvents = true;
-            this.fileSystemWatcher1.SynchronizingObject = this;
-            this.fileSystemWatcher1.Changed += new System.IO.FileSystemEventHandler(this.fileSystemWatcher1_Changed);
-            // 
-            // fileWatcher_chkbox
-            // 
-            this.fileWatcher_chkbox.AutoSize = true;
-            this.fileWatcher_chkbox.Location = new System.Drawing.Point(197, 51);
-            this.fileWatcher_chkbox.Name = "fileWatcher_chkbox";
-            this.fileWatcher_chkbox.Size = new System.Drawing.Size(84, 16);
-            this.fileWatcher_chkbox.TabIndex = 68;
-            this.fileWatcher_chkbox.Text = "文件夹监控";
-            this.fileWatcher_chkbox.UseVisualStyleBackColor = true;
-            this.fileWatcher_chkbox.CheckedChanged += new System.EventHandler(this.fileWatcher_chkbox_CheckedChanged);
-            // 
-            // label4_3
-            // 
-            this.label4_3.AutoSize = true;
-            this.label4_3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4_3.Location = new System.Drawing.Point(197, 127);
-            this.label4_3.Name = "label4_3";
-            this.label4_3.Size = new System.Drawing.Size(55, 14);
-            this.label4_3.TabIndex = 69;
-            this.label4_3.Text = "监控状态";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(14, 258);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(135, 157);
-            this.textBox1.TabIndex = 70;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(197, 258);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(135, 21);
-            this.textBox2.TabIndex = 71;
-            // 
-            // tcpPort_txtBox
-            // 
-            this.tcpPort_txtBox.Location = new System.Drawing.Point(384, 146);
-            this.tcpPort_txtBox.Name = "tcpPort_txtBox";
-            this.tcpPort_txtBox.Size = new System.Drawing.Size(106, 21);
-            this.tcpPort_txtBox.TabIndex = 72;
-            // 
-            // client_radBtn
-            // 
-            this.client_radBtn.AutoSize = true;
-            this.client_radBtn.Location = new System.Drawing.Point(5, 3);
-            this.client_radBtn.Name = "client_radBtn";
-            this.client_radBtn.Size = new System.Drawing.Size(59, 16);
-            this.client_radBtn.TabIndex = 74;
-            this.client_radBtn.TabStop = true;
-            this.client_radBtn.Text = "客户端";
-            this.client_radBtn.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.server_radBtn);
-            this.panel1.Controls.Add(this.client_radBtn);
-            this.panel1.Location = new System.Drawing.Point(384, 83);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(177, 24);
-            this.panel1.TabIndex = 75;
-            this.panel1.Visible = false;
-            // 
-            // server_radBtn
-            // 
-            this.server_radBtn.AutoSize = true;
-            this.server_radBtn.Location = new System.Drawing.Point(115, 3);
-            this.server_radBtn.Name = "server_radBtn";
-            this.server_radBtn.Size = new System.Drawing.Size(59, 16);
-            this.server_radBtn.TabIndex = 75;
-            this.server_radBtn.TabStop = true;
-            this.server_radBtn.Text = "服务端";
-            this.server_radBtn.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(349, 122);
+            this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label1.Location = new System.Drawing.Point(10, 72);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(17, 12);
-            this.label1.TabIndex = 76;
-            this.label1.Text = "IP";
+            this.label1.Size = new System.Drawing.Size(73, 20);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "接口URL";
             // 
-            // label2
+            // txtBox_mesUrl
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(349, 149);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 12);
-            this.label2.TabIndex = 77;
-            this.label2.Text = "端口";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(496, 144);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(93, 23);
-            this.button1.TabIndex = 78;
-            this.button1.Text = "开启TCP接收";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(496, 115);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(93, 23);
-            this.button2.TabIndex = 79;
-            this.button2.Text = "获取本地IP";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(389, 185);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(135, 21);
-            this.textBox3.TabIndex = 80;
+            this.txtBox_mesUrl.Location = new System.Drawing.Point(10, 95);
+            this.txtBox_mesUrl.Name = "txtBox_mesUrl";
+            this.txtBox_mesUrl.Size = new System.Drawing.Size(674, 28);
+            this.txtBox_mesUrl.TabIndex = 1;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(330, 188);
+            this.label3.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label3.Location = new System.Drawing.Point(10, 29);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 12);
-            this.label3.TabIndex = 81;
-            this.label3.Text = "接收数据";
+            this.label3.Size = new System.Drawing.Size(148, 24);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "stepId(站点编号)";
             // 
-            // IPAddr_cobBox
+            // txtBox_stepId
             // 
-            this.IPAddr_cobBox.FormattingEnabled = true;
-            this.IPAddr_cobBox.Location = new System.Drawing.Point(384, 115);
-            this.IPAddr_cobBox.Name = "IPAddr_cobBox";
-            this.IPAddr_cobBox.Size = new System.Drawing.Size(106, 20);
-            this.IPAddr_cobBox.TabIndex = 84;
+            this.txtBox_stepId.Location = new System.Drawing.Point(166, 29);
+            this.txtBox_stepId.Name = "txtBox_stepId";
+            this.txtBox_stepId.Size = new System.Drawing.Size(150, 28);
+            this.txtBox_stepId.TabIndex = 3;
             // 
-            // button3
+            // label4
             // 
-            this.button3.Location = new System.Drawing.Point(197, 338);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(150, 27);
-            this.button3.TabIndex = 86;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label4.Location = new System.Drawing.Point(10, 66);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(142, 24);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "lineId(线体编号)";
             // 
-            // pBar1
+            // txtBox_lineId
             // 
-            this.pBar1.Location = new System.Drawing.Point(197, 382);
-            this.pBar1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.pBar1.Name = "pBar1";
-            this.pBar1.Size = new System.Drawing.Size(150, 27);
-            this.pBar1.TabIndex = 85;
+            this.txtBox_lineId.Location = new System.Drawing.Point(166, 66);
+            this.txtBox_lineId.Name = "txtBox_lineId";
+            this.txtBox_lineId.Size = new System.Drawing.Size(150, 28);
+            this.txtBox_lineId.TabIndex = 5;
             // 
-            // button4
+            // lable5
             // 
-            this.button4.Location = new System.Drawing.Point(384, 338);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(150, 27);
-            this.button4.TabIndex = 87;
-            this.button4.Text = "button4";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.lable5.AutoSize = true;
+            this.lable5.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lable5.Location = new System.Drawing.Point(29, 107);
+            this.lable5.Name = "lable5";
+            this.lable5.Size = new System.Drawing.Size(123, 24);
+            this.lable5.TabIndex = 10;
+            this.lable5.Text = "panelId(条码)";
             // 
-            // timer1
+            // txtBox_panelId
             // 
-            this.timer1.Interval = 2000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.txtBox_panelId.Location = new System.Drawing.Point(166, 103);
+            this.txtBox_panelId.Name = "txtBox_panelId";
+            this.txtBox_panelId.Size = new System.Drawing.Size(488, 28);
+            this.txtBox_panelId.TabIndex = 9;
+            this.txtBox_panelId.TextChanged += new System.EventHandler(this.txtBox_panelId_TextChanged);
             // 
-            // Form4
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label6.Location = new System.Drawing.Point(348, 28);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(145, 24);
+            this.label6.TabIndex = 8;
+            this.label6.Text = "eqpId(机台编号)";
+            // 
+            // txtBox_eqpId
+            // 
+            this.txtBox_eqpId.Location = new System.Drawing.Point(504, 28);
+            this.txtBox_eqpId.Name = "txtBox_eqpId";
+            this.txtBox_eqpId.Size = new System.Drawing.Size(150, 28);
+            this.txtBox_eqpId.TabIndex = 7;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label7.Location = new System.Drawing.Point(348, 62);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(113, 24);
+            this.label7.TabIndex = 12;
+            this.label7.Text = "fixture(治具)";
+            // 
+            // txtBox_fixture
+            // 
+            this.txtBox_fixture.Location = new System.Drawing.Point(504, 62);
+            this.txtBox_fixture.Name = "txtBox_fixture";
+            this.txtBox_fixture.Size = new System.Drawing.Size(150, 28);
+            this.txtBox_fixture.TabIndex = 11;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label8.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label8.Location = new System.Drawing.Point(12, 183);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(142, 26);
+            this.label8.TabIndex = 13;
+            this.label8.Text = "input(业务参数)";
+            // 
+            // label2_2
+            // 
+            this.label2_2.AutoSize = true;
+            this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label2_2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2_2.Location = new System.Drawing.Point(14, 612);
+            this.label2_2.Name = "label2_2";
+            this.label2_2.Size = new System.Drawing.Size(140, 26);
+            this.label2_2.TabIndex = 57;
+            this.label2_2.Text = "收到MES的回复";
+            // 
+            // txtBox_responseData
+            // 
+            this.txtBox_responseData.BackColor = System.Drawing.SystemColors.Info;
+            this.txtBox_responseData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtBox_responseData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_responseData.Location = new System.Drawing.Point(12, 641);
+            this.txtBox_responseData.Multiline = true;
+            this.txtBox_responseData.Name = "txtBox_responseData";
+            this.txtBox_responseData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.txtBox_responseData.Size = new System.Drawing.Size(775, 130);
+            this.txtBox_responseData.TabIndex = 56;
+            // 
+            // label2_1
+            // 
+            this.label2_1.AutoSize = true;
+            this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label2_1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2_1.Location = new System.Drawing.Point(14, 448);
+            this.label2_1.Name = "label2_1";
+            this.label2_1.Size = new System.Drawing.Size(140, 26);
+            this.label2_1.TabIndex = 55;
+            this.label2_1.Text = "发给MES的消息";
+            // 
+            // txtBox_postData
+            // 
+            this.txtBox_postData.BackColor = System.Drawing.SystemColors.Info;
+            this.txtBox_postData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtBox_postData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_postData.Location = new System.Drawing.Point(13, 477);
+            this.txtBox_postData.Multiline = true;
+            this.txtBox_postData.Name = "txtBox_postData";
+            this.txtBox_postData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.txtBox_postData.Size = new System.Drawing.Size(775, 130);
+            this.txtBox_postData.TabIndex = 54;
+            // 
+            // btn_apiTest
+            // 
+            this.btn_apiTest.Location = new System.Drawing.Point(698, 82);
+            this.btn_apiTest.Name = "btn_apiTest";
+            this.btn_apiTest.Size = new System.Drawing.Size(90, 50);
+            this.btn_apiTest.TabIndex = 58;
+            this.btn_apiTest.Text = "通信测试";
+            this.btn_apiTest.UseVisualStyleBackColor = true;
+            this.btn_apiTest.Click += new System.EventHandler(this.btn_apiTest_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("微软雅黑", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(300, 9);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(240, 46);
+            this.label2.TabIndex = 59;
+            this.label2.Text = "MES设置页面";
+            // 
+            // btn_SaveJson
+            // 
+            this.btn_SaveJson.Location = new System.Drawing.Point(698, 333);
+            this.btn_SaveJson.Name = "btn_SaveJson";
+            this.btn_SaveJson.Size = new System.Drawing.Size(90, 50);
+            this.btn_SaveJson.TabIndex = 60;
+            this.btn_SaveJson.Text = "保存配置";
+            this.btn_SaveJson.UseVisualStyleBackColor = true;
+            this.btn_SaveJson.Click += new System.EventHandler(this.btnSaveJson_Click);
+            // 
+            // btn_LoadJson
+            // 
+            this.btn_LoadJson.Location = new System.Drawing.Point(698, 212);
+            this.btn_LoadJson.Name = "btn_LoadJson";
+            this.btn_LoadJson.Size = new System.Drawing.Size(90, 50);
+            this.btn_LoadJson.TabIndex = 61;
+            this.btn_LoadJson.Text = "加载配置";
+            this.btn_LoadJson.UseVisualStyleBackColor = true;
+            this.btn_LoadJson.Click += new System.EventHandler(this.btnLoadJson_Click);
+            // 
+            // pnl_InputParameters
+            // 
+            this.pnl_InputParameters.BackColor = System.Drawing.SystemColors.Info;
+            this.pnl_InputParameters.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pnl_InputParameters.Controls.Add(this.label6);
+            this.pnl_InputParameters.Controls.Add(this.txtBox_stepId);
+            this.pnl_InputParameters.Controls.Add(this.label3);
+            this.pnl_InputParameters.Controls.Add(this.txtBox_lineId);
+            this.pnl_InputParameters.Controls.Add(this.label4);
+            this.pnl_InputParameters.Controls.Add(this.txtBox_eqpId);
+            this.pnl_InputParameters.Controls.Add(this.txtBox_panelId);
+            this.pnl_InputParameters.Controls.Add(this.lable5);
+            this.pnl_InputParameters.Controls.Add(this.txtBox_fixture);
+            this.pnl_InputParameters.Controls.Add(this.label7);
+            this.pnl_InputParameters.Location = new System.Drawing.Point(10, 212);
+            this.pnl_InputParameters.Name = "pnl_InputParameters";
+            this.pnl_InputParameters.Size = new System.Drawing.Size(676, 171);
+            this.pnl_InputParameters.TabIndex = 62;
+            // 
+            // Form3
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(738, 551);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.pBar1);
-            this.Controls.Add(this.IPAddr_cobBox);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(800, 800);
+            this.Controls.Add(this.pnl_InputParameters);
+            this.Controls.Add(this.btn_LoadJson);
+            this.Controls.Add(this.btn_SaveJson);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.btn_apiTest);
+            this.Controls.Add(this.label2_2);
+            this.Controls.Add(this.txtBox_responseData);
+            this.Controls.Add(this.label2_1);
+            this.Controls.Add(this.txtBox_postData);
+            this.Controls.Add(this.txtBox_mesUrl);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.tcpPort_txtBox);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.label4_3);
-            this.Controls.Add(this.fileWatcher_chkbox);
-            this.Controls.Add(this.label4_2);
-            this.Controls.Add(this.pictureBox2);
-            this.Controls.Add(this.label1_5);
-            this.Controls.Add(this.prtCode_txtBox);
+            this.Controls.Add(this.label8);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "Form4";
-            this.Text = "Form4";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.Name = "Form3";
+            this.Text = "MES设置页面";
+            this.pnl_InputParameters.ResumeLayout(false);
+            this.pnl_InputParameters.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Label label1_5;
-        private System.Windows.Forms.TextBox prtCode_txtBox;
-        private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.Label label4_2;
-        private System.IO.FileSystemWatcher fileSystemWatcher1;
-        private System.Windows.Forms.Label label4_3;
-        private System.Windows.Forms.CheckBox fileWatcher_chkbox;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.RadioButton server_radBtn;
-        private System.Windows.Forms.RadioButton client_radBtn;
-        private System.Windows.Forms.TextBox tcpPort_txtBox;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox txtBox_fixture;
+        private System.Windows.Forms.Label lable5;
+        private System.Windows.Forms.TextBox txtBox_panelId;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtBox_eqpId;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtBox_lineId;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.ComboBox IPAddr_cobBox;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.ProgressBar pBar1;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.TextBox txtBox_stepId;
+        private System.Windows.Forms.TextBox txtBox_mesUrl;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2_2;
+        private System.Windows.Forms.TextBox txtBox_responseData;
+        private System.Windows.Forms.Label label2_1;
+        private System.Windows.Forms.TextBox txtBox_postData;
+        private System.Windows.Forms.Button btn_apiTest;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btn_LoadJson;
+        private System.Windows.Forms.Button btn_SaveJson;
+        private System.Windows.Forms.Panel pnl_InputParameters;
     }
 }

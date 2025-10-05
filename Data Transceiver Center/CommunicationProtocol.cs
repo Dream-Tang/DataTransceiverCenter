@@ -23,7 +23,7 @@ namespace Data_Transceiver_Center
         // 扫描OK放行 = 11
         // 扫描NG报警 取料 = 12
         public const short camReset = 0;
-        public const short camAllow = 1;
+        public const short camAllow = 10;
         public const short camOK = 11;
         public const short camNG = 12;
         public const short camRetry = 13;

@@ -185,4 +185,46 @@ namespace Data_Transceiver_Center
         public string mes3Par { get; set; }
 
     }
+
+
+    // 使用post方式，发送的json数据
+    /*
+     * 请求示例
+        {
+        "input": {
+	        “stepId”: “S01”,
+            “lineId”: “L01”,
+            “eqpId”: “E01”,
+            “panelId”: “testCode”,
+            “fixture”: “001”
+            }
+        }
+     */
+    public class MesPostRoot
+    {
+        public string MesUrl { get; set; }
+        public MsePostData MesData { get; set; }
+    }
+
+    public class MsePostData
+    {
+        public MesInputJson input { get; set; }
+    }
+
+    public class MesInputJson
+    {
+        public string stepId { get; set; }
+        public string lineId { get; set; }
+        public string eqpId { get; set; }
+        public string panelId { get; set; }
+        public string fixture { get; set; }
+    }
+
+    public class MesResponseJson
+    {
+        public string code { get; set; }
+        public string info { get; set; }
+        public string data { get; set; }
+    }
+
 }

@@ -54,6 +54,7 @@ namespace Data_Transceiver_Center
             this.rd_CamOK = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label14 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label9 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
@@ -61,18 +62,17 @@ namespace Data_Transceiver_Center
             this.rd_checkOK = new System.Windows.Forms.RadioButton();
             this.rd_ScannerComplete = new System.Windows.Forms.RadioButton();
             this.rd_checkNG = new System.Windows.Forms.RadioButton();
-            this.txt_Timer1Interval = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label10 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.rd_PrtComplete = new System.Windows.Forms.RadioButton();
             this.rd_PrtReady = new System.Windows.Forms.RadioButton();
+            this.txt_Timer1Interval = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label5 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.rd_CamNG = new System.Windows.Forms.RadioButton();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.axActUtlType1 = new AxActUtlTypeLib.AxActUtlType();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -308,6 +308,17 @@ namespace Data_Transceiver_Center
             this.label14.TabIndex = 28;
             this.label14.Text = "刷新间隔（ms）";
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(216, 97);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(106, 22);
+            this.checkBox1.TabIndex = 26;
+            this.checkBox1.Text = "自动刷新";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.label9);
@@ -328,7 +339,7 @@ namespace Data_Transceiver_Center
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(89, 18);
             this.label9.TabIndex = 26;
-            this.label9.Text = "扫码D1002";
+            this.label9.Text = "校验D1002";
             // 
             // label13
             // 
@@ -394,13 +405,6 @@ namespace Data_Transceiver_Center
             this.rd_checkNG.UseVisualStyleBackColor = true;
             this.rd_checkNG.Click += new System.EventHandler(this.rd_checkNG_CheckedChanged);
             // 
-            // txt_Timer1Interval
-            // 
-            this.txt_Timer1Interval.Location = new System.Drawing.Point(199, 54);
-            this.txt_Timer1Interval.Name = "txt_Timer1Interval";
-            this.txt_Timer1Interval.Size = new System.Drawing.Size(123, 28);
-            this.txt_Timer1Interval.TabIndex = 27;
-            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.label10);
@@ -417,9 +421,9 @@ namespace Data_Transceiver_Center
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(3, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(107, 18);
+            this.label10.Size = new System.Drawing.Size(89, 18);
             this.label10.TabIndex = 31;
-            this.label10.Text = "打印机D1001";
+            this.label10.Text = "打印D1001";
             // 
             // label12
             // 
@@ -459,6 +463,13 @@ namespace Data_Transceiver_Center
             this.rd_PrtReady.UseVisualStyleBackColor = true;
             this.rd_PrtReady.Click += new System.EventHandler(this.rd_PrtReady_CheckedChanged);
             // 
+            // txt_Timer1Interval
+            // 
+            this.txt_Timer1Interval.Location = new System.Drawing.Point(199, 54);
+            this.txt_Timer1Interval.Name = "txt_Timer1Interval";
+            this.txt_Timer1Interval.Size = new System.Drawing.Size(123, 28);
+            this.txt_Timer1Interval.TabIndex = 27;
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.label5);
@@ -478,7 +489,7 @@ namespace Data_Transceiver_Center
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(89, 18);
             this.label5.TabIndex = 25;
-            this.label5.Text = "拍码D1000";
+            this.label5.Text = "拍照D1000";
             // 
             // label11
             // 
@@ -509,17 +520,6 @@ namespace Data_Transceiver_Center
             // 
             this.timer1.Interval = 300;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(216, 97);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(106, 22);
-            this.checkBox1.TabIndex = 26;
-            this.checkBox1.Text = "自动刷新";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // axActUtlType1
             // 
