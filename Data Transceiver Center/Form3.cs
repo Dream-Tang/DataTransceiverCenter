@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Data_Transceiver_Center
 {
-    public partial class Form3 : Form
+    public partial class Form3 : Form, IJsonConfigurable, IJsonSavable
     {
         // 通过POST发送给Mes的Json数据
         private MesPostRoot _MesPostRoot;
@@ -26,6 +26,34 @@ namespace Data_Transceiver_Center
         }
 
 
+        // 实现json配置加载接口
+        public void LoadJson(string jsonFilePath)
+        {
+            // 复用原有读取json的逻辑
+            _MesPostRoot = ReadFromJsonFile<MesPostRoot>(jsonFilePath);
+            JsonDataToForm(); // 更新UI
+        }
+
+        // 实现IJson配置保存接口
+        public void SaveJson(string jsonFilePath)
+        {
+            try
+            {
+                // 先更新内存中的配置对象
+                _MesPostRoot = FormToJson();
+
+                // 序列化并保存（复用原有方法）
+                SaveToJsonFile(_MesPostRoot, jsonFilePath);
+                Console.WriteLine("Form3配置保存成功");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Form3配置保存失败: {ex.Message}");
+                MessageBox.Show($"保存JSON配置失败: {ex.Message}");
+            }
+        }
+
+
         // 保存配置按钮
         private void btnSaveJson_Click(object sender, EventArgs e)
         {
@@ -39,25 +67,7 @@ namespace Data_Transceiver_Center
                 jsonPath = dialog.SelectedPath + "\\MesSettings.json";
             }
 
-            _MesPostRoot =  FormToJson();
-
-            try
-            {
-                SaveToJsonFile(_MesPostRoot, jsonPath);
-                if (jsonPath != "")
-                {
-                    MessageBox.Show("已保存，文件位置：" + jsonPath);
-                }
-                else
-                {
-                    MessageBox.Show("未保存json配置");
-                }
-            }
-            catch (Exception)
-            {
-                return;
-            }
-
+           SaveJson(jsonPath);
         }
 
         // 加载配置按钮
@@ -67,17 +77,12 @@ namespace Data_Transceiver_Center
             dialog.Multiselect = false; // 是否可以选择多个 文件
             dialog.Title = "请选择MesSettings.json文件";
             dialog.Filter = "json文件(*.json)|*.json";
-            string file = "";
             try
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    // 读取Json文件的路径
-                    file = dialog.FileName;
-                    // 读取JSON文件并转换为Json对象
-                    _MesPostRoot = ReadFromJsonFile<MesPostRoot>(file);
-
-                    JsonDataToForm();
+                    // 调用接口方法加载配置
+                    LoadJson(dialog.FileName);
                 }
             }
             catch (Exception)

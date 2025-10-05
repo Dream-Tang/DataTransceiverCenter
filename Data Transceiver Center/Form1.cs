@@ -12,7 +12,7 @@ using ZXing.Common;
 
 namespace Data_Transceiver_Center
 {
-    public partial class Form1 : Form
+    public partial class Form1 : Form, IIniConfigurable, IIniSavable
     {
         // 定义文本更新事件：当文本框内容变化时触发
         // 事件类型为Action<string>，用于传递最新文本内容
@@ -431,6 +431,40 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // 实现ini配置加载接口
+        public void LoadIni(string iniFilePath)
+        {
+            // 复用原有LoadIniSettings逻辑
+            LoadIniSettings(iniFilePath);
+        }
+
+        // 实现IIni配置保存接口
+        public void SaveIni(string iniFilePath)
+        {
+            try
+            {
+                var myIni = new IniFile(iniFilePath);
+
+                // 保存文本框配置
+                myIni.Write("filePathZPL", txtBox_zplPath.Text, "Textbox");
+                myIni.Write("prtName", txtBox_prtPath.Text, "Textbox");
+                myIni.Write("zplTemplate", zplTemplatePath, "Textbox");
+                myIni.Write("seriPortNum", cobBox_SeriPortNum.Text, "Textbox");
+
+                // 保存复选框状态（与加载时对应）
+                myIni.Write("lockSettings", lockSettings_checkBox.Checked.ToString(), "Checkbox");
+
+                Console.WriteLine("Form1配置保存成功");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Form1配置保存失败: {ex.Message}");
+                if (!lockSettings_checkBox.Checked)
+                    MessageBox.Show($"保存配置失败: {ex.Message}");
+            }
+        }
+
+
         // 从ini读出数据到页面
         // static 静态类，不用创建实例，只需要通过(类名.方法名)即可进行调用
         public void LoadIniSettings(string iniFile)
@@ -438,10 +472,10 @@ namespace Data_Transceiver_Center
             var myIni = new IniFile(iniFile);
 
             // string Read(string Key,string Section = null)
-            string filePathZPL = myIni.Read("filePathZPL", "Textbox");
-            string prtName = myIni.Read("prtName", "Textbox");
-            string zplTemplate = myIni.Read("zplTemplate", "Textbox");
-            string seriPortNum = myIni.Read("seriPortNum", "Textbox");
+            string filePathZPL = myIni.ReadString("filePathZPL", "Textbox");
+            string prtName = myIni.ReadString("prtName", "Textbox");
+            string zplTemplate = myIni.ReadString("zplTemplate", "Textbox");
+            string seriPortNum = myIni.ReadString("seriPortNum", "Textbox");
 
             txtBox_zplPath.Text = filePathZPL;
             txtBox_prtPath.Text = prtName;
@@ -483,18 +517,7 @@ namespace Data_Transceiver_Center
         // 将页面的数据写入ini保存
         public void SaveIniSettings(string iniFile)
         {
-            var myIni = new IniFile(iniFile);
-
-            string filePathZPL = txtBox_zplPath.Text;
-            string prtName = txtBox_prtPath.Text ;
-            string seriPortNum = cobBox_SeriPortNum.Text;
-            string testHttp = "False" ; // 确保每次保存ini后关闭调试模式
-
-            myIni.Write("filePathZPL", filePathZPL, "Form1");
-            myIni.Write("prtName", prtName, "Form1");
-            myIni.Write("testHttp", testHttp, "Form1");
-            myIni.Write("zplTemplate", zplTemplatePath,"Form1");
-            myIni.Write("seriPortNum", seriPortNum, "Form1");
+            SaveIni(iniFile);
         }
 
         // 刷新端口号
@@ -768,7 +791,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 加载ZPL模板按钮
+        // 加载 ZPL 模板按钮
         private void btn_loadZpl_Click(object sender, EventArgs e)
     {
         OpenFileDialog dialog = new OpenFileDialog();   // 选择文件

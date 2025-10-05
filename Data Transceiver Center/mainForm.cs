@@ -1,17 +1,18 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text;
 
 
 namespace Data_Transceiver_Center
 {
-    public partial class mainForm : Form
+    public partial class mainForm : Form, IMainConfigurable
     {
         private Form1 _form1;    // 创建窗口1 窗口变量
         private Form2 _form2;    // 创建窗口2 窗口变量
@@ -25,6 +26,12 @@ namespace Data_Transceiver_Center
         private bool _isCamMonitorRunning;
         private readonly object _camMonitorLock = new object();
 
+        // 依赖抽象接口，而非具体类
+        private IIniConfigurable _iniLoadForm;   // 加载Form1的接口引用
+        private IJsonConfigurable _jsonLoadForm; // 加载Form3的接口引用
+        private IIniSavable _iniSaveForm;    // 保存Form1配置的接口
+        private IJsonSavable _jsonSaveForm;  // 保存Form3配置的接口
+
         public mainForm()
         {
             InitializeComponent();
@@ -32,6 +39,13 @@ namespace Data_Transceiver_Center
             _form1 = new Form1();
             _form2 = new Form2();
             _form3 = new Form3();
+
+            // 初始化时注入具体实现（依赖注入思想）
+            _iniLoadForm = _form1;   // Form1实现了IIniConfigurable
+            _jsonLoadForm = _form3;  // Form3实现了IJsonConfigurable
+            // 初始化保存接口引用（与加载接口对应）
+            _iniSaveForm = _form1;
+            _jsonSaveForm = _form3;
 
             // 初始化嵌入设置
             InitChildForm(_form1);
@@ -53,9 +67,9 @@ namespace Data_Transceiver_Center
         private void MainForm_Load(object sender, EventArgs e)
         {
             this.Text = Application.ProductName + "  V" + Application.ProductVersion;
-            this.tcpServer_checkBox.Checked = true;
-            this.autoRun_checkBox.Checked = false;
-            this.ignoreCheck_checkBox.Checked = true;
+            //this.tcpServer_checkBox.Checked = true;
+            //this.autoRun_checkBox.Checked = false;
+            //this.ignoreCheck_checkBox.Checked = true;
             // this.autoRun_btn.Enabled = false;
             _form1.btnRetryRead += new Form1.btnOnClickDelegate(btn_RetryRead_Click);
             _form1.btnRetryChk += new Form1.btnOnClickDelegate(btn_RetryChk_Click);
@@ -115,61 +129,51 @@ namespace Data_Transceiver_Center
         }
 
 
-        // 保存配置
+        // 保存配置按钮点击事件
         private void btnSaveIni_Click(object sender, EventArgs e)
         {
-            // 选择文件夹路径
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            // 提示信息
-            dialog.Description = "请选择ini保存位置";
-            string iniPath = "";
-            if (dialog.ShowDialog() == DialogResult.OK)
+            // 1. 选择保存文件夹（与加载时的文件选择逻辑一致）
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
             {
-                iniPath = dialog.SelectedPath + "\\settings.ini";
-            }
-            try
-            {
-                _form1.SaveIniSettings(iniPath);
-                MessageBox.Show("已保存，文件位置：" + iniPath);
-            }
-            catch (Exception)
-            {
-                return;
+                dialog.Description = "请选择配置保存位置";
+                if (dialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                string savePath = dialog.SelectedPath;
+
+                // 2. 保存Form1的ini配置（文件名与加载时保持一致）
+                string iniFile = Path.Combine(savePath, "settings.ini");
+                SaveForm1Config(iniFile);
+
+                // 3. 保存Form3的json配置（文件名与加载时保持一致）
+                string jsonFile = Path.Combine(savePath, "MesSettings.json");
+                SaveForm3Config(jsonFile);
+
+                // 4. 保存MainForm自身的复选框状态（与加载时的LoadMainConfig对应）
+                SaveMainConfig(iniFile);
+
+                MessageBox.Show($"配置已保存到:\r\n{savePath}");
             }
 
         }
 
-        // 加载配置
-        private void btnLoadIni_Click(object sender, EventArgs e)
+        // 加载配置按钮点击事件
+        private void btnLoadConfig_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
-            dialog.Multiselect = false; // 是否可以选择多个 文件
-            dialog.Title = "请选择setting.ini文件";
-            dialog.Filter = "ini文件(*.ini)|*.ini";
-            string file = "";
-            try
-            {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    file = dialog.FileName;
-                }
-            }
-            catch (Exception)
-            { return; }
+            // 1. 选择ini文件（给Form1）
+            string iniFile = SelectFile("请选择ini文件", "ini文件(*.ini)|*.ini");
+            if (string.IsNullOrEmpty(iniFile)) return;
 
-            try
-            {
-                // ini配置载入
-                _form1.LoadIniSettings(file);
-                connectPlc_checkBox.Checked = true;
-                // MES载入也放到这里
-                _form3.btnLoadJson_Click(null,null);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            // 2. 选择json文件（给Form3）
+            string jsonFile = SelectFile("请选择json文件", "json文件(*.json)|*.json");
+            if (string.IsNullOrEmpty(jsonFile)) return;
+
+            // 3. 通过接口调用加载（线程安全处理）
+            LoadForm1Config(iniFile);         // 再加载Form1的ini配置
+            LoadForm3Config(jsonFile);       // 最后加载Form3的json配置
+            LoadMainConfig(iniFile);        // 先加载mainForm自身的Checkbox状态
         }
+
 
         // 自动模式按钮（执行一个循环）：
         // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
@@ -361,7 +365,6 @@ namespace Data_Transceiver_Center
             Console.WriteLine("task t5：Check:" );
         }
 
-
         // 触发自动执行
         private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -433,7 +436,6 @@ namespace Data_Transceiver_Center
             });
         }
 
-
         // 校验任务t5
         private void t5CheckTask()
         {
@@ -476,8 +478,224 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // 连接PLC复选按钮
+        private void connectPlc_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (connectPlc_checkBox.Checked)
+            {
+                _form2.btn_Open_Click(null, null);
+                if (_form2.GetReturnCode() == "0x00000000 [HEX]")
+                {
+                    lable_PlcConnectStatus.Text = "PLC 已连接";
+                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
+                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
+                }
+                else
+                {
+                    connectPlc_checkBox.Checked = false;
+                    lable_PlcConnectStatus.Text = "PLC 无法连接";
+                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
+                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
+                }
+            }
+            else
+            {
+                _form2.btn_Close_Click(null, null);
+                lable_PlcConnectStatus.Text = "PLC 已断开";
+                lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
+                lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
+            }
+        }
 
-#region TCP通信功能
+        // 更新PLC寄存器，向PLC进行通信，发送状态
+        private void UpdatePLCReg(short cam=-1, short prt=-1, short scn=-1)
+        {
+            Tuple<short, short, short> plcRegValue;
+
+            //未禁用PLC，则执行，禁用则跳过
+            if (!ignorePlc_checkBox.Checked)
+            {
+                // 触发放行
+                plcRegValue = _form2.ReadPlc();
+                if (cam == -1)
+                {
+                    cam = plcRegValue.Item1;
+                }
+                if (prt == -1)
+                {
+                    prt = plcRegValue.Item2;
+                }
+                if (scn == -1)
+                {
+                    scn = plcRegValue.Item3;
+                }
+                _form2.WritePlc(cam, prt, scn);
+            }
+        }
+
+        // 手动读码按钮
+        public void btn_RetryRead_Click()
+        {
+            // 给PLC发送信号
+            UpdatePLCReg(cam: CommunicationProtocol.camRetry);
+        }
+
+        // 手动验码按钮
+        public void btn_RetryChk_Click()
+        {
+            // 给PLC发送信号
+            UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
+        }
+
+        // 跳过相机按钮
+        private void ignoreCam_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            // 跨线程获取_form1的返回码
+            // 判断是否需要跨线程调用
+            // 当 当前线程 == 控件的创建线程（UI 线程） 时，InvokeRequired 返回 false，可以直接操作控件。
+            // 当 当前线程！= 控件的创建线程 时，InvokeRequired 返回 true，此时必须通过 Invoke 或 BeginInvoke 方法间接操作控件。
+            if (_form1.InvokeRequired)
+            {// 需要跨线程：通过Invoke在UI线程执行委托
+                _form1.Invoke(new Action(() => { _form1.ClearVericode(); }));
+            }
+            else
+            {   // 不需要跨线程：直接操作
+                _form1.ClearVericode();
+            }
+
+            if (ignoreCam_checkBox.Checked)
+            {
+                StartCamMonitor();
+            }
+            else
+            {
+                StopCamMonitor();
+            }
+        }
+
+        #region 加载配置的功能
+        // 封装文件选择逻辑
+        private string SelectFile(string title, string filter)
+        {
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                dialog.Title = title;
+                dialog.Filter = filter;
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            }
+        }
+
+        // 加载ini配置（线程安全）
+        private void LoadForm1Config(string iniFile)
+        {
+            if (_iniLoadForm is Form form && form.InvokeRequired)
+            {
+                form.Invoke(new Action(() => _iniLoadForm.LoadIni(iniFile)));
+            }
+            else
+            {
+                _iniLoadForm.LoadIni(iniFile);
+            }
+        }
+
+        // 加载json配置（线程安全）
+        private void LoadForm3Config(string jsonFile)
+        {
+            if (_jsonLoadForm is Form form && form.InvokeRequired)
+            {
+                form.Invoke(new Action(() => _jsonLoadForm.LoadJson(jsonFile)));
+            }
+            else
+            {
+                _jsonLoadForm.LoadJson(jsonFile);
+            }
+        }
+
+        // 实现主窗体配置加载接口
+        public void LoadMainConfig(string iniFilePath)
+        {
+            if (!File.Exists(iniFilePath))
+            {
+                MessageBox.Show($"ini配置文件不存在：{iniFilePath}");
+                return;
+            }
+
+            try
+            {
+                var ini = new IniFile(iniFilePath);
+                // 从[Checkbox]节点读取各Checkbox状态
+                // 注意：IniFile的Read方法需根据实际实现调整（此处为示例）
+                ignoreCam_checkBox.Checked = ini.ReadBoolean("ignoreCam", "Checkbox", false);
+                ignoreCheck_checkBox.Checked = ini.ReadBoolean("ignoreCheck", "Checkbox", false);
+                ignorePlc_checkBox.Checked = ini.ReadBoolean("ignorePlc", "Checkbox", false);
+                connectPlc_checkBox.Checked = ini.ReadBoolean("connectPlc", "Checkbox", false);
+
+                autoRun_checkBox.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
+                tcpServer_checkBox.Checked = ini.ReadBoolean("tcpServer", "Checkbox", false);
+                // 其他需要加载的Checkbox...
+
+                Console.WriteLine("mainForm CheckBox状态加载完成");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"加载mainForm配置失败：{ex.Message}");
+            }
+        }
+        #endregion 加载配置的功能 
+
+        #region 配置保存功能
+        // 线程安全地保存Form1的ini配置
+        private void SaveForm1Config(string iniFile)
+        {
+            if (_iniSaveForm is Form form && form.InvokeRequired)
+            {
+                // 跨线程时通过Invoke切换到UI线程
+                form.Invoke(new Action(() => _iniSaveForm.SaveIni(iniFile)));
+            }
+            else
+            {
+                // 同一线程直接调用
+                _iniSaveForm.SaveIni(iniFile);
+            }
+        }
+
+        // 线程安全地保存Form3的json配置
+        private void SaveForm3Config(string jsonFile)
+        {
+            if (_jsonSaveForm is Form form && form.InvokeRequired)
+            {
+                form.Invoke(new Action(() => _jsonSaveForm.SaveJson(jsonFile)));
+            }
+            else
+            {
+                _jsonSaveForm.SaveJson(jsonFile);
+            }
+        }
+
+        // 保存MainForm自身的配置（与LoadMainConfig对应）
+        private void SaveMainConfig(string iniFilePath)
+        {
+            try
+            {
+                var ini = new IniFile(iniFilePath);
+                // 保存复选框状态（与加载时读取的字段一一对应）
+                ini.Write("ignoreCam", ignoreCam_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("ignoreCheck", ignoreCheck_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("ignorePlc", ignorePlc_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("connectPlc", connectPlc_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("autoRun", autoRun_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("tcpServer", tcpServer_checkBox.Checked.ToString(), "Checkbox");
+
+                Console.WriteLine("MainForm配置保存完成");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存主窗体配置失败：{ex.Message}");
+            }
+        }
+        #endregion 配置保存功能（与加载逻辑对应）
+
+        #region TCP通信功能
         // 修改TCP相关字段，增加状态控制和线程安全标识
         private TcpListener server = null;
         private bool isTcpServerRunning = false; // 服务器运行状态
@@ -679,104 +897,9 @@ namespace Data_Transceiver_Center
                 return "未知客户端";
             }
         }
-#endregion TCP通信功能
+        #endregion TCP通信功能
 
-        // 连接PLC复选按钮
-        private void connectPlc_checkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (connectPlc_checkBox.Checked)
-            {
-                _form2.btn_Open_Click(null, null);
-                if (_form2.GetReturnCode() == "0x00000000 [HEX]")
-                {
-                    lable_PlcConnectStatus.Text = "PLC 已连接";
-                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
-                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(114, 233, 186);
-                }
-                else
-                {
-                    connectPlc_checkBox.Checked = false;
-                    lable_PlcConnectStatus.Text = "PLC 无法连接";
-                    lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
-                    lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
-                }
-            }
-            else
-            {
-                _form2.btn_Close_Click(null, null);
-                lable_PlcConnectStatus.Text = "PLC 已断开";
-                lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
-                lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
-            }
-        }
-
-        // 更新PLC寄存器，向PLC进行通信，发送状态
-        private void UpdatePLCReg(short cam=-1, short prt=-1, short scn=-1)
-        {
-            Tuple<short, short, short> plcRegValue;
-
-            //未禁用PLC，则执行，禁用则跳过
-            if (!ignorePlc_checkBox.Checked)
-            {
-                // 触发放行
-                plcRegValue = _form2.ReadPlc();
-                if (cam == -1)
-                {
-                    cam = plcRegValue.Item1;
-                }
-                if (prt == -1)
-                {
-                    prt = plcRegValue.Item2;
-                }
-                if (scn == -1)
-                {
-                    scn = plcRegValue.Item3;
-                }
-                _form2.WritePlc(cam, prt, scn);
-            }
-        }
-
-        // 手动读码按钮
-        public void btn_RetryRead_Click()
-        {
-            // 给PLC发送信号
-            UpdatePLCReg(cam: CommunicationProtocol.camRetry);
-        }
-
-        // 手动验码按钮
-        public void btn_RetryChk_Click()
-        {
-            // 给PLC发送信号
-            UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
-        }
-
-        // 跳过相机按钮
-        private void ignoreCam_checkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            // 跨线程获取_form1的返回码
-            // 判断是否需要跨线程调用
-            // 当 当前线程 == 控件的创建线程（UI 线程） 时，InvokeRequired 返回 false，可以直接操作控件。
-            // 当 当前线程！= 控件的创建线程 时，InvokeRequired 返回 true，此时必须通过 Invoke 或 BeginInvoke 方法间接操作控件。
-            if (_form1.InvokeRequired)
-            {// 需要跨线程：通过Invoke在UI线程执行委托
-                _form1.Invoke(new Action(() => { _form1.ClearVericode(); }));
-            }
-            else
-            {   // 不需要跨线程：直接操作
-                _form1.ClearVericode();
-            }
-
-            if (ignoreCam_checkBox.Checked)
-            {
-                StartCamMonitor();
-            }
-            else
-            {
-                StopCamMonitor();
-            }
-        }
-        
-#region 跳过相机功能实现
+        #region 跳过相机功能实现
         // 启动监控线程，后台线程监控PLC的寄存器
         private void StartCamMonitor()
         {

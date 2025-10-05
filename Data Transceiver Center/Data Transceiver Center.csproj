@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActDefine.cs" />
+    <Compile Include="IConfigurable.cs" />
     <Compile Include="TcpServer.cs" />
     <Compile Include="HttpUitls.cs" />
     <Compile Include="CommunicationProtocol.cs" />

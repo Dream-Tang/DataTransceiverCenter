@@ -38,7 +38,7 @@ namespace Data_Transceiver_Center
             this.btn_Form1 = new System.Windows.Forms.Button();
             this.btn_Form2 = new System.Windows.Forms.Button();
             this.btn_SaveIni = new System.Windows.Forms.Button();
-            this.btn_LoadIni = new System.Windows.Forms.Button();
+            this.btn_LoadConfig = new System.Windows.Forms.Button();
             this.autoRun_btn = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
@@ -121,15 +121,15 @@ namespace Data_Transceiver_Center
             this.btn_SaveIni.UseVisualStyleBackColor = true;
             this.btn_SaveIni.Click += new System.EventHandler(this.btnSaveIni_Click);
             // 
-            // btn_LoadIni
+            // btn_LoadConfig
             // 
-            this.btn_LoadIni.Location = new System.Drawing.Point(68, 754);
-            this.btn_LoadIni.Name = "btn_LoadIni";
-            this.btn_LoadIni.Size = new System.Drawing.Size(54, 54);
-            this.btn_LoadIni.TabIndex = 5;
-            this.btn_LoadIni.Text = "加载配置";
-            this.btn_LoadIni.UseVisualStyleBackColor = true;
-            this.btn_LoadIni.Click += new System.EventHandler(this.btnLoadIni_Click);
+            this.btn_LoadConfig.Location = new System.Drawing.Point(68, 754);
+            this.btn_LoadConfig.Name = "btn_LoadConfig";
+            this.btn_LoadConfig.Size = new System.Drawing.Size(54, 54);
+            this.btn_LoadConfig.TabIndex = 5;
+            this.btn_LoadConfig.Text = "加载配置";
+            this.btn_LoadConfig.UseVisualStyleBackColor = true;
+            this.btn_LoadConfig.Click += new System.EventHandler(this.btnLoadConfig_Click);
             // 
             // autoRun_btn
             // 
@@ -226,7 +226,7 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.ignorePlc_checkBox);
             this.Controls.Add(this.autoRun_checkBox);
             this.Controls.Add(this.autoRun_btn);
-            this.Controls.Add(this.btn_LoadIni);
+            this.Controls.Add(this.btn_LoadConfig);
             this.Controls.Add(this.btn_SaveIni);
             this.Controls.Add(this.btn_Form2);
             this.Controls.Add(this.btn_Form1);
@@ -252,7 +252,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_Form3;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btn_SaveIni;
-        private System.Windows.Forms.Button btn_LoadIni;
+        private System.Windows.Forms.Button btn_LoadConfig;
         private System.Windows.Forms.Button autoRun_btn;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox autoRun_checkBox;
