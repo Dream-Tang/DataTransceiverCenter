@@ -51,14 +51,16 @@ namespace Data_Transceiver_Center
             this.btn_SaveJson = new System.Windows.Forms.Button();
             this.btn_LoadJson = new System.Windows.Forms.Button();
             this.pnl_InputParameters = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.pnl_InputParameters.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(10, 72);
+            this.label1.Location = new System.Drawing.Point(12, 49);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(73, 20);
             this.label1.TabIndex = 0;
@@ -66,7 +68,7 @@ namespace Data_Transceiver_Center
             // 
             // txtBox_mesUrl
             // 
-            this.txtBox_mesUrl.Location = new System.Drawing.Point(10, 95);
+            this.txtBox_mesUrl.Location = new System.Drawing.Point(12, 72);
             this.txtBox_mesUrl.Name = "txtBox_mesUrl";
             this.txtBox_mesUrl.Size = new System.Drawing.Size(674, 28);
             this.txtBox_mesUrl.TabIndex = 1;
@@ -162,7 +164,7 @@ namespace Data_Transceiver_Center
             this.label8.AutoSize = true;
             this.label8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label8.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label8.Location = new System.Drawing.Point(12, 183);
+            this.label8.Location = new System.Drawing.Point(14, 126);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(142, 26);
             this.label8.TabIndex = 13;
@@ -173,22 +175,25 @@ namespace Data_Transceiver_Center
             this.label2_2.AutoSize = true;
             this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2_2.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2_2.Location = new System.Drawing.Point(14, 612);
+            this.label2_2.Location = new System.Drawing.Point(3, 140);
             this.label2_2.Name = "label2_2";
-            this.label2_2.Size = new System.Drawing.Size(140, 26);
+            this.label2_2.Size = new System.Drawing.Size(140, 25);
             this.label2_2.TabIndex = 57;
             this.label2_2.Text = "收到MES的回复";
             // 
             // txtBox_responseData
             // 
+            this.txtBox_responseData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_responseData.BackColor = System.Drawing.SystemColors.Info;
             this.txtBox_responseData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtBox_responseData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_responseData.Location = new System.Drawing.Point(12, 641);
+            this.txtBox_responseData.Location = new System.Drawing.Point(3, 168);
             this.txtBox_responseData.Multiline = true;
             this.txtBox_responseData.Name = "txtBox_responseData";
             this.txtBox_responseData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtBox_responseData.Size = new System.Drawing.Size(775, 130);
+            this.txtBox_responseData.Size = new System.Drawing.Size(772, 110);
             this.txtBox_responseData.TabIndex = 56;
             // 
             // label2_1
@@ -196,27 +201,30 @@ namespace Data_Transceiver_Center
             this.label2_1.AutoSize = true;
             this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label2_1.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2_1.Location = new System.Drawing.Point(14, 448);
+            this.label2_1.Location = new System.Drawing.Point(3, 0);
             this.label2_1.Name = "label2_1";
-            this.label2_1.Size = new System.Drawing.Size(140, 26);
+            this.label2_1.Size = new System.Drawing.Size(140, 25);
             this.label2_1.TabIndex = 55;
             this.label2_1.Text = "发给MES的消息";
             // 
             // txtBox_postData
             // 
+            this.txtBox_postData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_postData.BackColor = System.Drawing.SystemColors.Info;
             this.txtBox_postData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtBox_postData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_postData.Location = new System.Drawing.Point(13, 477);
+            this.txtBox_postData.Location = new System.Drawing.Point(3, 28);
             this.txtBox_postData.Multiline = true;
             this.txtBox_postData.Name = "txtBox_postData";
             this.txtBox_postData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtBox_postData.Size = new System.Drawing.Size(775, 130);
+            this.txtBox_postData.Size = new System.Drawing.Size(772, 109);
             this.txtBox_postData.TabIndex = 54;
             // 
             // btn_apiTest
             // 
-            this.btn_apiTest.Location = new System.Drawing.Point(698, 82);
+            this.btn_apiTest.Location = new System.Drawing.Point(700, 59);
             this.btn_apiTest.Name = "btn_apiTest";
             this.btn_apiTest.Size = new System.Drawing.Size(90, 50);
             this.btn_apiTest.TabIndex = 58;
@@ -236,7 +244,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_SaveJson
             // 
-            this.btn_SaveJson.Location = new System.Drawing.Point(698, 333);
+            this.btn_SaveJson.Location = new System.Drawing.Point(700, 276);
             this.btn_SaveJson.Name = "btn_SaveJson";
             this.btn_SaveJson.Size = new System.Drawing.Size(90, 50);
             this.btn_SaveJson.TabIndex = 60;
@@ -246,7 +254,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_LoadJson
             // 
-            this.btn_LoadJson.Location = new System.Drawing.Point(698, 212);
+            this.btn_LoadJson.Location = new System.Drawing.Point(700, 155);
             this.btn_LoadJson.Name = "btn_LoadJson";
             this.btn_LoadJson.Size = new System.Drawing.Size(90, 50);
             this.btn_LoadJson.TabIndex = 61;
@@ -268,24 +276,39 @@ namespace Data_Transceiver_Center
             this.pnl_InputParameters.Controls.Add(this.lable5);
             this.pnl_InputParameters.Controls.Add(this.txtBox_fixture);
             this.pnl_InputParameters.Controls.Add(this.label7);
-            this.pnl_InputParameters.Location = new System.Drawing.Point(10, 212);
+            this.pnl_InputParameters.Location = new System.Drawing.Point(12, 155);
             this.pnl_InputParameters.Name = "pnl_InputParameters";
             this.pnl_InputParameters.Size = new System.Drawing.Size(676, 171);
             this.pnl_InputParameters.TabIndex = 62;
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.label2_1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.txtBox_postData, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label2_2, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.txtBox_responseData, 0, 3);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 357);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(778, 281);
+            this.tableLayoutPanel1.TabIndex = 63;
+            // 
             // Form3
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(800, 800);
+            this.ClientSize = new System.Drawing.Size(800, 650);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.pnl_InputParameters);
             this.Controls.Add(this.btn_LoadJson);
             this.Controls.Add(this.btn_SaveJson);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btn_apiTest);
-            this.Controls.Add(this.label2_2);
-            this.Controls.Add(this.txtBox_responseData);
-            this.Controls.Add(this.label2_1);
-            this.Controls.Add(this.txtBox_postData);
             this.Controls.Add(this.txtBox_mesUrl);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label8);
@@ -294,6 +317,8 @@ namespace Data_Transceiver_Center
             this.Text = "MES设置页面";
             this.pnl_InputParameters.ResumeLayout(false);
             this.pnl_InputParameters.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -322,5 +347,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_LoadJson;
         private System.Windows.Forms.Button btn_SaveJson;
         private System.Windows.Forms.Panel pnl_InputParameters;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
     }
 }

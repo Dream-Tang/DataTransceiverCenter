@@ -46,15 +46,9 @@ namespace Data_Transceiver_Center
             this.btn_openSerial = new System.Windows.Forms.Button();
             this.cobBox_SeriPortNum = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.txtBox_postData = new System.Windows.Forms.TextBox();
-            this.label2_1 = new System.Windows.Forms.Label();
             this.label1_5 = new System.Windows.Forms.Label();
             this.txtBox_prtCode = new System.Windows.Forms.TextBox();
             this.lastPrtCode_label = new System.Windows.Forms.Label();
-            this.pnl_Mes = new System.Windows.Forms.Panel();
-            this.btn_apiTest = new System.Windows.Forms.Button();
-            this.label2_2 = new System.Windows.Forms.Label();
-            this.txtBox_responseData = new System.Windows.Forms.TextBox();
             this.txtBox_scnCode = new System.Windows.Forms.TextBox();
             this.label1_6 = new System.Windows.Forms.Label();
             this.serialPort_label = new System.Windows.Forms.Label();
@@ -78,13 +72,19 @@ namespace Data_Transceiver_Center
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.pnl_Mes.SuspendLayout();
+            this.btn_apiTest = new System.Windows.Forms.Button();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.txtBox_postData = new System.Windows.Forms.TextBox();
+            this.label2_2 = new System.Windows.Forms.Label();
+            this.txtBox_responseData = new System.Windows.Forms.TextBox();
+            this.label2_1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtBox_veriCode
@@ -232,28 +232,6 @@ namespace Data_Transceiver_Center
             this.comboBox2.TabIndex = 28;
             this.comboBox2.Text = "9600";
             // 
-            // txtBox_postData
-            // 
-            this.txtBox_postData.BackColor = System.Drawing.SystemColors.Info;
-            this.txtBox_postData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtBox_postData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_postData.Location = new System.Drawing.Point(-1, 32);
-            this.txtBox_postData.Multiline = true;
-            this.txtBox_postData.Name = "txtBox_postData";
-            this.txtBox_postData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtBox_postData.Size = new System.Drawing.Size(779, 100);
-            this.txtBox_postData.TabIndex = 42;
-            // 
-            // label2_1
-            // 
-            this.label2_1.AutoSize = true;
-            this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2_1.Location = new System.Drawing.Point(0, 12);
-            this.label2_1.Name = "label2_1";
-            this.label2_1.Size = new System.Drawing.Size(127, 20);
-            this.label2_1.TabIndex = 43;
-            this.label2_1.Text = "发给MES的消息";
-            // 
             // label1_5
             // 
             this.label1_5.AutoSize = true;
@@ -286,51 +264,6 @@ namespace Data_Transceiver_Center
             this.lastPrtCode_label.TabIndex = 47;
             this.lastPrtCode_label.Text = "上次打印码";
             this.lastPrtCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // pnl_Mes
-            // 
-            this.pnl_Mes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnl_Mes.Controls.Add(this.btn_apiTest);
-            this.pnl_Mes.Controls.Add(this.label2_2);
-            this.pnl_Mes.Controls.Add(this.txtBox_responseData);
-            this.pnl_Mes.Controls.Add(this.label2_1);
-            this.pnl_Mes.Controls.Add(this.txtBox_postData);
-            this.pnl_Mes.Location = new System.Drawing.Point(7, 507);
-            this.pnl_Mes.Name = "pnl_Mes";
-            this.pnl_Mes.Size = new System.Drawing.Size(783, 281);
-            this.pnl_Mes.TabIndex = 51;
-            // 
-            // btn_apiTest
-            // 
-            this.btn_apiTest.Location = new System.Drawing.Point(669, 0);
-            this.btn_apiTest.Name = "btn_apiTest";
-            this.btn_apiTest.Size = new System.Drawing.Size(110, 44);
-            this.btn_apiTest.TabIndex = 44;
-            this.btn_apiTest.Text = "Mes通信";
-            this.btn_apiTest.UseVisualStyleBackColor = true;
-            this.btn_apiTest.Click += new System.EventHandler(this.apiTest_btn_Click);
-            // 
-            // label2_2
-            // 
-            this.label2_2.AutoSize = true;
-            this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2_2.Location = new System.Drawing.Point(1, 144);
-            this.label2_2.Name = "label2_2";
-            this.label2_2.Size = new System.Drawing.Size(127, 20);
-            this.label2_2.TabIndex = 53;
-            this.label2_2.Text = "MES回复的消息";
-            // 
-            // txtBox_responseData
-            // 
-            this.txtBox_responseData.BackColor = System.Drawing.SystemColors.Info;
-            this.txtBox_responseData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtBox_responseData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_responseData.Location = new System.Drawing.Point(-1, 162);
-            this.txtBox_responseData.Multiline = true;
-            this.txtBox_responseData.Name = "txtBox_responseData";
-            this.txtBox_responseData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.txtBox_responseData.Size = new System.Drawing.Size(779, 100);
-            this.txtBox_responseData.TabIndex = 52;
             // 
             // txtBox_scnCode
             // 
@@ -433,7 +366,7 @@ namespace Data_Transceiver_Center
             this.panel3.Controls.Add(this.label1_1);
             this.panel3.Controls.Add(this.txtBox_veriCode);
             this.panel3.Controls.Add(this.txtBox_veriCodeHistory);
-            this.panel3.Location = new System.Drawing.Point(10, 115);
+            this.panel3.Location = new System.Drawing.Point(10, 80);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(200, 350);
             this.panel3.TabIndex = 65;
@@ -482,7 +415,7 @@ namespace Data_Transceiver_Center
             this.panel4.Controls.Add(this.pictureBox1);
             this.panel4.Controls.Add(this.btn_makeZpl);
             this.panel4.Controls.Add(this.btn_sendToPrt);
-            this.panel4.Location = new System.Drawing.Point(300, 115);
+            this.panel4.Location = new System.Drawing.Point(300, 80);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(200, 350);
             this.panel4.TabIndex = 66;
@@ -538,7 +471,7 @@ namespace Data_Transceiver_Center
             this.panel5.Controls.Add(this.comboBox2);
             this.panel5.Controls.Add(this.label3_2);
             this.panel5.Controls.Add(this.cobBox_SeriPortNum);
-            this.panel5.Location = new System.Drawing.Point(590, 115);
+            this.panel5.Location = new System.Drawing.Point(590, 80);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(200, 350);
             this.panel5.TabIndex = 67;
@@ -578,7 +511,7 @@ namespace Data_Transceiver_Center
             // pictureBox2
             // 
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(232, 236);
+            this.pictureBox2.Location = new System.Drawing.Point(232, 201);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(34, 31);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -588,7 +521,7 @@ namespace Data_Transceiver_Center
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(528, 236);
+            this.pictureBox3.Location = new System.Drawing.Point(528, 201);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(34, 31);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -600,19 +533,101 @@ namespace Data_Transceiver_Center
             this.timer1.Interval = 2500;
             this.timer1.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // btn_apiTest
+            // 
+            this.btn_apiTest.Location = new System.Drawing.Point(681, 428);
+            this.btn_apiTest.Name = "btn_apiTest";
+            this.btn_apiTest.Size = new System.Drawing.Size(110, 44);
+            this.btn_apiTest.TabIndex = 44;
+            this.btn_apiTest.Text = "Mes通信";
+            this.btn_apiTest.UseVisualStyleBackColor = true;
+            this.btn_apiTest.Click += new System.EventHandler(this.apiTest_btn_Click);
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.label2_1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.txtBox_responseData, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label2_2, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.txtBox_postData, 0, 1);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(10, 436);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(781, 202);
+            this.tableLayoutPanel1.TabIndex = 71;
+            // 
+            // txtBox_postData
+            // 
+            this.txtBox_postData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtBox_postData.BackColor = System.Drawing.SystemColors.Info;
+            this.txtBox_postData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtBox_postData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_postData.Location = new System.Drawing.Point(3, 23);
+            this.txtBox_postData.Multiline = true;
+            this.txtBox_postData.Name = "txtBox_postData";
+            this.txtBox_postData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.txtBox_postData.Size = new System.Drawing.Size(775, 75);
+            this.txtBox_postData.TabIndex = 42;
+            // 
+            // label2_2
+            // 
+            this.label2_2.AutoSize = true;
+            this.label2_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label2_2.Location = new System.Drawing.Point(3, 101);
+            this.label2_2.Name = "label2_2";
+            this.label2_2.Size = new System.Drawing.Size(127, 20);
+            this.label2_2.TabIndex = 53;
+            this.label2_2.Text = "MES回复的消息";
+            // 
+            // txtBox_responseData
+            // 
+            this.txtBox_responseData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtBox_responseData.BackColor = System.Drawing.SystemColors.Info;
+            this.txtBox_responseData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtBox_responseData.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_responseData.Location = new System.Drawing.Point(3, 124);
+            this.txtBox_responseData.Multiline = true;
+            this.txtBox_responseData.Name = "txtBox_responseData";
+            this.txtBox_responseData.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+            this.txtBox_responseData.Size = new System.Drawing.Size(775, 75);
+            this.txtBox_responseData.TabIndex = 52;
+            // 
+            // label2_1
+            // 
+            this.label2_1.AutoSize = true;
+            this.label2_1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label2_1.Location = new System.Drawing.Point(3, 0);
+            this.label2_1.Name = "label2_1";
+            this.label2_1.Size = new System.Drawing.Size(127, 20);
+            this.label2_1.TabIndex = 43;
+            this.label2_1.Text = "发给MES的消息";
+            // 
             // Form1
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(800, 800);
+            this.ClientSize = new System.Drawing.Size(800, 650);
             this.ControlBox = false;
+            this.Controls.Add(this.btn_apiTest);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.lockSettings_checkBox);
-            this.Controls.Add(this.pnl_Mes);
             this.Controls.Add(this.runStatus_lable);
             this.Controls.Add(this.txtBox_prtPath);
             this.Controls.Add(this.label1_3);
@@ -627,8 +642,6 @@ namespace Data_Transceiver_Center
             this.Text = "Data Transceiver Center";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.TextChanged += new System.EventHandler(this.veriCodeHistory_txtBox_TextChanged);
-            this.pnl_Mes.ResumeLayout(false);
-            this.pnl_Mes.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
@@ -638,6 +651,8 @@ namespace Data_Transceiver_Center
             this.panel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -656,14 +671,9 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_openSerial;
         private System.Windows.Forms.ComboBox cobBox_SeriPortNum;
         private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.TextBox txtBox_postData;
-        private System.Windows.Forms.Label label2_1;
         private System.Windows.Forms.Label label1_5;
         private System.Windows.Forms.TextBox txtBox_prtCode;
         private System.Windows.Forms.Label lastPrtCode_label;
-        //private System.Windows.Forms.Button getJsonButton;
-        //private System.Windows.Forms.Button convertJsonButton;
-        private System.Windows.Forms.Panel pnl_Mes;
         private System.Windows.Forms.TextBox txtBox_scnCode;
         private System.Windows.Forms.Label label1_6;
         private System.Windows.Forms.Label serialPort_label;
@@ -674,7 +684,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Button btn_apiTest;
         internal System.Windows.Forms.TextBox txtBox_veriCodeHistory;
         private System.Windows.Forms.Label lb_ReadCode;
         private System.Windows.Forms.Button btn_RetryRead;
@@ -687,12 +696,16 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Label lb_ChkCode;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Label label2_2;
-        private System.Windows.Forms.TextBox txtBox_responseData;
         public System.Windows.Forms.TextBox txtBox_veriCode;
         public System.Windows.Forms.TextBox txtBox_zplPath;
         public System.Windows.Forms.TextBox txtBox_prtPath;
         private System.Windows.Forms.Label label_zplTemp;
+        private System.Windows.Forms.Button btn_apiTest;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label label2_1;
+        private System.Windows.Forms.TextBox txtBox_responseData;
+        private System.Windows.Forms.Label label2_2;
+        private System.Windows.Forms.TextBox txtBox_postData;
         //private System.Windows.Forms.Label veriCount_label;
         //private System.Windows.Forms.Label label6;
     }

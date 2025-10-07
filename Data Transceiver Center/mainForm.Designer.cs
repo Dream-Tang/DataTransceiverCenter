@@ -57,7 +57,7 @@ namespace Data_Transceiver_Center
             this.panelContainer.Controls.Add(this.label1);
             this.panelContainer.Location = new System.Drawing.Point(128, 12);
             this.panelContainer.Name = "panelContainer";
-            this.panelContainer.Size = new System.Drawing.Size(800, 800);
+            this.panelContainer.Size = new System.Drawing.Size(800, 650);
             this.panelContainer.TabIndex = 0;
             // 
             // label1
@@ -73,7 +73,7 @@ namespace Data_Transceiver_Center
             // ignoreCheck_checkBox
             // 
             this.ignoreCheck_checkBox.AutoSize = true;
-            this.ignoreCheck_checkBox.Location = new System.Drawing.Point(12, 475);
+            this.ignoreCheck_checkBox.Location = new System.Drawing.Point(12, 352);
             this.ignoreCheck_checkBox.Name = "ignoreCheck_checkBox";
             this.ignoreCheck_checkBox.Size = new System.Drawing.Size(106, 22);
             this.ignoreCheck_checkBox.TabIndex = 10;
@@ -83,9 +83,9 @@ namespace Data_Transceiver_Center
             // 
             // btn_Form3
             // 
-            this.btn_Form3.Location = new System.Drawing.Point(25, 108);
+            this.btn_Form3.Location = new System.Drawing.Point(19, 72);
             this.btn_Form3.Name = "btn_Form3";
-            this.btn_Form3.Size = new System.Drawing.Size(80, 60);
+            this.btn_Form3.Size = new System.Drawing.Size(90, 40);
             this.btn_Form3.TabIndex = 3;
             this.btn_Form3.Text = "MES设置";
             this.btn_Form3.UseVisualStyleBackColor = true;
@@ -93,9 +93,9 @@ namespace Data_Transceiver_Center
             // 
             // btn_Form1
             // 
-            this.btn_Form1.Location = new System.Drawing.Point(27, 25);
+            this.btn_Form1.Location = new System.Drawing.Point(16, 12);
             this.btn_Form1.Name = "btn_Form1";
-            this.btn_Form1.Size = new System.Drawing.Size(80, 60);
+            this.btn_Form1.Size = new System.Drawing.Size(90, 40);
             this.btn_Form1.TabIndex = 1;
             this.btn_Form1.Text = "工作流程";
             this.btn_Form1.UseVisualStyleBackColor = true;
@@ -103,9 +103,9 @@ namespace Data_Transceiver_Center
             // 
             // btn_Form2
             // 
-            this.btn_Form2.Location = new System.Drawing.Point(25, 195);
+            this.btn_Form2.Location = new System.Drawing.Point(16, 137);
             this.btn_Form2.Name = "btn_Form2";
-            this.btn_Form2.Size = new System.Drawing.Size(80, 60);
+            this.btn_Form2.Size = new System.Drawing.Size(90, 40);
             this.btn_Form2.TabIndex = 2;
             this.btn_Form2.Text = "PLC通信";
             this.btn_Form2.UseVisualStyleBackColor = true;
@@ -113,7 +113,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_SaveIni
             // 
-            this.btn_SaveIni.Location = new System.Drawing.Point(8, 754);
+            this.btn_SaveIni.Location = new System.Drawing.Point(8, 608);
             this.btn_SaveIni.Name = "btn_SaveIni";
             this.btn_SaveIni.Size = new System.Drawing.Size(54, 54);
             this.btn_SaveIni.TabIndex = 4;
@@ -123,7 +123,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_LoadConfig
             // 
-            this.btn_LoadConfig.Location = new System.Drawing.Point(68, 754);
+            this.btn_LoadConfig.Location = new System.Drawing.Point(68, 608);
             this.btn_LoadConfig.Name = "btn_LoadConfig";
             this.btn_LoadConfig.Size = new System.Drawing.Size(54, 54);
             this.btn_LoadConfig.TabIndex = 5;
@@ -133,9 +133,9 @@ namespace Data_Transceiver_Center
             // 
             // autoRun_btn
             // 
-            this.autoRun_btn.Location = new System.Drawing.Point(25, 316);
+            this.autoRun_btn.Location = new System.Drawing.Point(16, 222);
             this.autoRun_btn.Name = "autoRun_btn";
-            this.autoRun_btn.Size = new System.Drawing.Size(80, 60);
+            this.autoRun_btn.Size = new System.Drawing.Size(90, 40);
             this.autoRun_btn.TabIndex = 6;
             this.autoRun_btn.Text = "自动一次";
             this.autoRun_btn.UseVisualStyleBackColor = true;
@@ -149,7 +149,7 @@ namespace Data_Transceiver_Center
             // autoRun_checkBox
             // 
             this.autoRun_checkBox.AutoSize = true;
-            this.autoRun_checkBox.Location = new System.Drawing.Point(8, 680);
+            this.autoRun_checkBox.Location = new System.Drawing.Point(12, 513);
             this.autoRun_checkBox.Name = "autoRun_checkBox";
             this.autoRun_checkBox.Size = new System.Drawing.Size(106, 22);
             this.autoRun_checkBox.TabIndex = 7;
@@ -160,7 +160,7 @@ namespace Data_Transceiver_Center
             // ignorePlc_checkBox
             // 
             this.ignorePlc_checkBox.AutoSize = true;
-            this.ignorePlc_checkBox.Location = new System.Drawing.Point(12, 503);
+            this.ignorePlc_checkBox.Location = new System.Drawing.Point(12, 380);
             this.ignorePlc_checkBox.Name = "ignorePlc_checkBox";
             this.ignorePlc_checkBox.Size = new System.Drawing.Size(97, 22);
             this.ignorePlc_checkBox.TabIndex = 8;
@@ -170,7 +170,7 @@ namespace Data_Transceiver_Center
             // tcpServer_checkBox
             // 
             this.tcpServer_checkBox.AutoSize = true;
-            this.tcpServer_checkBox.Location = new System.Drawing.Point(9, 708);
+            this.tcpServer_checkBox.Location = new System.Drawing.Point(13, 541);
             this.tcpServer_checkBox.Name = "tcpServer_checkBox";
             this.tcpServer_checkBox.Size = new System.Drawing.Size(97, 22);
             this.tcpServer_checkBox.TabIndex = 9;
@@ -181,7 +181,7 @@ namespace Data_Transceiver_Center
             // connectPlc_checkBox
             // 
             this.connectPlc_checkBox.AutoSize = true;
-            this.connectPlc_checkBox.Location = new System.Drawing.Point(12, 531);
+            this.connectPlc_checkBox.Location = new System.Drawing.Point(12, 408);
             this.connectPlc_checkBox.Name = "connectPlc_checkBox";
             this.connectPlc_checkBox.Size = new System.Drawing.Size(97, 22);
             this.connectPlc_checkBox.TabIndex = 11;
@@ -195,7 +195,7 @@ namespace Data_Transceiver_Center
             this.lable_PlcConnectStatus.BackColor = System.Drawing.Color.Gray;
             this.lable_PlcConnectStatus.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
-            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(5, 603);
+            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(9, 408);
             this.lable_PlcConnectStatus.Name = "lable_PlcConnectStatus";
             this.lable_PlcConnectStatus.Size = new System.Drawing.Size(110, 40);
             this.lable_PlcConnectStatus.TabIndex = 14;
@@ -205,7 +205,7 @@ namespace Data_Transceiver_Center
             // ignoreCam_checkBox
             // 
             this.ignoreCam_checkBox.AutoSize = true;
-            this.ignoreCam_checkBox.Location = new System.Drawing.Point(12, 447);
+            this.ignoreCam_checkBox.Location = new System.Drawing.Point(12, 324);
             this.ignoreCam_checkBox.Name = "ignoreCam_checkBox";
             this.ignoreCam_checkBox.Size = new System.Drawing.Size(106, 22);
             this.ignoreCam_checkBox.TabIndex = 15;
@@ -216,7 +216,7 @@ namespace Data_Transceiver_Center
             // mainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(937, 820);
+            this.ClientSize = new System.Drawing.Size(937, 674);
             this.Controls.Add(this.ignoreCam_checkBox);
             this.Controls.Add(this.ignoreCheck_checkBox);
             this.Controls.Add(this.lable_PlcConnectStatus);

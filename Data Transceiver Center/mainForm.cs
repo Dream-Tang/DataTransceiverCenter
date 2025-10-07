@@ -81,8 +81,10 @@ namespace Data_Transceiver_Center
         {
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
-            childForm.Dock = DockStyle.Fill;
+            childForm.Dock = DockStyle.Fill; // 填充整个容器
             childForm.Visible = false;
+            // 关键：设置锚定属性，确保子窗体随容器拉伸
+            childForm.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
         }
 
         // 显示指定子窗体
