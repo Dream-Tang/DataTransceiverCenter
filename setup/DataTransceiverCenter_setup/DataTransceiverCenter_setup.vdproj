@@ -225,12 +225,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4E2BCE32172E4EEEA41079925DA3D4FD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4F8F9F9646CA75192703281C3CEE79FE"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
         "MsmSig" = "8:_UNDEFINED"
@@ -381,12 +375,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8F5D9EB0CC414446810993C7DE4ADDD4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_945C85F5A126ECFF022365847558E8DE"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
         "MsmSig" = "8:_UNDEFINED"
@@ -429,12 +417,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A36BCEE85847459C92F5BB85B9B6833B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A44B2F829D1CDE19120FABCA9BDEB143"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
         "MsmSig" = "8:_UNDEFINED"
@@ -455,6 +437,12 @@
         {
         "MsmKey" = "8:_AAA17A5B1FB6A5734516675F6CFED238"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AED6876C826B426B8B1F8BE63E7DED7F"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -503,6 +491,12 @@
         {
         "MsmKey" = "8:_CC0C5B8904513ACB0F3BAE270B759E55"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CD206DF9F6264E2FBFBC9DBC1534656E"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -567,6 +561,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DE685815C80846B294B0BF5C1CB5268B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DFB757978B40C467716229FEA4D8C60B"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
         "MsmSig" = "8:_UNDEFINED"
@@ -593,6 +593,12 @@
         {
         "MsmKey" = "8:_E34DEC62B1078DCD8C7B6A3F4CFC7E55"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E3B373ABC92E4A43AA44DBA6FB9221B1"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -665,12 +671,6 @@
         {
         "MsmKey" = "8:_F0027D3F9AFD49F9C61B5A3D68B62EFD"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F14F9EA69BF54A549BD4583FA2393CA3"
-        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2068,26 +2068,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E2BCE32172E4EEEA41079925DA3D4FD"
-            {
-            "SourcePath" = "8:..\\..\\DTCdata\\zpl.txt"
-            "TargetName" = "8:zpl.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4F8F9F9646CA75192703281C3CEE79FE"
             {
             "AssemblyRegister" = "3:1"
@@ -2790,26 +2770,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F5D9EB0CC414446810993C7DE4ADDD4"
-            {
-            "SourcePath" = "8:..\\..\\DTCdata\\zpl_template.txt"
-            "TargetName" = "8:zpl_template.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_945C85F5A126ECFF022365847558E8DE"
             {
             "AssemblyRegister" = "3:1"
@@ -3027,26 +2987,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A36BCEE85847459C92F5BB85B9B6833B"
-            {
-            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\MesSettings.json"
-            "TargetName" = "8:MesSettings.json"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A44B2F829D1CDE19120FABCA9BDEB143"
             {
             "AssemblyRegister" = "3:1"
@@ -3169,6 +3109,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AED6876C826B426B8B1F8BE63E7DED7F"
+            {
+            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\settings.ini"
+            "TargetName" = "8:settings.ini"
+            "Tag" = "8:"
+            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B06F99F12EB99B71476223BA906E40A1"
@@ -3388,6 +3348,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CD206DF9F6264E2FBFBC9DBC1534656E"
+            {
+            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\MesSettings.json"
+            "TargetName" = "8:MesSettings.json"
+            "Tag" = "8:"
+            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CE6C1E6832785CC781D1A3AE66459CD9"
             {
             "AssemblyRegister" = "3:1"
@@ -3574,6 +3554,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DE685815C80846B294B0BF5C1CB5268B"
+            {
+            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\zpl_template.txt"
+            "TargetName" = "8:zpl_template.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_DFB757978B40C467716229FEA4D8C60B"
             {
             "AssemblyRegister" = "3:1"
@@ -3665,6 +3665,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E3B373ABC92E4A43AA44DBA6FB9221B1"
+            {
+            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\zpl.txt"
+            "TargetName" = "8:zpl.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E452C385B13621AC267E26D51D1BB8DE"
@@ -3915,26 +3935,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F14F9EA69BF54A549BD4583FA2393CA3"
-            {
-            "SourcePath" = "8:D:\\DreamTang\\Desktop\\DTCdata\\settings.ini"
-            "TargetName" = "8:settings.ini"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
         }
         "FileType"
         {
@@ -4003,13 +4003,13 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DataTransceiverCenter_setup"
         "ProductCode" = "8:{C3444F03-BB81-47B2-8E30-D3C3A9E1BA0C}"
-        "PackageCode" = "8:{200DAD0B-7080-47C3-B66A-DD93E0C22284}"
+        "PackageCode" = "8:{C84BD6BE-2518-4215-87E8-6A0FB5476959}"
         "UpgradeCode" = "8:{36077215-DFB9-483E-A575-47835428DBD2}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "InstallAllUsers" = "11:TRUE"
+        "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:2.2.1"
         "Manufacturer" = "8:DreamTang"
         "ARPHELPTELEPHONE" = "8:"
@@ -4018,7 +4018,7 @@
         "Subject" = "8:"
         "ARPCONTACT" = "8:DreamTang"
         "Keywords" = "8:DTC"
-        "ARPCOMMENTS" = "8:"
+        "ARPCOMMENTS" = "8:HelloWorld"
         "ARPURLINFOABOUT" = "8:"
         "ARPPRODUCTICON" = "8:_2BA59ED5051B43A99056704D734EE93B"
         "ARPIconIndex" = "3:0"
