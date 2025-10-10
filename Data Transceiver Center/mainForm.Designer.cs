@@ -73,7 +73,7 @@ namespace Data_Transceiver_Center
             // ignoreCheck_checkBox
             // 
             this.ignoreCheck_checkBox.AutoSize = true;
-            this.ignoreCheck_checkBox.Location = new System.Drawing.Point(12, 352);
+            this.ignoreCheck_checkBox.Location = new System.Drawing.Point(12, 337);
             this.ignoreCheck_checkBox.Name = "ignoreCheck_checkBox";
             this.ignoreCheck_checkBox.Size = new System.Drawing.Size(106, 22);
             this.ignoreCheck_checkBox.TabIndex = 10;
@@ -160,7 +160,7 @@ namespace Data_Transceiver_Center
             // ignorePlc_checkBox
             // 
             this.ignorePlc_checkBox.AutoSize = true;
-            this.ignorePlc_checkBox.Location = new System.Drawing.Point(12, 380);
+            this.ignorePlc_checkBox.Location = new System.Drawing.Point(12, 365);
             this.ignorePlc_checkBox.Name = "ignorePlc_checkBox";
             this.ignorePlc_checkBox.Size = new System.Drawing.Size(97, 22);
             this.ignorePlc_checkBox.TabIndex = 8;
@@ -181,7 +181,7 @@ namespace Data_Transceiver_Center
             // connectPlc_checkBox
             // 
             this.connectPlc_checkBox.AutoSize = true;
-            this.connectPlc_checkBox.Location = new System.Drawing.Point(12, 408);
+            this.connectPlc_checkBox.Location = new System.Drawing.Point(12, 393);
             this.connectPlc_checkBox.Name = "connectPlc_checkBox";
             this.connectPlc_checkBox.Size = new System.Drawing.Size(97, 22);
             this.connectPlc_checkBox.TabIndex = 11;
@@ -195,7 +195,7 @@ namespace Data_Transceiver_Center
             this.lable_PlcConnectStatus.BackColor = System.Drawing.Color.Gray;
             this.lable_PlcConnectStatus.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
-            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(9, 408);
+            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(4, 433);
             this.lable_PlcConnectStatus.Name = "lable_PlcConnectStatus";
             this.lable_PlcConnectStatus.Size = new System.Drawing.Size(110, 40);
             this.lable_PlcConnectStatus.TabIndex = 14;
@@ -205,7 +205,7 @@ namespace Data_Transceiver_Center
             // ignoreCam_checkBox
             // 
             this.ignoreCam_checkBox.AutoSize = true;
-            this.ignoreCam_checkBox.Location = new System.Drawing.Point(12, 324);
+            this.ignoreCam_checkBox.Location = new System.Drawing.Point(12, 309);
             this.ignoreCam_checkBox.Name = "ignoreCam_checkBox";
             this.ignoreCam_checkBox.Size = new System.Drawing.Size(106, 22);
             this.ignoreCam_checkBox.TabIndex = 15;
