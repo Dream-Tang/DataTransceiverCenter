@@ -32,6 +32,7 @@ namespace Data_Transceiver_Center
         private IIniSavable _iniSaveForm;    // 保存Form1配置的接口
         private IJsonSavable _jsonSaveForm;  // 保存Form3配置的接口
 
+
         public mainForm()
         {
             InitializeComponent();
@@ -59,6 +60,8 @@ namespace Data_Transceiver_Center
             _form1.RequestMesRootData += OnForm1RequestMesRootData;
             // 绑定FormClosing事件
             this.FormClosing += mainForm_FormClosing;
+            // 订阅Form1的查询请求事件
+            _form1.SerialDataReceived += OnSerialDataReceived;
 
             // 默认显示Form1
             ShowForm(_form1);
@@ -251,7 +254,7 @@ namespace Data_Transceiver_Center
                 Console.WriteLine("Mes设置未导入");
             }
 
-            // t1：MES通信 
+            // t1：MES通信线程
             var t1 = Task.Run(() =>
             {
                 try
@@ -304,7 +307,7 @@ namespace Data_Transceiver_Center
             Console.WriteLine("task t1 done：Post JsonData To Mes, get ResponseData: \r\n" + consoleInfo);
 
 
-            // t2：打印（需要等待prt信号为ready）
+            // t2：打印线程（需要等待prt信号为ready）
             // 收到mes的fieldData不为空才打印
             if (fieldData != "")
             {
@@ -353,18 +356,16 @@ namespace Data_Transceiver_Center
                 BeginInvoke(action);
             }
 
-
-            // t3：校验
-            var t5 = Task.Run(() => 
+            /*
+            // t3：校验线程
+            var t3 = Task.Run(() => 
             {
-                if (ignoreCheck_checkBox.Checked)
-                {
-                    _form1.ignoreCheck = true;
-                    t5CheckTask();
-                }
+                // 调用校验函数
+                t5CheckTask();
             });
-            await t5;
-            Console.WriteLine("task t5：Check:" );
+            await t3;
+            Console.WriteLine("task t3：Check:" );
+            */
         }
 
         // 触发自动执行
@@ -418,6 +419,7 @@ namespace Data_Transceiver_Center
             {
                 _form1.ignoreCheck = false;
             }
+
             // 校验 并与PLC通信
             var t5 = Task.Run(async() =>
             {
@@ -438,47 +440,95 @@ namespace Data_Transceiver_Center
             });
         }
 
-        // 校验任务t5
+        // 校验任务t5，设计成常驻
         private void t5CheckTask()
         {
             short cam = -1, prt = -1, scn = -1;
             Tuple<short, short, short> plcRegValue;
             string checkResult = "";
 
-            Action action = () => { checkResult = _form1.GetCheckResult(); };
-            Invoke(action);
+            try
+            {
+                // 从form1中获取校验结果（确保UI线程访问）
+                if (_form1.InvokeRequired)
+                {
+                    _form1.Invoke(new Action(() =>
+                    {
+                        checkResult = _form1.GetCheckResult();
+                    }));
+                }
+                else
+                {
+                    checkResult = _form1.GetCheckResult();
+                }
 
-            if (checkResult == "OK")
-            {
-                scn = CommunicationProtocol.checkOK;
-                Console.WriteLine("task t5：校验结果OK");
-                _form1.seriStatus = Form1.STATUS_WAIT;
-            }
-            if (checkResult == "NG")
-            {
-                scn = CommunicationProtocol.checkNG;
-                Console.WriteLine("task t5：校验结果NG");
-                _form1.seriStatus = Form1.STATUS_WAIT;
-            }
-            if (checkResult == "")
-            {
-                scn = CommunicationProtocol.checkLose;
-                Console.WriteLine("task t5：未校验");
-                return; // 此处会一直等待校验结果
-            }
+                // 根据form1返回的校验结果，存入scn，用于后续的PLC控制
+                if (checkResult == "OK")
+                {
+                    scn = CommunicationProtocol.checkOK;
+                    Console.WriteLine("task t5：校验结果OK");
+                    _form1.seriStatus = Form1.STATUS_WAIT;
+                }
+                else if (checkResult == "NG")
+                {
+                    scn = CommunicationProtocol.checkNG;
+                    Console.WriteLine("task t5：校验结果NG");
+                    _form1.seriStatus = Form1.STATUS_WAIT;
+                }
+                else
+                {
+                    scn = CommunicationProtocol.checkLose;
+                    Console.WriteLine("task t5：未校验");
+                    return; // 此处会一直等待校验结果
+                }
 
-           
-            // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
-            if (!ignorePlc_checkBox.Checked)
+                // PLC通信，将scn结果发送给PLC
+                if (!ignorePlc_checkBox.Checked) // 未禁用PLC，则将信号写入PLC，禁用PLC则跳过
+                {
+                    plcRegValue = _form2.ReadPlc(); // 不改变cam和prt的值，只写入scn的值
+                    if (plcRegValue != null)
+                    {
+                        cam = plcRegValue.Item1;
+                        prt = plcRegValue.Item2;
+                        if (plcRegValue.Item3 != CommunicationProtocol.checkLose) // 产品到达扫码位置，之后才可以发送OK或NG
+                        {
+                            // _form2.WritePlc(cam, prt, scn);
+                            // 通过Invoke切换到UI线程，避免跨线程
+                            if (_form2.InvokeRequired)
+                            {
+                                _form2.Invoke(new Action(() => _form2.SafeWritePlc(cam, prt, scn)));
+                            }
+                            else
+                            {
+                                _form2.SafeWritePlc(cam, prt, scn);
+                            }
+                            Console.WriteLine("task t5：已发送校验结果给PLC");
+                        }
+                    }   
+                }
+            }
+            catch  (Exception ex)
             {
-                plcRegValue = _form2.ReadPlc();
-                cam = plcRegValue.Item1;
-                prt = plcRegValue.Item2;
-                _form2.WritePlc(cam, prt, scn);
-
-                Console.WriteLine("task t5：已发送校验结果给PLC");
+                Console.WriteLine($"t5CheckTask出错: {ex.Message}");
+            }
+            finally
+            {
+                // 重置状态
+                if (_form1.InvokeRequired)
+                {
+                    _form1.Invoke(new Action(() =>
+                    {
+                        _form1.seriStatus = Form1.STATUS_WAIT;
+                    }));
+                }
+                else
+                {
+                    _form1.seriStatus = Form1.STATUS_WAIT;
+                }
             }
         }
+
+
 
         // 连接PLC复选按钮
         private void connectPlc_checkBox_CheckedChanged(object sender, EventArgs e)
@@ -547,6 +597,17 @@ namespace Data_Transceiver_Center
         {
             // 给PLC发送信号
             UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
+        }
+
+        // 添加form1串口接收后的事件处理方法
+        private void OnSerialDataReceived()
+        {
+            // 调用校验任务
+            if (!ignoreCheck_checkBox.Checked)
+            {
+                Console.WriteLine("串口接收到验码数据");
+                t5CheckTask();
+            }
         }
 
         // 跳过相机按钮

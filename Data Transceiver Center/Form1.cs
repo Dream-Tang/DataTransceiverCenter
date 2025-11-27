@@ -19,6 +19,8 @@ namespace Data_Transceiver_Center
         public event Action<string> TextUpdated;
         // 定义查询请求事件，通知MainForm需要获取Form2的MesRoot数据
         public event Action RequestMesRootData;
+        // 添加事件，用于通知 MainForm 串口数据接收完成：
+        public event Action SerialDataReceived;
 
         private string _zplFilePath = "";
         private string _mPrintName = "";
@@ -213,6 +215,9 @@ namespace Data_Transceiver_Center
                         txtBox_serialRead.Clear();
                         txtBox_serialRead.Text = portData;
                     }));
+
+                    // 触发串口数据接收完成事件
+                    SerialDataReceived?.Invoke();
                 } 
             }
             catch (Exception ex)
@@ -528,7 +533,7 @@ namespace Data_Transceiver_Center
             cobBox_SeriPortNum.Items.AddRange(comPort);
         }
 
-        // 进行一次验码
+        // 进行一次验码，将串口接收的数据与打印的条码进行对比，给出OK,NG,IG的信号，没有直接写PLC
         private string CheckScnPrtCode()
         {
             if (ignoreCheck)    // 屏蔽校验

@@ -385,6 +385,13 @@ namespace Data_Transceiver_Center
         // 优化读取寄存器的函数，确保线程安全
         private string ReadDeviceRandom(string szDeviceName)
         {
+            // 若当前线程不是UI线程，通过Invoke切换到UI线程执行
+            if (this.InvokeRequired)
+            {
+                // 使用Func委托接收返回值
+                return (string)this.Invoke(new Func<string, string>(ReadDeviceRandom), szDeviceName);
+            }
+
             int iReturnCode;				//Return code
             //String szDeviceName = "";		//List data for 'DeviceName'
             int iNumberOfData = 1;			//Data for 'DeviceSize'
@@ -405,9 +412,28 @@ namespace Data_Transceiver_Center
 
                 //When ActUtlType is selected by the radio button,
                 //The ReadDeviceRandom2 method is executed.
+                // 执行PLC读取操作（axActUtlType1可能需要在UI线程访问）
                 iReturnCode = axActUtlType1.ReadDeviceRandom2(szDeviceName,
                                                                 iNumberOfData,
                                                                 out arrDeviceValue1);
+                
+                //The return code of the method is displayed by the hexadecimal.
+                txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode);
+
+                //
+                //Display the read data
+                //
+                //When the ReadDeviceRandom2 method is succeeded, display the read data.
+                // 读取成功时返回数据
+                if (iReturnCode == 0)
+                {
+                    arrData = arrDeviceValue1.ToString();
+                    txt_Data.Text = arrData; // 更新数据显示
+                }
+                else
+                {
+                    arrData = "读取失败";
+                }
             }
 
             //Exception processing
@@ -417,22 +443,7 @@ namespace Data_Transceiver_Center
                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return "读取出错";
             }
-
-            //The return code of the method is displayed by the hexadecimal.
-            txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode);
-
-            //
-            //Display the read data
-            //
-            //When the ReadDeviceRandom2 method is succeeded, display the read data.
-            if (iReturnCode == 0)
-            {
-                //Assign the array for the read data.
-                arrData = arrDeviceValue1.ToString();
-                return arrData;
-            }
-            else
-                return "读取出错";
+            return arrData;
         }
 
         #endregion "读取PLC寄存器数据"
@@ -472,6 +483,12 @@ namespace Data_Transceiver_Center
             {
                 MessageBox.Show(exception.Message, Name,
                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<string, short>(WriteDeviceRandom), szDeviceName, arrDeviceValue);
                 return;
             }
 
@@ -768,6 +785,7 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // 用于不跨线程时写PLC的方法（本页面调用）
         public void WritePlc(short camValue, short prtValue, short scnValue)
         {
             if (txt_LogicalStationNumber.Enabled)
@@ -785,6 +803,37 @@ namespace Data_Transceiver_Center
             catch (Exception)
             {
                 return;
+            }
+        }
+
+        // 用于跨线程调用的写PLC方法（其他页面调用）
+        public void SafeWritePlc(short camValue, short prtValue, short scnValue)
+        {
+            if (this.InvokeRequired)
+            {
+                // 跨线程时通过Invoke切换到UI线程
+                this.Invoke(new Action<short, short, short>(SafeWritePlc), camValue, prtValue, scnValue);
+                return;
+            }
+            else
+            {
+                // 实际写入逻辑（原WritePlc的内容）
+                if (txt_LogicalStationNumber.Enabled)
+                {
+                    MessageBox.Show("与PLC连接未打开，请先进行连接");
+                    checkBox1.Checked = false;
+                    return;
+                }
+                try
+                {
+                    WriteDeviceRandom(CommunicationProtocol.camRegister, camValue);
+                    WriteDeviceRandom(CommunicationProtocol.prtRegister, prtValue);
+                    WriteDeviceRandom(CommunicationProtocol.scannerRegister, scnValue);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"写入PLC失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
