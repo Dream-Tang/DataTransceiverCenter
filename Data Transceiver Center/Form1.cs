@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions; // 正则表达式
-using System.Drawing;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing.Common;
@@ -93,7 +90,7 @@ namespace Data_Transceiver_Center
         // api test 按钮，直接发送mes api文本框中的内容
         private void apiTest_btn_Click(object sender, EventArgs e)
         {
-            Task t1 = new Task(() => 
+            Task t1 = new Task(() =>
             {
                 MesCommunicate();
             });
@@ -107,7 +104,7 @@ namespace Data_Transceiver_Center
         // 2.调用http单元的Post方法发送
         // 3.接收Mes回复的Json数据
         // 4.将发送数据和接收数据在界面中进行显示
-        private void MesCommunicate() 
+        private void MesCommunicate()
         {
             // 触发事件，通过MainForm查询Form2的MesRoot数据
             RequestMesRootData?.Invoke();
@@ -222,7 +219,7 @@ namespace Data_Transceiver_Center
 
                     // 触发串口数据接收完成事件
                     SerialDataReceived?.Invoke();
-                } 
+                }
             }
             catch (Exception ex)
             {
@@ -268,10 +265,10 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                int index_FD = zpl_cmd.IndexOf("^FD")+3; // 找到模板中^FD到^FS之间的位置
+                int index_FD = zpl_cmd.IndexOf("^FD") + 3; // 找到模板中^FD到^FS之间的位置
                 int index_FS = zpl_cmd.IndexOf("^FS");
 
-                cmd_template.Remove(index_FD, index_FS-index_FD);// 移出模板中^FD到^FS之间的内容
+                cmd_template.Remove(index_FD, index_FS - index_FD);// 移出模板中^FD到^FS之间的内容
                 cmd_template.Insert(index_FD, str);
 
                 // 利用正则表达式替换字符串中的值，此处替换为""，相当于提取字符串中的对应字符
@@ -295,7 +292,7 @@ namespace Data_Transceiver_Center
                     sw.Close();
                 }
                 runStatus_lable.Text = "zpl文件生产成功";
-               
+
                 pictureBox1.Image = SetBarCode128(str);
                 //MessageBox.Show("zpl文件生产成功，文件位置："+ filePathZPL);
             }
@@ -515,7 +512,7 @@ namespace Data_Transceiver_Center
             // 打开串口
             try
             {
-                openSerial_btn_Click(null,null);
+                openSerial_btn_Click(null, null);
             }
             catch (Exception)
             {
@@ -676,10 +673,10 @@ namespace Data_Transceiver_Center
         }
 
         // 给打印文本框传入str，用于跳过相机的情况
-        public void SetPrtCode()  
+        public void SetPrtCode()
         {
             txtBox_prtCode.Text = txtBox_veriCode.Text;
-        } 
+        }
 
         public void ClearSerial()
         {
@@ -719,7 +716,7 @@ namespace Data_Transceiver_Center
         // 二维码扫码录入到多行文本框，从多行文本框末行取值给veriCode
         private void veriCodeHistory_txtBox_TextChanged(object sender, EventArgs e)
         {
-            int maxLines =1000;
+            int maxLines = 1000;
             //int currentLines = veriCodeHistory_txtBox.Lines.Length;
 
             if (txtBox_veriCodeHistory.Lines.Length > 0)
@@ -730,7 +727,7 @@ namespace Data_Transceiver_Center
                     //txtBox_veriCodeHistory.Text = txtBox_veriCodeHistory.Text.Substring(txtBox_veriCodeHistory.Lines[0].Length+1);
                     // veriCodeCount = veriCodeCount - 1;
                     // 光标到最后
-                    txtBox_veriCodeHistory.Select(txtBox_veriCodeHistory.Text.Length,0);
+                    txtBox_veriCodeHistory.Select(txtBox_veriCodeHistory.Text.Length, 0);
                     // 滚动条到最后
                     txtBox_veriCodeHistory.ScrollToCaret();
                 }
@@ -738,7 +735,7 @@ namespace Data_Transceiver_Center
                 {
                     // 将多行文本框的最后一行取出给veriCode文本框
                     string tcpReceive = txtBox_veriCodeHistory.Lines[txtBox_veriCodeHistory.Lines.Length - 2];
-                    
+
                     // NoRead 过滤
                     if (tcpReceive.Contains(tcpNoReadStr))
                     {
@@ -751,8 +748,8 @@ namespace Data_Transceiver_Center
                 {
 
                 }
-                
-                
+
+
                 // 获取行数
                 //veriHistoryLines = Convert.ToUInt32( veriCodeHistory_txtBox.Lines.Length);
                 //veriCount_label.Text = veriCodeCount.ToString();
@@ -802,48 +799,48 @@ namespace Data_Transceiver_Center
 
         // 加载 ZPL 模板按钮
         private void btn_loadZpl_Click(object sender, EventArgs e)
-    {
-        OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
-        dialog.Multiselect = false; // 是否可以选择多个 文件
-        dialog.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        dialog.Title = "请选择 zpl_模板 文件";
-        dialog.Filter = "txt文件(*.txt)|*.txt|所有文件（*.*）|*.*";
-        string file = "";
-        try
         {
-            if (dialog.ShowDialog() == DialogResult.OK)
+            OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
+            dialog.Multiselect = false; // 是否可以选择多个 文件
+            dialog.InitialDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            dialog.Title = "请选择 zpl_模板 文件";
+            dialog.Filter = "txt文件(*.txt)|*.txt|所有文件（*.*）|*.*";
+            string file = "";
+            try
             {
-                file = dialog.FileName;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    file = dialog.FileName;
+                }
+                else
+                {
+                    return;
+                }
             }
-            else
+            catch (Exception)
+            { return; }
+
+            try
+            {
+                cmd_template = new StringBuilder();
+                cmd_template.Clear();
+                cmd_template.Append(LoadZplTemplate(file));
+                if (!(cmd_template.ToString() == ""))
+                {
+                    zplTemplatePath = file.ToString();
+                    label_zplTemp.Text = file.Substring(file.LastIndexOf("\\") + 1);
+                }
+                else
+                {
+                    label_zplTemp.Text = "错误的模板";
+                }
+            }
+            catch (Exception)
             {
                 return;
             }
         }
-        catch (Exception)
-        { return; }
 
-        try
-        {
-            cmd_template = new StringBuilder();
-            cmd_template.Clear();
-            cmd_template.Append(LoadZplTemplate(file));
-            if (!(cmd_template.ToString()==""))
-            {
-                zplTemplatePath = file.ToString();
-                label_zplTemp.Text = file.Substring(file.LastIndexOf("\\") + 1);
-            }
-            else
-            {
-                label_zplTemp.Text = "错误的模板";
-            }
-        }
-        catch (Exception)
-        {
-            return;
-        }
-    }
-        
         // 加载 ZPL 模板文件
         private string LoadZplTemplate(string path)
         {
@@ -923,7 +920,7 @@ namespace Data_Transceiver_Center
         // ZPL文件路径
         private void txtBox_zplPath_TextChanged(object sender, EventArgs e)
         {
-            _zplFilePath = txtBox_zplPath.Text+ "\\zpl.txt";
+            _zplFilePath = txtBox_zplPath.Text + "\\zpl.txt";
         }
 
         // 打印机位置路径

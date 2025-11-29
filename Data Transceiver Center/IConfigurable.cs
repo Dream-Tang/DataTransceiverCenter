@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Data_Transceiver_Center
+﻿namespace Data_Transceiver_Center
 {
     // 处理ini配置的接口
     public interface IIniConfigurable

@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -79,7 +77,7 @@ namespace Data_Transceiver_Center
             _form1.btnRetryChk += new Form1.btnOnClickDelegate(btn_RetryChk_Click);
         }
 
-#region 子窗体功能
+        #region 子窗体功能
         // 初始化子窗体嵌入属性
         private void InitChildForm(Form childForm)
         {
@@ -116,7 +114,7 @@ namespace Data_Transceiver_Center
         {
             ShowForm(_form3);
         }
-#endregion 子窗体功能
+        #endregion 子窗体功能
 
         // Form1的panelID文本变化时，同步到Form3中
         private void OnForm1TextChanged(string text)
@@ -218,8 +216,8 @@ namespace Data_Transceiver_Center
         // task4：获取CheckResult，读取判定结果，写PLC
         private async void AutoRunMode()
         {
-            short cam=-1, prt=-1, scn=-1;
-            Tuple<short,short,short> plcRegValue;
+            short cam = -1, prt = -1, scn = -1;
+            Tuple<short, short, short> plcRegValue;
 
             string consoleInfo = "";
 
@@ -328,7 +326,7 @@ namespace Data_Transceiver_Center
             // 收到mes的fieldData不为空才打印
             if (fieldData != "")
             {
-                var t2 = Task.Run(async() =>
+                var t2 = Task.Run(async () =>
                 {
                     // 需要读取到PLC的 打印ready信号，才开始打印
                     if (!ignorePlc_checkBox.Checked)
@@ -352,7 +350,7 @@ namespace Data_Transceiver_Center
                         BeginInvoke(act0);// 非阻塞，UI线程空闲时执行
 
                         consoleInfo = "    条码 " + fieldData;
-                        
+
                         Action act1 = () => { _form1.SetLbPrtCode(CommunicationProtocol.prtCodeOK); };
                         BeginInvoke(act1);// 非阻塞，UI线程空闲时执行
                     }
@@ -362,7 +360,7 @@ namespace Data_Transceiver_Center
                         Action action = () => { _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG); };
                         BeginInvoke(action);// 非阻塞，UI线程空闲时执行
                     }
-                }); 
+                });
                 await t2;
                 Console.WriteLine("task t2 done：生成ZPL文件, 发送打印机打印： \r\n" + consoleInfo);
             }
@@ -389,7 +387,7 @@ namespace Data_Transceiver_Center
         private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
         {
             // 二维码触发输入
-            var t1 = Task.Run(async() =>
+            var t1 = Task.Run(async () =>
             {
                 while (autoRun_checkBox.Checked)
                 {
@@ -426,13 +424,13 @@ namespace Data_Transceiver_Center
             {
                 _form1.ignoreCheck = true;
             }
-            else 
+            else
             {
                 _form1.ignoreCheck = false;
             }
 
             // 校验 并与PLC通信
-            var t5 = Task.Run(async() =>
+            var t5 = Task.Run(async () =>
             {
                 while (!ignoreCheck_checkBox.Checked)
                 {
@@ -515,10 +513,10 @@ namespace Data_Transceiver_Center
                             }
                             Console.WriteLine("task t5：已发送校验结果给PLC");
                         }
-                    }   
+                    }
                 }
             }
-            catch  (Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"t5CheckTask出错: {ex.Message}");
             }
@@ -571,7 +569,7 @@ namespace Data_Transceiver_Center
         }
 
         // 更新PLC寄存器，向PLC进行通信，发送状态
-        private void UpdatePLCReg(short cam=-1, short prt=-1, short scn=-1)
+        private void UpdatePLCReg(short cam = -1, short prt = -1, short scn = -1)
         {
             Tuple<short, short, short> plcRegValue;
 
@@ -1083,7 +1081,7 @@ namespace Data_Transceiver_Center
             StopCamMonitor();
         }
 
-#endregion 跳过相机功能
+        #endregion 跳过相机功能
 
     }
 }

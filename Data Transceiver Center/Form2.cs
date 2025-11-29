@@ -1,15 +1,14 @@
 ﻿using System;
-using System.IO;
-using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Data_Transceiver_Center
 {
-    
+
     public partial class Form2 : Form
     {
 
-         // 声明变量，存储信号值。定时刷新时，根据此变量设定rediobox
+        // 声明变量，存储信号值。定时刷新时，根据此变量设定rediobox
         private short rd_camRegisterValue;
         private short rd_prtRegisterValue;
         private short rd_scannerRegisterValue;
@@ -34,7 +33,8 @@ namespace Data_Transceiver_Center
                 _isRefreshing = true;
             }
 
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 try
                 {
                     MethodInvoker mi = new MethodInvoker(() =>
@@ -114,14 +114,14 @@ namespace Data_Transceiver_Center
                     });
                     BeginInvoke(mi);
                 }
-                finally 
+                finally
                 {
                     // 任务执行完成后，重置标志位（无论成功失败都需释放）
                     lock (_lockObj)
                     {
                         _isRefreshing = false;
                     }
-                }  
+                }
             });
         }
 
@@ -179,7 +179,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        public void ClosePlcConnection() 
+        public void ClosePlcConnection()
         {
             int iReturnCode;				//Return code
             int iLogicalStationNumber;      //LogicalStationNumber for ActUtlType
@@ -416,7 +416,7 @@ namespace Data_Transceiver_Center
                 iReturnCode = axActUtlType1.ReadDeviceRandom2(szDeviceName,
                                                                 iNumberOfData,
                                                                 out arrDeviceValue1);
-                
+
                 //The return code of the method is displayed by the hexadecimal.
                 txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode);
 
@@ -545,7 +545,8 @@ namespace Data_Transceiver_Center
             iSizeOfShortArray = lptxt_SourceOfShortArray.Lines.Length;
             lplpshShortArrayValue = new short[iSizeOfShortArray];
 
-            if (iSizeOfShortArray==0) { MessageBox.Show("写入数据为空，请设置数据");return false; };
+            if (iSizeOfShortArray == 0) { MessageBox.Show("写入数据为空，请设置数据"); return false; }
+            ;
 
             //Get each element of ShortType array.
             for (iNumber = 0; iNumber < iSizeOfShortArray; iNumber++)
@@ -647,7 +648,7 @@ namespace Data_Transceiver_Center
 
         private void txt_LogicStation_EnableChanged(object sender, EventArgs e)
         {
-            if (txt_LogicalStationNumber.Enabled==false)
+            if (txt_LogicalStationNumber.Enabled == false)
             {
                 rd_CamAllow.Enabled = true;
                 rd_CamNG.Enabled = true;
@@ -763,19 +764,19 @@ namespace Data_Transceiver_Center
         #endregion 
 
         // 发送数据
-        public Tuple<short,short,short> ReadPlc()
+        public Tuple<short, short, short> ReadPlc()
         {
             if (txt_LogicalStationNumber.Enabled)
             {
                 MessageBox.Show("与PLC连接未打开，请先进行连接");
                 checkBox1.Checked = false;
-                return new Tuple<short,short,short>(-1, -1, -1);
+                return new Tuple<short, short, short>(-1, -1, -1);
             }
             try
             {
-               short rd_camValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-               short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-               short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+                short rd_camValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
+                short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
+                short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
 
                 return new Tuple<short, short, short>(rd_camValue, rd_prtValue, rd_scnValue);
             }
@@ -792,13 +793,13 @@ namespace Data_Transceiver_Center
             {
                 MessageBox.Show("与PLC连接未打开，请先进行连接");
                 checkBox1.Checked = false;
-                return ;
+                return;
             }
             try
             {
                 WriteDeviceRandom(CommunicationProtocol.camRegister, camValue);
-                WriteDeviceRandom(CommunicationProtocol.prtRegister,prtValue);
-                WriteDeviceRandom(CommunicationProtocol.scannerRegister,scnValue);
+                WriteDeviceRandom(CommunicationProtocol.prtRegister, prtValue);
+                WriteDeviceRandom(CommunicationProtocol.scannerRegister, scnValue);
             }
             catch (Exception)
             {

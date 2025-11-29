@@ -1,9 +1,8 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
-using System.Net;
-using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 
 namespace Data_Transceiver_Center
@@ -67,7 +66,7 @@ namespace Data_Transceiver_Center
                 jsonPath = dialog.SelectedPath + "\\MesSettings.json";
             }
 
-           SaveJson(jsonPath);
+            SaveJson(jsonPath);
         }
 
         // 加载配置按钮
@@ -219,7 +218,7 @@ namespace Data_Transceiver_Center
         private void btn_apiTest_Click(object sender, EventArgs e)
         {
             // 将页面数据存入Json中
-            _MesPostRoot =  FormToJson();
+            _MesPostRoot = FormToJson();
 
             string JsonUrl = txtBox_mesUrl.Text;
             // 取出Json中的input字段内容
@@ -227,10 +226,10 @@ namespace Data_Transceiver_Center
 
             // 页面显示
             txtBox_postData.Text = "Post Data:\r\n" + JsonData;
-            
+
             // 使用多线程处理http事件
-            Task t1 = new Task(()=>
-            { 
+            Task t1 = new Task(() =>
+            {
                 string getJson = HttpUitls.PostJson(JsonUrl, JsonData);
 
                 // 跨线程修改UI

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Text;
 
 namespace Data_Transceiver_Center
 {
@@ -54,7 +51,7 @@ namespace Data_Transceiver_Center
         /// <param name="Data">需要发送的POST数据（键值对格式，如"key1=value1&key2=value2"）</param>
         /// <param name="Referer">请求的来源页面（Referer头信息，用于模拟服务器识别请求来源）</param>
         /// <returns>服务器返回的响应字符串</returns>
-        public static string PostJson(string url, string jsonData, string Referer="")
+        public static string PostJson(string url, string jsonData, string Referer = "")
         {
             // 1. 验证URL格式（确保包含http/https）
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
@@ -75,7 +72,7 @@ namespace Data_Transceiver_Center
             try
             {   // HttpWebRequest是用于发送HTTP请求的类
                 request = (HttpWebRequest)WebRequest.Create(url);
-                
+
                 request.Method = "POST";// 设置请求方法为POST（区别于GET）
                 request.Referer = Referer;// 设置Referer头信息，模拟浏览器的来源页面标识
                 request.Proxy = null; // 禁用代理，避免代理导致的问题
@@ -139,7 +136,7 @@ namespace Data_Transceiver_Center
                 }
                 return $"网络错误: {ex.Message}";
             }
-            catch  (Exception ex)
+            catch (Exception ex)
             {
                 return $"发生错误: {ex.Message}";
             }

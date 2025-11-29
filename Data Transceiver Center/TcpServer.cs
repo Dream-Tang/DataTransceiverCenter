@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 
 namespace Data_Transceiver_Center
 {
@@ -23,7 +21,7 @@ namespace Data_Transceiver_Center
 
 
         // 开启服务器
-        private void ServerStart(string IP,string port)
+        private void ServerStart(string IP, string port)
         {
             tcpServer = new TcpListener(IPAddress.Parse(IP), int.Parse(port));
             tcpServer.Start();      // 开启连接请求
@@ -69,32 +67,32 @@ namespace Data_Transceiver_Center
         }
 
         public void RecvMsg(Object obj)
+        {
+            Socket clientSocket = (Socket)obj;//将传入的参数类型转换一下
+            string str = clientSocket.RemoteEndPoint.ToString();
+            while (true)
             {
-                Socket clientSocket = (Socket)obj;//将传入的参数类型转换一下
-                string str = clientSocket.RemoteEndPoint.ToString();
-                while (true)
+                try
                 {
-                    try
+                    //创建1M的缓存空间
+                    byte[] buffer = new byte[1024 * 1024];
+                    int length = clientSocket.Receive(buffer);//返回实际接收到的长度
+                    string msgStr = Encoding.UTF8.GetString(buffer, 0, length);//转换成UTF-8的格式
+                    if (length != 0)
                     {
-                        //创建1M的缓存空间
-                        byte[] buffer = new byte[1024 * 1024];
-                        int length = clientSocket.Receive(buffer);//返回实际接收到的长度
-                        string msgStr = Encoding.UTF8.GetString(buffer, 0, length);//转换成UTF-8的格式
-                        if (length != 0)
-                        {
-                             Console.WriteLine(DateTime.Now.ToLongTimeString() + " 客户端" + str + " : " + msgStr);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        //清空集合对应的套接字
-                        //listb_client.Items.Remove(str);
-                        dicClientSockets.Remove(str);
-                        dicRecvMsgThreads.Remove(str);
-                        break;
+                        Console.WriteLine(DateTime.Now.ToLongTimeString() + " 客户端" + str + " : " + msgStr);
                     }
                 }
+                catch (Exception)
+                {
+                    //清空集合对应的套接字
+                    //listb_client.Items.Remove(str);
+                    dicClientSockets.Remove(str);
+                    dicRecvMsgThreads.Remove(str);
+                    break;
+                }
             }
+        }
 
 
     }
