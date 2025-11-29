@@ -60,8 +60,9 @@ namespace Data_Transceiver_Center
             _form1.RequestMesRootData += OnForm1RequestMesRootData;
             // 绑定FormClosing事件
             this.FormClosing += mainForm_FormClosing;
-            // 订阅Form1的查询请求事件
-            _form1.SerialDataReceived += OnSerialDataReceived;
+            // 订阅Form1的事件
+            _form1.SerialDataReceived += OnSerialDataReceived; // 串口接收到数据，触发校验
+            _form1.PanelIDgot += CamOK; // 获得panelID之后，触发PLC放行
 
             // 默认显示Form1
             ShowForm(_form1);
@@ -120,6 +121,11 @@ namespace Data_Transceiver_Center
         // Form1的panelID文本变化时，同步到Form3中
         private void OnForm1TextChanged(string text)
         {
+            // 如果勾选了跳过相机，则pannelID都改为空
+            if (ignoreCam_checkBox.Checked)
+            {
+                text = "";
+            }
             _form3.UpdateIDText(text);
         }
 
@@ -128,10 +134,21 @@ namespace Data_Transceiver_Center
         {
             // 1. 从Form3获取MesPostRoot属性的数据
             MesPostRoot mesData = _form3.MesPostRoot;
-
+            // 如果勾选了跳过相机，则panelID都是空
+            if (ignoreCam_checkBox.Checked)
+            {
+                mesData.MesData.input.panelId = "";
+            }
             // 2. 将数据传递给Form1
             _form1.ReceiveMesRootData(mesData);
         }
+
+        // Form1的Mes通信按钮，需要触发camOK放行信号，由mainForm来处理
+        private void CamOK()
+        {
+            UpdatePLCReg(cam: CommunicationProtocol.camOK);
+        }
+
 
 
         // 保存配置按钮点击事件
@@ -371,9 +388,6 @@ namespace Data_Transceiver_Center
         // 触发自动执行
         private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
-
             // 二维码触发输入
             var t1 = Task.Run(async() =>
             {
@@ -382,22 +396,19 @@ namespace Data_Transceiver_Center
                     // F1 触发后，将trigSingner置为working状态
                     if (_form1.trigSigner == Form1.STATUS_WORKING)
                     {
-                        //未禁用PLC，则执行，禁用则跳过
+                        Console.WriteLine("trigger：自动运行已触发");
+                        // 查看PLC通信是否禁用
                         if (!ignorePlc_checkBox.Checked)
                         {
-                            // 触发放行
-                            plcRegValue = _form2.ReadPlc();
-                            cam = CommunicationProtocol.camReset;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-                            _form2.WritePlc(cam, prt, scn);
+                            // cam读码完成，触发cam放行
+                            UpdatePLCReg(cam: CommunicationProtocol.camOK);
                         }
-
-                        Console.WriteLine("trigger：自动运行已触发");
+                        // 调用自动模式
                         Action action = () =>
                         {
                             AutoRunMode();
                         };
+                        // 触发后，将状态置为等待
                         _form1.trigSigner = Form1.STATUS_WAIT;
                         //_form1.veriCodeCount = _form1.veriCodeCount + 1;
 
@@ -440,7 +451,7 @@ namespace Data_Transceiver_Center
             });
         }
 
-        // 校验任务t5，设计成常驻
+        // 校验任务t5，读取form1的校验结果，并写入PLC
         private void t5CheckTask()
         {
             short cam = -1, prt = -1, scn = -1;
@@ -581,7 +592,7 @@ namespace Data_Transceiver_Center
                 {
                     scn = plcRegValue.Item3;
                 }
-                _form2.WritePlc(cam, prt, scn);
+                _form2.SafeWritePlc(cam, prt, scn);
             }
         }
 
@@ -603,11 +614,8 @@ namespace Data_Transceiver_Center
         private void OnSerialDataReceived()
         {
             // 调用校验任务
-            if (!ignoreCheck_checkBox.Checked)
-            {
-                Console.WriteLine("串口接收到验码数据");
-                t5CheckTask();
-            }
+            Console.WriteLine("串口接收到验码数据");
+            t5CheckTask();
         }
 
         // 跳过相机按钮
@@ -963,7 +971,7 @@ namespace Data_Transceiver_Center
         #endregion TCP通信功能
 
         #region 跳过相机功能实现
-        // 启动监控线程，后台线程监控PLC的寄存器
+        // 启动监控线程，后台线程监控PLC的寄存器,如果检测到cam值为10，则触发AutoRun流程
         private void StartCamMonitor()
         {
             // 确保线程未运行

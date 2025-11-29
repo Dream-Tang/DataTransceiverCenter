@@ -19,8 +19,10 @@ namespace Data_Transceiver_Center
         public event Action<string> TextUpdated;
         // 定义查询请求事件，通知MainForm需要获取Form2的MesRoot数据
         public event Action RequestMesRootData;
-        // 添加事件，用于通知 MainForm 串口数据接收完成：
+        // 添加事件，用于通知 MainForm 串口数据接收完成
         public event Action SerialDataReceived;
+        // 添加事件，用于通知 MainForm TCP数据接收完成，PLC放行
+        public event Action PanelIDgot;
 
         private string _zplFilePath = "";
         private string _mPrintName = "";
@@ -96,6 +98,8 @@ namespace Data_Transceiver_Center
                 MesCommunicate();
             });
             t1.Start();
+            // 触发事件，通过MainForm查询Form2的MesRoot数据
+            PanelIDgot?.Invoke();
         }
 
         // Mes通信函数：
@@ -109,7 +113,7 @@ namespace Data_Transceiver_Center
             RequestMesRootData?.Invoke();
 
             string postUrl = _receivedMesRoot.MesUrl;
-            _receivedMesRoot.MesData.input.panelId = txtBox_veriCode.Text;
+            //_receivedMesRoot.MesData.input.panelId = txtBox_veriCode.Text;
             string jsonData = JsonConvert.SerializeObject(_receivedMesRoot.MesData);
 
             // 耗费时间的操作
@@ -210,7 +214,7 @@ namespace Data_Transceiver_Center
                     seriStatus = STATUS_READY;
 
                     // 跨线程更新UI
-                    BeginInvoke(new MethodInvoker(() =>
+                    IAsyncResult asyncResult = BeginInvoke(new MethodInvoker(() =>
                     {
                         txtBox_serialRead.Clear();
                         txtBox_serialRead.Text = portData;
