@@ -37,20 +37,61 @@ namespace Data_Transceiver_Center
             {
                 try
                 {
-                    MethodInvoker mi = new MethodInvoker(() =>
+                    // 用Invoke替代BeginInvoke，确保同步更新UI
+                    this.Invoke(new MethodInvoker(() =>
                     {
                         try
                         {
-                            rd_camRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-                            rd_prtRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-                            rd_scannerRegisterValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+                            // 逐个读取并捕获具体异常
+                            try
+                            {
+                                // 读取相机寄存器值（适配可空类型）
+                                var camValue = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                                if (!camValue.HasValue)
+                                {
+                                    throw new Exception($"相机寄存器读取失败 | 地址：{CommunicationProtocol.camRegister}");
+                                }
+                                rd_camRegisterValue = camValue.Value;
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"相机寄存器读取失败: {ex.Message}");
+                            }
+                            try
+                            {
+                                // 读取打印寄存器值（适配可空类型）
+                                var prtValue = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                                if (!prtValue.HasValue)
+                                {
+                                    throw new Exception($"打印寄存器读取失败 | 地址：{CommunicationProtocol.prtRegister}");
+                                }
+                                rd_prtRegisterValue = prtValue.Value;
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"打印寄存器读取失败: {ex.Message}");
+                            }
+                            try
+                            {
+                                // 读取扫描寄存器值（适配可空类型）
+                                var scannerValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                                if (!scannerValue.HasValue)
+                                {
+                                    throw new Exception($"扫描寄存器读取失败 | 地址：{CommunicationProtocol.scannerRegister}");
+                                }
+                                rd_scannerRegisterValue = scannerValue.Value;
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"扫描寄存器读取失败: {ex.Message}");
+                            }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             timer1.Enabled = false;
                             checkBox1.Checked = false;
                             txt_LogicalStationNumber.Enabled = true;
-                            Console.WriteLine("PLC掉线");
+                            Console.WriteLine($"PLC通信异常: {ex.Message}"); // 输出具体异常
                             return;
                         }
 
@@ -111,8 +152,7 @@ namespace Data_Transceiver_Center
                         label11.Text = rd_camRegisterValue.ToString();
                         label12.Text = rd_prtRegisterValue.ToString();
                         label13.Text = rd_scannerRegisterValue.ToString();
-                    });
-                    BeginInvoke(mi);
+                    }));
                 }
                 finally
                 {
@@ -382,68 +422,53 @@ namespace Data_Transceiver_Center
 
         #region "读取PLC寄存器数据"
 
-        // 优化读取寄存器的函数，确保线程安全
-        private string ReadDeviceRandom(string szDeviceName)
+        /// <summary>
+        /// 线程安全的PLC寄存器读取方法（读取单个寄存器值）
+        /// </summary>
+        /// <param name="szDeviceName">PLC寄存器地址（如D100、M0等）</param>
+        /// <returns>成功返回寄存器的short类型值；失败返回null（表示读取失败）</returns>
+        private short? ReadDeviceRandom(string szDeviceName)
         {
-            // 若当前线程不是UI线程，通过Invoke切换到UI线程执行
+            // 跨线程校验：若当前线程非UI线程，切换到UI线程执行（ActiveX控件必须在UI线程操作）
             if (this.InvokeRequired)
             {
-                // 使用Func委托接收返回值
-                return (string)this.Invoke(new Func<string, string>(ReadDeviceRandom), szDeviceName);
+                return (short?)this.Invoke(new Func<string, short?>(ReadDeviceRandom), szDeviceName);
             }
 
-            int iReturnCode;				//Return code
-            //String szDeviceName = "";		//List data for 'DeviceName'
-            int iNumberOfData = 1;			//Data for 'DeviceSize'
-            short arrDeviceValue1;
-            System.String arrData;	    //Array for 'Data'
+            // 局部变量初始化
+            int iReturnCode; // PLC通信返回码（0表示成功）
+            int iNumberOfData = 1; // 读取的数据长度（固定为1，读取单个寄存器）
+            short arrDeviceValue1; // 存储读取到的寄存器值
+            szDeviceName = String.Join("\n", szDeviceName); // 格式化寄存器地址（适配PLC通信要求）
 
-            //Get the list of 'DeviceName'.
-            //  Join each line(StringType array) of 'DeviceName' by the separator '\n',
-            //  and create a joined string data.
-            szDeviceName = String.Join("\n", szDeviceName);
-
-            //
-            //Processing of ReadDeviceRandom2 method
-            //
             try
             {
-                //When ActProgType is selected by the radio button,
+                // 调用ActiveX控件读取PLC寄存器（核心操作，必须在UI线程执行）
+                iReturnCode = axActUtlType1.ReadDeviceRandom2(szDeviceName, iNumberOfData, out arrDeviceValue1);
 
-                //When ActUtlType is selected by the radio button,
-                //The ReadDeviceRandom2 method is executed.
-                // 执行PLC读取操作（axActUtlType1可能需要在UI线程访问）
-                iReturnCode = axActUtlType1.ReadDeviceRandom2(szDeviceName,
-                                                                iNumberOfData,
-                                                                out arrDeviceValue1);
-
-                //The return code of the method is displayed by the hexadecimal.
+                // 更新UI显示返回码（16进制格式）
                 txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode);
 
-                //
-                //Display the read data
-                //
-                //When the ReadDeviceRandom2 method is succeeded, display the read data.
-                // 读取成功时返回数据
+                // 判断读取结果
                 if (iReturnCode == 0)
                 {
-                    arrData = arrDeviceValue1.ToString();
-                    txt_Data.Text = arrData; // 更新数据显示
+                    // 读取成功：更新数据显示框，返回读取到的数值
+                    txt_Data.Text = arrDeviceValue1.ToString();
+                    return arrDeviceValue1;
                 }
                 else
                 {
-                    arrData = "读取失败";
+                    // 读取失败：输出日志，返回null标识失败
+                    Console.WriteLine($"PLC寄存器读取失败 | 寄存器地址：{szDeviceName} | 返回码：{iReturnCode}");
+                    return null;
                 }
             }
-
-            //Exception processing
             catch (Exception exception)
             {
-                MessageBox.Show(exception.Message, Name,
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return "读取出错";
+                // 捕获通信异常：弹窗提示，返回null标识失败
+                MessageBox.Show(exception.Message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
-            return arrData;
         }
 
         #endregion "读取PLC寄存器数据"
@@ -452,6 +477,13 @@ namespace Data_Transceiver_Center
 
         private void WriteDeviceRandom(string szDeviceName, short arrDeviceValue)
         {
+            // 先判断是否需要跨线程调用，确保axActUtlType1在UI线程操作
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<string, short>(WriteDeviceRandom), szDeviceName, arrDeviceValue);
+                return;
+            }
+
             int iReturnCode;				//Return code
             //String szDeviceName = "";		//List data for 'DeviceName'
             int iNumberOfData = 1;			//Data for 'DeviceSize'
@@ -476,6 +508,8 @@ namespace Data_Transceiver_Center
                 iReturnCode = axActUtlType1.WriteDeviceRandom2(szDeviceName,
                                                                 iNumberOfData,
                                                                 ref arrDeviceValue);
+                //The return code of the method is displayed by the hexadecimal.
+                txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode); // 仅UI线程更新控件
             }
 
             //Exception processing
@@ -485,15 +519,6 @@ namespace Data_Transceiver_Center
                                   MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action<string, short>(WriteDeviceRandom), szDeviceName, arrDeviceValue);
-                return;
-            }
-
-            //The return code of the method is displayed by the hexadecimal.
-            txt_ReturnCode.Text = String.Format("0x{0:x8}", iReturnCode);
         }
 
         #endregion "写入PLC寄存器数据"
@@ -638,9 +663,16 @@ namespace Data_Transceiver_Center
         }
 
         private void timer1_Tick(object sender, EventArgs e)
-        {
-            Console.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff:ffffff"));
-            Console.WriteLine("PLC寄存器读取 定时器 触发");
+        {   // 在定时器触发时先检查是否正在刷新，避免重复触发任务
+            lock (_lockObj)
+            {
+                if (_isRefreshing)
+                {
+                    Console.WriteLine("前一次刷新未完成，跳过本次触发");
+                    return;
+                }
+            }
+            Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss:fff}: PLC寄存器读取定时器触发");
             ReflashControlBox();
         }
 
@@ -685,7 +717,9 @@ namespace Data_Transceiver_Center
             if (rd_CamAllow.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camAllow);
-                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var camValue = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                label11.Text = camValue.HasValue ? camValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -694,7 +728,9 @@ namespace Data_Transceiver_Center
             if (rd_CamOK.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camOK);
-                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var camValue = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                label11.Text = camValue.HasValue ? camValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -703,7 +739,9 @@ namespace Data_Transceiver_Center
             if (rd_CamNG.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.camRegister, CommunicationProtocol.camNG);
-                label11.Text = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var camValue = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                label11.Text = camValue.HasValue ? camValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -712,7 +750,9 @@ namespace Data_Transceiver_Center
             if (rd_PrtReady.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.prtRegister, CommunicationProtocol.prtReady);
-                label12.Text = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var prtValue = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                label12.Text = prtValue.HasValue ? prtValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -721,7 +761,9 @@ namespace Data_Transceiver_Center
             if (rd_PrtComplete.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.prtRegister, CommunicationProtocol.prtComplete);
-                label12.Text = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var prtValue = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                label12.Text = prtValue.HasValue ? prtValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -730,7 +772,9 @@ namespace Data_Transceiver_Center
             if (rd_ScannerStart.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.scannerStart);
-                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var scnValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                label13.Text = scnValue.HasValue ? scnValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -739,7 +783,9 @@ namespace Data_Transceiver_Center
             if (rd_ScannerComplete.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.scannerComplete);
-                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var scnValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                label13.Text = scnValue.HasValue ? scnValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -748,7 +794,9 @@ namespace Data_Transceiver_Center
             if (rd_checkOK.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.checkOK);
-                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var scnValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                label13.Text = scnValue.HasValue ? scnValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -757,7 +805,9 @@ namespace Data_Transceiver_Center
             if (rd_checkNG.Checked)
             {
                 WriteDeviceRandom(CommunicationProtocol.scannerRegister, CommunicationProtocol.checkNG);
-                label13.Text = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                // 读取寄存器并更新标签（适配可空类型）
+                var scnValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                label13.Text = scnValue.HasValue ? scnValue.Value.ToString() : "读取失败";
             }
         }
 
@@ -774,11 +824,31 @@ namespace Data_Transceiver_Center
             }
             try
             {
-                short rd_camValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.camRegister));
-                short rd_prtValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.prtRegister));
-                short rd_scnValue = Convert.ToInt16(ReadDeviceRandom(CommunicationProtocol.scannerRegister));
+                // 读取相机寄存器
+                var camValue = ReadDeviceRandom(CommunicationProtocol.camRegister);
+                if (!camValue.HasValue)
+                {
+                    throw new Exception("读取PLC相机寄存器失败");
+                }
+                short cam = camValue.Value;
 
-                return new Tuple<short, short, short>(rd_camValue, rd_prtValue, rd_scnValue);
+                // 读取打印寄存器
+                var prtValue = ReadDeviceRandom(CommunicationProtocol.prtRegister);
+                if (!prtValue.HasValue)
+                {
+                    throw new Exception("读取PLC打印寄存器失败");
+                }
+                short prt = prtValue.Value;
+
+                // 读取扫描寄存器
+                var scnValue = ReadDeviceRandom(CommunicationProtocol.scannerRegister);
+                if (!scnValue.HasValue)
+                {
+                    throw new Exception("读取PLC扫描寄存器失败");
+                }
+                short scn = scnValue.Value;
+
+                return new Tuple<short, short, short>(cam, prt, scn);
             }
             catch (Exception)
             {
@@ -786,6 +856,25 @@ namespace Data_Transceiver_Center
             }
         }
 
+        #region 线程安全的PLC读写方法
+        /// <summary>
+        /// 线程安全的PLC读取方法
+        /// </summary>
+        /// <returns>包含cam、prt、scn值的元组</returns>
+        public Tuple<short, short, short> SafeReadPlc()
+        {
+            if (this.InvokeRequired)
+            {
+                // 跨线程时通过Invoke切换到UI线程执行
+                return (Tuple<short, short, short>)this.Invoke(
+                    new Func<Tuple<short, short, short>>(SafeReadPlc));
+            }
+            else
+            {
+                // 非跨线程时直接调用原读取逻辑
+                return ReadPlc();
+            }
+        }
         // 用于不跨线程时写PLC的方法（本页面调用）
         public void WritePlc(short camValue, short prtValue, short scnValue)
         {
@@ -808,35 +897,27 @@ namespace Data_Transceiver_Center
         }
 
         // 用于跨线程调用的写PLC方法（其他页面调用）
+        /// <summary>
+        /// 线程安全的PLC写入方法
+        /// </summary>
+        /// <param name="camValue">相机状态值</param>
+        /// <param name="prtValue">打印状态值</param>
+        /// <param name="scnValue">扫描状态值</param>
         public void SafeWritePlc(short camValue, short prtValue, short scnValue)
         {
             if (this.InvokeRequired)
             {
-                // 跨线程时通过Invoke切换到UI线程
-                this.Invoke(new Action<short, short, short>(SafeWritePlc), camValue, prtValue, scnValue);
-                return;
+                // 跨线程时通过Invoke切换到UI线程执行
+                this.Invoke(new Action<short, short, short>(SafeWritePlc),
+                    camValue, prtValue, scnValue);
             }
             else
             {
-                // 实际写入逻辑（原WritePlc的内容）
-                if (txt_LogicalStationNumber.Enabled)
-                {
-                    MessageBox.Show("与PLC连接未打开，请先进行连接");
-                    checkBox1.Checked = false;
-                    return;
-                }
-                try
-                {
-                    WriteDeviceRandom(CommunicationProtocol.camRegister, camValue);
-                    WriteDeviceRandom(CommunicationProtocol.prtRegister, prtValue);
-                    WriteDeviceRandom(CommunicationProtocol.scannerRegister, scnValue);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"写入PLC失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                // 非跨线程时直接调用原写入逻辑
+                WritePlc(camValue, prtValue, scnValue);
             }
         }
+        #endregion
 
         public string GetReturnCode()
         {
