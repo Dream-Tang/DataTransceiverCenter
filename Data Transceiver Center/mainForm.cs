@@ -44,6 +44,19 @@ namespace Data_Transceiver_Center
         private Thread _tcpListenerThread;         // TCP监听线程
         #endregion
 
+        // 新增校验线程标志位
+        private bool _isCheckMonitorRunning = false;
+
+        // 自动流程 状态标签
+        public enum ProcessStatus
+        {
+            Wait,       // 等待触发
+            Ready,      // 准备就绪
+            Working,    // 执行中
+            Complete,   // 完成
+            Exception   // 异常
+        }
+
         /// <summary>
         /// 主窗体构造函数
         /// </summary>
@@ -88,6 +101,20 @@ namespace Data_Transceiver_Center
             // 绑定Form1的重试按钮事件
             _form1.btnRetryRead += btn_RetryRead_Click;
             _form1.btnRetryChk += btn_RetryChk_Click;
+        }
+
+        /// <summary>
+        /// 标准化日志输出（带时间戳、模块、级别）
+        /// </summary>
+        /// <param name="module">模块名（如PLC/MES/打印）</param>
+        /// <param name="level">日志级别（INFO/ERROR/WARN）</param>
+        /// <param name="message">日志内容</param>
+        private void Log(string module, string level, string message)
+        {
+            string log = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{module}] [{level}] {message}";
+            Console.WriteLine(log);
+            // 可选：若需要写入日志文件，可在此处追加文件写入逻辑
+            File.AppendAllText("AutoRun.log", log + Environment.NewLine);
         }
 
         #region 子窗体管理
@@ -177,7 +204,8 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void CamOK()
         {
-            UpdatePLCReg(cam: CommunicationProtocol.camOK);
+            WritePLCReg(cam: CommunicationProtocol.camOK);
+            Console.WriteLine($"已发送{CommunicationProtocol.camOK}给{CommunicationProtocol.camRegister}");
         }
         #endregion
 
@@ -372,134 +400,200 @@ namespace Data_Transceiver_Center
         private async void AutoRunMode()
         {
             short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
             string consoleInfo = "";
 
-            // 读取PLC状态（根据配置决定是否忽略）
-            if (!ignorePlc_checkBox.Checked)
+            // ========== 1. 读取PLC状态（调用拆分后的函数） ==========
+            Log("PLC", "INFO", "开始读取PLC状态");
+            var plcResult = ReadPlcStatus();
+            if (!plcResult.Success)
             {
-                plcRegValue = _form2.ReadPlc();
-                cam = plcRegValue.Item1;
-                prt = plcRegValue.Item2;
-                scn = plcRegValue.Item3;
-
-                // PLC未连接则返回
-                if (cam == -1 & prt == -1 & scn == -1)
-                {
-                    return;
-                }
+                // 读取失败时的处理（保持原逻辑：终止流程）
+                consoleInfo = "PLC读取失败，终止本次自动流程";
+                Log("PLC", "ERROR", consoleInfo);
+                Log("PLC", "ERROR", $"读取失败详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
+                return;
             }
-            else
-            {
-                cam = prt = scn = -1;
-            }
+            // 读取成功，赋值给变量
+            cam = plcResult.Cam;
+            prt = plcResult.Prt;
+            scn = plcResult.Scn;
+            Log("PLC", "INFO", $"PLC状态读取成功：cam={cam}, prt={prt}, scn={scn}");
 
-            // MES通信参数
+            // 若屏蔽PLC，已在ReadPlcStatus中返回(-1,-1,-1)，无需额外处理
+
+            // ========== 2. 重构MES通信部分 ==========
+            // 步骤2.1：简化MES参数（仅保留必要的配置获取）
             string postUrl = "";
-            string postJson = "";
-            string responseString = "";
-            string fieldCode = "";
-            string fieldInfo = "";
-            string fieldData = "";
+            MsePostData mesPostData = null; // 替换原postJson，直接用实体类
+            string postJson = ""; // 保留原postJson变量，用于打印请求参数
 
             try
             {
-                // 获取MES配置
+                // 从Form3获取MES配置（保留原有配置来源，仅修改数据类型）
+                Log("MES", "INFO", "开始获取MES配置信息");
                 postUrl = _form3.MesPostRoot.MesUrl;
-                postJson = JsonConvert.SerializeObject(_form3.MesPostRoot.MesData);
+                mesPostData = _form3.MesPostRoot.MesData; // 直接获取实体类，无需手动序列化
+                // 保留原有序列化逻辑，用于打印请求JSON
+                postJson = JsonConvert.SerializeObject(mesPostData, Formatting.Indented);
+
+                Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
+                Log("MES", "INFO", $"MES请求参数（JSON）：{Environment.NewLine}{postJson}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                postJson = "Mes设置未导入";
-                Console.WriteLine("Mes设置未导入");
+                consoleInfo = $"Mes设置未导入: {ex.Message}";
+                Log("MES", "ERROR", consoleInfo);
+                Log("MES", "ERROR", $"异常堆栈：{ex.StackTrace}"); // 保留异常堆栈
+                // 配置错误直接终止流程
+                return;
             }
+            // 步骤2.2：调用MES通信助手类（替换原Task t1）
+            Log("MES", "INFO", "开始发送MES POST请求");
+            var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
 
-            // 任务1：MES通信
-            var t1 = Task.Run(() =>
+            // 步骤2.3：处理MES响应结果（复用原有业务逻辑，仅适配新的返回值）
+            if (mesResult.Success)
             {
-                try
+                // MES通信成功（逻辑与原一致）
+                consoleInfo = $"已收到MES回复的数据：{mesResult.Data}";
+                Log("MES", "INFO", consoleInfo);
+                Log("MES", "INFO", $"MES响应详情：{mesResult.Message}");
+                WritePLCReg(cam: CommunicationProtocol.camOK);
+                BeginInvoke(new Action(() =>
                 {
-                    // 发送POST请求并获取响应
-                    responseString = HttpUitls.PostJson(postUrl, postJson);
-                    var responseJson = JsonConvert.DeserializeObject<MesResponseJson>(responseString);
+                    _form1.SetLbReadCode(CommunicationProtocol.readCodeOK);
+                    Log("UI", "INFO", "更新UI：条码读取状态设为OK");
+                }));
 
-                    // 解析响应数据
-                    fieldCode = responseJson.code;
-                    fieldInfo = responseJson.info;
-                    fieldData = responseJson.data;
-
-                    // 处理收到的数据
-                    if (fieldData != "")
-                    {
-                        Console.WriteLine($"已经收到Mes回复的数据：{fieldData}");
-                        UpdatePLCReg(cam: CommunicationProtocol.camOK);
-
-                        // 更新UI
-                        BeginInvoke(new Action(() =>
-                            _form1.SetLbReadCode(CommunicationProtocol.readCodeOK)));
-                        cam = CommunicationProtocol.camOK;
-                    }
-                }
-                catch (Exception)
-                {
-                    responseString = "Task t1: Mes通信出错了";
-                    UpdatePLCReg(cam: CommunicationProtocol.camNG);
-
-                    // 更新UI
-                    BeginInvoke(new Action(() =>
-                        _form1.SetLbReadCode(CommunicationProtocol.readCodeNG)));
-                    cam = CommunicationProtocol.camNG;
-                }
-
-                // 刷新MES数据显示
-                BeginInvoke(new MethodInvoker(() =>
-                    _form1.refreshMes1(postJson, responseString)));
-            });
-            await t1;
-            consoleInfo = responseString;
-            Console.WriteLine("task t1 done：Post JsonData To Mes, get ResponseData: \r\n" + consoleInfo);
-
-            // 任务2：打印（仅当收到有效数据）
-            if (fieldData != "")
-            {
-                var t2 = Task.Run(async () =>
-                {
-                    if (!ignorePlc_checkBox.Checked)
-                    {
-                        // 等待打印就绪信号
-                        prt = _form2.ReadPlc().Item2;
-                        while (!(prt == CommunicationProtocol.prtReady))
-                        {
-                            plcRegValue = _form2.ReadPlc();
-                            cam = plcRegValue.Item1;
-                            prt = plcRegValue.Item2;
-                            scn = plcRegValue.Item3;
-                            await Task.Delay(500);
-                        }
-
-                        // 执行打印
-                        BeginInvoke(new Action(() => _form1.PrintCode(fieldData)));
-                        consoleInfo = "    条码 " + fieldData;
-                        BeginInvoke(new Action(() =>
-                            _form1.SetLbPrtCode(CommunicationProtocol.prtCodeOK)));
-                    }
-                    else
-                    {
-                        consoleInfo = "屏蔽PLC，条码跳过打印";
-                        BeginInvoke(new Action(() =>
-                            _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
-                    }
-                });
-                await t2;
-                Console.WriteLine("task t2 done：生成ZPL文件, 发送打印机打印： \r\n" + consoleInfo);
+                cam = CommunicationProtocol.camOK;
+                Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camOK）");
             }
             else
             {
-                Console.WriteLine("task t2 done：Mes数据为空，不进行打印");
+                // MES通信失败（逻辑与原一致，仅替换错误信息来源）
+                consoleInfo = mesResult.Message;
+                Log("MES", "ERROR", $"MES通信失败：{consoleInfo}");
+                WritePLCReg(cam: CommunicationProtocol.camNG);
                 BeginInvoke(new Action(() =>
-                    _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                {
+                    _form1.SetLbReadCode(CommunicationProtocol.readCodeNG);
+                    Log("UI", "INFO", "更新UI：条码读取状态设为NG");
+                }));
+
+                cam = CommunicationProtocol.camNG;
+                Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camNG）");
+                Log("AutoRun", "WARN", "MES通信失败，终止本次自动流程");
+                return; // 失败终止后续流程
             }
+
+
+            // ========== 打印模块改造核心 ==========
+            Log("打印", "INFO", "进入打印流程，开始前置检查");
+            // 标记是否需要等待PLC就绪（屏蔽PLC开关）
+            bool needWaitPlcReady = !ignorePlc_checkBox.Checked;
+            if (needWaitPlcReady)
+            {
+                Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
+                prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
+
+                // 步骤1：等待打印机就绪（原有逻辑保留）
+                while (prt != CommunicationProtocol.prtReady)
+                {
+                    // 刷新PLC状态（复用ReadPlcStatus，保持逻辑统一）
+                    var plcRefreshResult = ReadPlcStatus();
+                    if (!plcRefreshResult.Success)
+                    {
+                        Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
+                        prt = CommunicationProtocol.prtNG;
+                        WritePLCReg(prt: prt);
+                        BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                        return;
+                    }
+                    prt = plcRefreshResult.Prt;
+                    cam = plcRefreshResult.Cam;
+                    scn = plcRefreshResult.Scn;
+
+                    Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    await Task.Delay(500);
+                }
+                Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
+            }
+            else
+            {
+                // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
+                Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
+                prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
+            }
+
+            // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
+            try
+            {
+                Log("打印", "INFO", "开始调用打印助手类执行打印");
+                // 获取Form1的打印配置（已暴露属性）
+                string zplTemplatePath = _form1.ZplTemplatePath;
+                string printerPath = _form1.PrintName;
+                string printCode = mesResult.Data; // MES返回的打印内容
+
+                // 异步调用打印助手类
+                var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
+                    printCode: printCode,
+                    zplTemplatePath: _form1.ZplTemplatePath,  // 直接使用Form1暴露的模板路径属性
+                    printerPath: printerPath
+                );
+
+                // 步骤3：处理打印结果（统一逻辑+标准化日志）
+                if (printResult.Success)
+                {
+                    Log("打印", "INFO", $"打印成功：{printResult.Message}");
+                    prt = CommunicationProtocol.prtOK;
+                    // 线程安全更新UI
+                    BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeOK)));
+
+                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                    WritePLCReg(prt: prt);
+                    Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                }
+                else
+                {
+                    Log("打印", "ERROR", $"打印失败：{printResult.Message}");
+                    prt = CommunicationProtocol.prtNG;
+                    // 线程安全更新UI
+                    BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+
+                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                    WritePLCReg(prt: prt);
+                    Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 捕获助手类未覆盖的异常（兜底）
+                Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
+                Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
+                prt = CommunicationProtocol.prtNG;
+                BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                WritePLCReg(prt: prt);
+                return;
+            }
+
+            Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+            // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
+
+        // 新增线程终止方法
+        private void StopAutoRunThread()
+        {
+            // 临时取消自动流程勾选，触发线程退出循环
+            bool wasAutoRunChecked = autoRun_checkBox.Checked;
+            autoRun_checkBox.Checked = false;
+            // 短暂延迟确保线程退出
+            Task.Delay(500).Wait();
+            // 恢复原状态（若需要）
+            autoRun_checkBox.Checked = wasAutoRunChecked;
+        }
+
 
         /// <summary>
         /// 自动流程复选框状态变更事件
@@ -517,7 +611,7 @@ namespace Data_Transceiver_Center
 
                         if (!ignorePlc_checkBox.Checked)
                         {
-                            UpdatePLCReg(cam: CommunicationProtocol.camOK);
+                            WritePLCReg(cam: CommunicationProtocol.camOK);
                         }
 
                         // 执行自动流程
@@ -530,28 +624,87 @@ namespace Data_Transceiver_Center
         }
         #endregion
 
+        #region 流程拆分
+        /// <summary>
+        /// 读取PLC状态（复用ReadPlcSpecificRegister，优化版）
+        /// </summary>
+        /// <returns>包含读取结果的元组：(是否成功, cam值, prt值, scn值)</returns>
+        private (bool Success, short Cam, short Prt, short Scn) ReadPlcStatus()
+        {
+            // 若勾选"屏蔽PLC"，直接返回默认值（成功状态）
+            if (ignorePlc_checkBox.Checked)
+            {
+                Console.WriteLine("ReadPlcStatus：已屏蔽PLC，返回默认值");
+                return (true, -1, -1, -1);
+            }
+
+            try
+            {
+                // 复用ReadPlcSpecificRegister读取三个寄存器（地址来自CommunicationProtocol）
+                short? cam = ReadPlcSpecificRegister(CommunicationProtocol.camRegister);
+                short? prt = ReadPlcSpecificRegister(CommunicationProtocol.prtRegister);
+                short? scn = ReadPlcSpecificRegister(CommunicationProtocol.scannerRegister);
+
+                // 检查是否有任一寄存器读取失败
+                if (!cam.HasValue || !prt.HasValue || !scn.HasValue)
+                {
+                    Console.WriteLine("ReadPlcStatus：部分寄存器读取失败");
+                    return (false, -1, -1, -1);
+                }
+
+                // 判断PLC是否未连接（三个值均为-1，根据Form2.ReadPlc的失败返回值约定）
+                if (cam.Value == -1 && prt.Value == -1 && scn.Value == -1)
+                {
+                    Console.WriteLine("ReadPlcStatus：PLC未连接");
+                    return (false, cam.Value, prt.Value, scn.Value);
+                }
+
+                // 读取成功
+                Console.WriteLine($"ReadPlcStatus：读取成功 (cam:{cam}, prt:{prt}, scn:{scn})");
+                return (true, cam.Value, prt.Value, scn.Value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ReadPlcStatus：读取异常 - {ex.Message}");
+                return (false, -1, -1, -1);
+            }
+        }
+
+
+
+        #endregion
+
         #region 校验相关
         /// <summary>
         /// 忽略校验复选框状态变更事件
         /// </summary>
         private void chkbox_ignoreCheck_checked(object sender, EventArgs e)
         {
+            // 先停止已有线程
+            _isCheckMonitorRunning = false;
+            Task.Delay(500).Wait();
+            // 传递参数，更新Form1的忽略校验状态
             _form1.ignoreCheck = ignoreCheck_checkBox.Checked;
 
-            // 启动校验监控线程
-            var t5 = Task.Run(async () =>
+            // 启动新线程（若未勾选“忽略校验”）
+            if (!ignoreCheck_checkBox.Checked)
             {
-                while (!ignoreCheck_checkBox.Checked)
+                _isCheckMonitorRunning = true;
+                // 启动校验监控线程
+                var t5 = Task.Run(async () =>
                 {
-                    _form1.ignoreCheck = false;
-                    if (_form1.seriStatus == Form1.STATUS_READY)
+                    while (_isCheckMonitorRunning)  // 使用标志位控制
                     {
-                        BeginInvoke(new Action(t5CheckTask));
-                        _form1.seriStatus = Form1.STATUS_WAIT;
+                        _form1.ignoreCheck = false;
+                        if (_form1.seriStatus == Form1.STATUS_READY)
+                        {
+                            BeginInvoke(new Action(t5CheckTask));
+                            _form1.seriStatus = Form1.STATUS_WAIT;
+                        }
+                        await Task.Delay(500);
                     }
-                    await Task.Delay(500);
-                }
-            });
+                });
+            }
         }
 
         /// <summary>
@@ -639,6 +792,12 @@ namespace Data_Transceiver_Center
             }
         }
 
+        // 新增校验线程终止方法
+        private void StopCheckMonitorThread()
+        {
+            _isCheckMonitorRunning = false;
+        }
+
         /// <summary>
         /// 串口数据接收事件处理
         /// </summary>
@@ -680,27 +839,65 @@ namespace Data_Transceiver_Center
                 lable_PlcConnectStatus.Text = "PLC 已断开";
                 lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
                 lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
+                // 关键：停止所有可能操作PLC的线程
+                StopAutoRunThread();       // 停止自动流程线程
+                StopCheckMonitorThread();  // 停止校验监控线程
+                StopCamMonitor();          // 停止相机监控线程（若启用）
             }
         }
 
         /// <summary>
-        /// 更新PLC寄存器值
+        /// 更新PLC寄存器值（优化版）
+        /// 仅写入指定的寄存器，未指定的保持原有值
         /// </summary>
-        /// <param name="cam">相机状态值</param>
-        /// <param name="prt">打印状态值</param>
-        /// <param name="scn">扫描状态值</param>
-        private void UpdatePLCReg(short cam = -1, short prt = -1, short scn = -1)
+        /// <param name="cam">相机状态值（不修改传null）</param>
+        /// <param name="prt">打印状态值（不修改传null）</param>
+        /// <param name="scn">扫描状态值（不修改传null）</param>
+        private void WritePLCReg(short? cam = null, short? prt = null, short? scn = null)
         {
-            if (!ignorePlc_checkBox.Checked)
+            if (!ignorePlc_checkBox.Checked && connectPlc_checkBox.Checked)
             {
-                var plcRegValue = _form2.ReadPlc();
+                try
+                {
+                    // 直接调用Form2的重载方法，内部会自动处理未指定参数的保留逻辑
+                    _form2.SafeWritePlc(cam, prt, scn);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"更新PLC寄存器失败: {ex.Message}");
+                }
+            }
+        }
 
-                // 保留未指定的寄存器当前值
-                if (cam == -1) cam = plcRegValue.Item1;
-                if (prt == -1) prt = plcRegValue.Item2;
-                if (scn == -1) scn = plcRegValue.Item3;
+        /// <summary>
+        /// 读取指定地址的PLC寄存器值（供监控线程使用）
+        /// </summary>
+        /// <param name="deviceName">寄存器地址（如"D100"）</param>
+        /// <returns>成功返回short值，失败返回null</returns>
+        private short? ReadPlcSpecificRegister(string deviceName)
+        {
+            // 新增：若未连接PLC，直接返回null
+            if (!connectPlc_checkBox.Checked)
+            {
+                Console.WriteLine("PLC未连接，跳过读取");
+                return null;
+            }
+            // 检查PLC连接状态和屏蔽设置
+            if (ignorePlc_checkBox.Checked || !connectPlc_checkBox.Checked)
+            {
+                Console.WriteLine("PLC已屏蔽或未连接，跳过读取");
+                return null;
+            }
 
-                _form2.SafeWritePlc(cam, prt, scn);
+            try
+            {
+                // 调用Form2的线程安全方法
+                return _form2.ReadSpecificPlcRegister(deviceName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MainForm读取PLC寄存器失败: {ex.Message}");
+                return null;
             }
         }
 
@@ -709,7 +906,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         public void btn_RetryRead_Click()
         {
-            UpdatePLCReg(cam: CommunicationProtocol.camRetry);
+            WritePLCReg(cam: CommunicationProtocol.camRetry);
         }
 
         /// <summary>
@@ -717,7 +914,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         public void btn_RetryChk_Click()
         {
-            UpdatePLCReg(scn: CommunicationProtocol.scannerStart);
+            WritePLCReg(scn: CommunicationProtocol.scannerStart);
         }
         #endregion
 
@@ -783,7 +980,7 @@ namespace Data_Transceiver_Center
             // 等待线程终止
             if (_camMonitorThread != null && _camMonitorThread.IsAlive)
             {
-                _camMonitorThread.Join(1000);
+                _camMonitorThread.Join(1000);// 等待线程退出
                 if (_camMonitorThread.IsAlive)
                 {
                     Console.WriteLine("相机监控线程未能正常终止");
@@ -813,22 +1010,13 @@ namespace Data_Transceiver_Center
                         continue;
                     }
 
-                    // 线程安全读取PLC值
-                    Tuple<short, short, short> plcRegValue = null;
-                    if (_form2.InvokeRequired)
-                    {
-                        plcRegValue = (Tuple<short, short, short>)_form2.Invoke(
-                            new Func<Tuple<short, short, short>>(_form2.ReadPlc));
-                    }
-                    else
-                    {
-                        plcRegValue = _form2.ReadPlc();
-                    }
+                    // 使用新方法读取指定寄存器（相机允许信号）
+                    var camValue = ReadPlcSpecificRegister(CommunicationProtocol.camRegister);
 
                     // 检测到触发条件
-                    if (plcRegValue.Item1 == CommunicationProtocol.camAllow)
+                    if (camValue.HasValue && camValue.Value == CommunicationProtocol.camAllow)
                     {
-                        Console.WriteLine("检测到cam值为10，触发AutoRun流程");
+                        Console.WriteLine($"检测到cam值为{camValue.Value}，触发AutoRun流程");
                         BeginInvoke(new Action(AutoRunMode));
                         Thread.Sleep(2000); // 避免短时间重复触发
                     }

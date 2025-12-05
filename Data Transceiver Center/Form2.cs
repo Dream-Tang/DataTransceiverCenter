@@ -169,15 +169,17 @@ namespace Data_Transceiver_Center
 
         public void btn_Close_Click(object sender, EventArgs e)
         {
-            OpenPlcConnection();
+            checkBox1.Checked = false;
+            timer1.Enabled = false;
+            ClosePlcConnection();
         }
 
         public void btn_Open_Click(object sender, EventArgs e)
         {
-            ClosePlcConnection();
+            OpenPlcConnection();
         }
 
-        public void OpenPlcConnection()
+        public void ClosePlcConnection()
         {
             int iReturnCode;    //Return code
             checkBox1.Checked = false;
@@ -219,7 +221,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        public void ClosePlcConnection()
+        public void OpenPlcConnection()
         {
             int iReturnCode;				//Return code
             int iLogicalStationNumber;      //LogicalStationNumber for ActUtlType
@@ -663,7 +665,14 @@ namespace Data_Transceiver_Center
         }
 
         private void timer1_Tick(object sender, EventArgs e)
-        {   // 在定时器触发时先检查是否正在刷新，避免重复触发任务
+        {
+            if (!IsPlcConnected())
+            {
+                timer1.Stop(); // 若已断开，直接停止定时器
+                timer1.Enabled = false;
+                return;
+            }
+            // 在定时器触发时先检查是否正在刷新，避免重复触发任务
             lock (_lockObj)
             {
                 if (_isRefreshing)
@@ -674,6 +683,13 @@ namespace Data_Transceiver_Center
             }
             Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss:fff}: PLC寄存器读取定时器触发");
             ReflashControlBox();
+        }
+
+        // 检查PLC连接状态
+        private bool IsPlcConnected()
+        {
+            // 连接成功时，txt_LogicalStationNumber会被禁用（参考OpenPlcConnection逻辑）
+            return !txt_LogicalStationNumber.Enabled && axActUtlType1 != null;
         }
 
         #region "redioButton 控制按钮，点击则给PLC发送数据"
@@ -816,9 +832,9 @@ namespace Data_Transceiver_Center
         // 发送数据
         public Tuple<short, short, short> ReadPlc()
         {
-            if (txt_LogicalStationNumber.Enabled)
+            if (!IsPlcConnected())
             {
-                MessageBox.Show("与PLC连接未打开，请先进行连接");
+                Console.WriteLine("与PLC连接未打开，请先进行连接");
                 checkBox1.Checked = false;
                 return new Tuple<short, short, short>(-1, -1, -1);
             }
@@ -878,7 +894,7 @@ namespace Data_Transceiver_Center
         // 用于不跨线程时写PLC的方法（本页面调用）
         public void WritePlc(short camValue, short prtValue, short scnValue)
         {
-            if (txt_LogicalStationNumber.Enabled)
+            if (!IsPlcConnected())
             {
                 MessageBox.Show("与PLC连接未打开，请先进行连接");
                 checkBox1.Checked = false;
@@ -934,6 +950,42 @@ namespace Data_Transceiver_Center
             short newScn = scn ?? current.Item3;
             WritePlc(newCam, newPrt, newScn); // 调用原写入方法
         }
+
+        #region "读取指定位置寄存器值"
+        /// <summary>
+        /// 读取指定地址的PLC寄存器值（线程安全）
+        /// </summary>
+        /// <param name="deviceName">寄存器地址（如"D100"）</param>
+        /// <returns>成功返回short值，失败返回null</returns>
+        public short? ReadSpecificPlcRegister(string deviceName)
+        {
+            if (this.InvokeRequired)
+            {
+                // 跨线程调用时切换到UI线程
+                return (short?)this.Invoke(new Func<string, short?>(ReadSpecificPlcRegister), deviceName);
+            }
+
+            // 检查PLC连接状态
+            if (txt_LogicalStationNumber.Enabled)
+            {
+                Console.WriteLine("PLC未连接，无法读取寄存器");
+                return null;
+            }
+
+            try
+            {
+                // 直接复用已有的ReadDeviceRandom方法
+                return ReadDeviceRandom(deviceName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"读取指定寄存器失败: {ex.Message}");
+                return null;
+            }
+        }
+        #endregion
+
+
 
         #endregion
 

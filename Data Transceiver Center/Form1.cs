@@ -21,8 +21,11 @@ namespace Data_Transceiver_Center
         // 添加事件，用于通知 MainForm TCP数据接收完成，PLC放行
         public event Action PanelIDgot;
 
-        private string _zplFilePath = "";
-        private string _mPrintName = "";
+        public string _zplFilePath = "";
+        public string _mPrintName = "";
+
+        public string ZplTemplatePath => zplTemplatePath; // 暴露ZPL模板路径
+        public string PrintName => _mPrintName; // 暴露打印机路径
 
         // 存储从form3查询到的MesRoot数据
         private MesPostRoot _receivedMesRoot;
@@ -824,10 +827,12 @@ namespace Data_Transceiver_Center
             {
                 cmd_template = new StringBuilder();
                 cmd_template.Clear();
-                cmd_template.Append(LoadZplTemplate(file));
-                if (!(cmd_template.ToString() == ""))
+                string templateContent = LoadZplTemplate(file);
+                cmd_template.Append(templateContent);
+                // 确保路径同步更新
+                if (!string.IsNullOrEmpty(templateContent))
                 {
-                    zplTemplatePath = file.ToString();
+                    zplTemplatePath = file;  // 关键：更新存储路径
                     label_zplTemp.Text = file.Substring(file.LastIndexOf("\\") + 1);
                 }
                 else

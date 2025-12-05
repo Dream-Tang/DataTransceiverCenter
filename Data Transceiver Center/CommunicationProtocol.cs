@@ -26,6 +26,8 @@
         // 标打印完成 = 11
         public const short prtReady = 1;
         public const short prtComplete = 11;
+        public const short prtOK = 11;
+        public const short prtNG = 13;
         // 扫码枪信号
         // 扫码开始 = 1
         // 扫码完成，标头返回 = 11
