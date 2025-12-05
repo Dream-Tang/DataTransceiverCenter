@@ -47,6 +47,9 @@ namespace Data_Transceiver_Center
         // 新增校验线程标志位
         private bool _isCheckMonitorRunning = false;
 
+        // 在mainForm类中添加CheckHelper实例变量
+        private CheckHelper _checkHelper;
+
         // 自动流程 状态标签
         public enum ProcessStatus
         {
@@ -101,6 +104,25 @@ namespace Data_Transceiver_Center
             // 绑定Form1的重试按钮事件
             _form1.btnRetryRead += btn_RetryRead_Click;
             _form1.btnRetryChk += btn_RetryChk_Click;
+
+            // 初始化校验助手类
+            _checkHelper = new CheckHelper(_form1, _form2, new LoggerAdapter(this));
+        }
+
+        // 新增日志适配器（实现ILogger接口，适配主窗体原有Log方法）
+        private class LoggerAdapter : ILogger
+        {
+            private readonly mainForm _mainForm;
+
+            public LoggerAdapter(mainForm mainForm)
+            {
+                _mainForm = mainForm;
+            }
+
+            public void Log(string module, string level, string message)
+            {
+                _mainForm.Log(module, level, message);
+            }
         }
 
         /// <summary>
@@ -698,7 +720,20 @@ namespace Data_Transceiver_Center
                         _form1.ignoreCheck = false;
                         if (_form1.seriStatus == Form1.STATUS_READY)
                         {
-                            BeginInvoke(new Action(t5CheckTask));
+                            // 使用CheckHelper执行校验逻辑
+                            BeginInvoke(new Action(() =>
+                            {
+                                try
+                                {
+                                    string checkResult = _checkHelper.ExecuteCheck();
+                                    _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log("校验线程", "ERROR", $"校验任务执行异常: {ex.Message}");
+                                    Log("校验线程", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                                }
+                            }));
                             _form1.seriStatus = Form1.STATUS_WAIT;
                         }
                         await Task.Delay(500);
@@ -804,7 +839,17 @@ namespace Data_Transceiver_Center
         private void OnSerialDataReceived()
         {
             Console.WriteLine("串口接收到验码数据");
-            t5CheckTask();
+            // 使用CheckHelper处理校验
+            try
+            {
+                string checkResult = _checkHelper.ExecuteCheck();
+                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+            }
+            catch (Exception ex)
+            {
+                Log("串口校验", "ERROR", $"处理串口校验数据异常: {ex.Message}");
+                Log("串口校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
+            }
         }
         #endregion
 
@@ -914,7 +959,17 @@ namespace Data_Transceiver_Center
         /// </summary>
         public void btn_RetryChk_Click()
         {
-            WritePLCReg(scn: CommunicationProtocol.scannerStart);
+            try
+            {
+                Log("手动验码", "INFO", "用户触发手动验码");
+                string checkResult = _checkHelper.ExecuteCheck();
+                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+            }
+            catch (Exception ex)
+            {
+                Log("手动验码", "ERROR", $"手动验码执行失败: {ex.Message}");
+                Log("手动验码", "ERROR", $"异常堆栈: {ex.StackTrace}");
+            }
         }
         #endregion
 
