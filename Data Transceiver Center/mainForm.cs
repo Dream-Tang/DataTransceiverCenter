@@ -63,14 +63,35 @@ namespace Data_Transceiver_Center
         }
 
         #region 自动流程触发的互斥锁和状态变量
-        // 自动模式状态（是否控制是否响应外部触发信号）
+        /// <summary>
+        /// 自动模式总开关：是否允许响应外部触发信号
+        /// </summary>
         private bool _isAutoModeEnabled = false;
 
-        // 流程执行状态（是否正在执行执行AutoRun流程，用于互斥）
+        /// <summary>
+        /// 流程执行状态：是否正在执行AutoRun全流程（互斥用）
+        /// </summary>
         private bool _isAutoRunning = false;
 
-        // 互斥锁（保护流程执行状态的原子性）
+        /// <summary>
+        /// 触发标记：防止同一模式下重复触发（跳过相机模式专用）
+        /// </summary>
+        private bool _isAutoProcessTriggered = false;
+
+        /// <summary>
+        /// 流程执行互斥锁：保护_isAutoRunning的原子性
+        /// </summary>
         private readonly object _autoRunLock = new object();
+
+        /// <summary>
+        /// 触发标记互斥锁：保护_isAutoProcessTriggered的原子性
+        /// </summary>
+        private readonly object _triggerLock = new object();
+
+        /// <summary>
+        /// TCP服务器实例（统一管理TCP连接和数据接收）
+        /// </summary>
+        private TCPServer _tcpServer;
         #endregion
 
         /// <summary>
@@ -396,11 +417,14 @@ namespace Data_Transceiver_Center
 
         #region 自动运行流程
         /// <summary>
-        /// 自动运行一次按钮点击事件
+        /// 手动触发自动流程按钮点击事件
         /// </summary>
+        /// <param name="sender">触发控件</param>
+        /// <param name="e">事件参数</param>
         private void autoRun_btn_Click(object sender, EventArgs e)
         {
-            TriggerAutoRun(isManualTrigger: true); // 手动触发，忽略自动模式状态
+            // 手动触发忽略触发源过滤，强制执行
+            TriggerAutoRun(isManualTrigger: true, "手动按钮");
         }
 
         /// <summary>
@@ -639,68 +663,163 @@ namespace Data_Transceiver_Center
         }
 
         /// <summary>
-        /// 自动流程复选框状态变更事件
+        /// 自动模式复选框状态变更事件
+        /// 核心逻辑：
+        /// 1. 自动模式开启时，根据「跳过相机」状态过滤触发源（而非启停TCP/PLC监控）；
+        /// 2. 保留TCP服务器始终运行（避免相机连接中断）；
+        /// 3. PLC监控仅在「跳过相机」时启动，否则仅停止触发逻辑（不停止监控线程）。
         /// </summary>
+        /// <param name="sender">触发控件</param>
+        /// <param name="e">事件参数</param>
         private void chkBox_autoMode_CheckedChanged(object sender, EventArgs e)
         {
-            // 更新自动模式状态
+            // 更新自动模式总开关状态
             _isAutoModeEnabled = chkBox_autoMode.Checked;
 
             if (_isAutoModeEnabled)
             {
-                // 开启自动模式：启动所有触发源的监控线程
-                StartCamMonitor();
-                if (!tcpServer_checkBox.Checked)
+                // 开启自动模式：仅控制触发源过滤，不启停TCP服务器
+                if (ignoreCam_checkBox.Checked)
                 {
-                    tcpServer_checkBox.Checked = true; // 自动模式下自动开启TCP服务器
+                    // 场景1：勾选跳过相机 → 启动PLC监控（响应PLC触发），TCP服务器保持运行（仅过滤触发信号）
+                    StartCamMonitor(); // 启动PLC cam寄存器监控线程
+                                       // 不修改TCP服务器状态（保留连接，避免相机连错）
+                    LogHelper.Instance.Log("自动模式", "INFO", "【跳过相机模式】自动模式已开启，仅响应PLC触发信号，TCP服务器保持运行（过滤TCP触发）");
                 }
-                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已开启，开始监听触发信号");
+                else
+                {
+                    // 场景2：未勾选跳过相机 → 停止PLC监控触发（仅保留TCP触发），TCP服务器保持运行
+                    StopCamMonitor(); // 停止PLC cam寄存器监控（避免PLC误触发）
+                                      // 确保TCP服务器运行（相机数据传输需要）
+                    if (!tcpServer_checkBox.Checked)
+                    {
+                        tcpServer_checkBox.Checked = true;
+                        StartTcpServer();
+                    }
+                    LogHelper.Instance.Log("自动模式", "INFO", "【正常模式】自动模式已开启，仅响应TCP触发信号，TCP服务器保持运行");
+                }
             }
             else
             {
-                // 关闭自动模式：停止所有触发源的监控线程
+                // 关闭自动模式：停止PLC监控，TCP服务器由用户手动控制（不强制关闭）
                 StopCamMonitor();
-                // 保持TCP服务器状态不变，由用户手动控制
-                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已关闭，停止监听触发信号");
+                ResetTriggerStatus(); // 重置触发状态标记
+                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已关闭，停止PLC监控，TCP服务器状态保持不变");
             }
         }
 
         /// <summary>
-        /// 统一触发AutoRun流程的入口
+        /// 统一触发AutoRun全流程的入口（核心触发控制）
+        /// 核心逻辑：
+        /// 1. 自动触发需校验自动模式开关；
+        /// 2. 根据「跳过相机」状态过滤触发源；
+        /// 3. 双重锁防止重复触发/并发执行；
         /// </summary>
-        /// <param name="isManualTrigger">是否为手动触发（true：忽略自动模式状态；false：仅在自动模式下执行）</param>
-        private void TriggerAutoRun(bool isManualTrigger = false)
+        /// <param name="isManualTrigger">是否为手动触发（手动触发忽略触发源过滤）</param>
+        /// <param name="triggerSource">触发源描述（用于日志追溯，如：PLC监控/TCP服务器/手动按钮）</param>
+        private void TriggerAutoRun(bool isManualTrigger = false, string triggerSource = "未知")
         {
-            // 自动触发时，需校验是否处于自动模式
+            #region 第一步：校验自动模式（自动触发专属）
             if (!isManualTrigger && !_isAutoModeEnabled)
             {
-                LogHelper.Instance.Log("触发控制", "INFO", "未开启自动模式，忽略外部触发信号");
+                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 自动模式未开启，忽略触发信号");
                 return;
             }
+            #endregion
 
-            // 互斥锁：确保同一时间只有一个流程在执行
+            #region 第二步：过滤触发源（自动触发专属）
+            if (!isManualTrigger)
+            {
+                bool isPlcTrigger = triggerSource.Contains("PLC"); // PLC触发源标识
+                bool isTcpTrigger = triggerSource.Contains("TCP"); // TCP触发源标识
+
+                // 规则1：跳过相机模式 → 仅允许PLC触发
+                if (ignoreCam_checkBox.Checked && !isPlcTrigger)
+                {
+                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 跳过相机模式下仅允许PLC触发，忽略本次非PLC触发");
+                    return;
+                }
+
+                // 规则2：正常模式（未跳过相机）→ 仅允许TCP触发
+                if (!ignoreCam_checkBox.Checked && !isTcpTrigger)
+                {
+                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 正常模式下仅允许TCP触发，忽略本次非TCP触发");
+                    return;
+                }
+            }
+            #endregion
+
+            #region 第三步：双重锁防止重复触发/并发执行
+            // 第一层锁：防止同一触发源重复标记
+            lock (_triggerLock)
+            {
+                if (_isAutoProcessTriggered)
+                {
+                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 已有流程触发标记，忽略本次重复触发");
+                    return;
+                }
+                _isAutoProcessTriggered = true; // 标记为已触发
+            }
+
+            // 第二层锁：防止流程并发执行
             lock (_autoRunLock)
             {
                 if (_isAutoRunning)
                 {
-                    LogHelper.Instance.Log("触发控制", "WARN", "已有流程在执行，忽略本次触发");
+                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 已有自动流程在执行，忽略本次触发");
+                    ResetTriggerFlag(); // 重置触发标记
                     return;
                 }
-                _isAutoRunning = true;
+                _isAutoRunning = true; // 标记为流程执行中
             }
+            #endregion
 
+            #region 第四步：执行全流程（核心业务）
             try
             {
-                // 执行全流程（原AutoRunMode，建议重命名为ExecuteFullProcess更清晰）
-                ExecuteFullProcess();
+                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 开始执行自动流程");
+                ExecuteFullProcess(); // 执行AutoRun全流程（读PLC→MES→打印→校验→写结果）
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Instance.Log("触发控制", "ERROR", $"[{triggerSource}] 自动流程执行异常：{ex.Message}，堆栈：{ex.StackTrace}");
             }
             finally
             {
-                // 无论成功失败，释放执行状态
+                // 无论成功/失败，都释放状态（必须在finally中执行，避免死锁）
                 lock (_autoRunLock)
                 {
-                    _isAutoRunning = false;
+                    _isAutoRunning = false; // 释放流程执行状态
                 }
+                ResetTriggerFlag(); // 重置触发标记
+                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 自动流程执行完成，状态已释放");
+            }
+            #endregion
+        }
+
+        /// <summary>
+        /// 重置触发标记（提取为独立方法，便于复用和维护）
+        /// </summary>
+        private void ResetTriggerFlag()
+        {
+            lock (_triggerLock)
+            {
+                _isAutoProcessTriggered = false;
+            }
+        }
+
+        /// <summary>
+        /// 重置所有触发状态（自动模式关闭时调用）
+        /// </summary>
+        private void ResetTriggerStatus()
+        {
+            lock (_triggerLock)
+            {
+                _isAutoProcessTriggered = false;
+            }
+            lock (_autoRunLock)
+            {
+                _isAutoRunning = false;
             }
         }
 
@@ -1061,7 +1180,10 @@ namespace Data_Transceiver_Center
         #region 跳过相机功能
         /// <summary>
         /// 跳过相机复选框状态变更事件
+        /// 联动自动模式：切换跳过相机时，同步更新触发源
         /// </summary>
+        /// <param name="sender">触发控件</param>
+        /// <param name="e">事件参数</param>
         private void chkBox_ignoreCam_CheckedChanged(object sender, EventArgs e)
         {
             // 清空校验码
@@ -1074,14 +1196,25 @@ namespace Data_Transceiver_Center
                 _form1.ClearVericode();
             }
 
-            // 启动/停止相机监控线程
-            if (ignoreCam_checkBox.Checked)
+            // 如果当前处于自动模式，重新触发自动模式逻辑，同步触发源
+            if (_isAutoModeEnabled)
             {
-                StartCamMonitor();
+                // 触发自动模式逻辑重计算
+                chkBox_autoMode_CheckedChanged(null, EventArgs.Empty);
             }
             else
             {
-                StopCamMonitor();
+                // 非自动模式下，仅控制PLC监控线程（TCP由用户手动控制）
+                if (ignoreCam_checkBox.Checked)
+                {
+                    StartCamMonitor();
+                    LogHelper.Instance.Log("跳过相机", "INFO", "非自动模式下，跳过相机已勾选，启动PLC监控（仅监听，不触发流程）");
+                }
+                else
+                {
+                    StopCamMonitor();
+                    LogHelper.Instance.Log("跳过相机", "INFO", "非自动模式下，跳过相机已取消，停止PLC监控");
+                }
             }
         }
 
@@ -1156,19 +1289,19 @@ namespace Data_Transceiver_Center
                     // 检测到触发条件
                     if (camValue.HasValue && camValue.Value == CommunicationProtocol.camAllow)
                     {
-                        Console.WriteLine($"检测到cam值为{camValue.Value}，触发AutoRun流程");
-                        // 自动触发，受AutoMode控制
-                        BeginInvoke(new Action(() => TriggerAutoRun(isManualTrigger: false)));
-                        Thread.Sleep(2000); // 避免短时间重复触发
+                        LogHelper.Instance.Log("PLC监控", "INFO", $"检测到cam寄存器值为{camValue.Value}，符合触发条件");
+                        // 触发自动流程，标记触发源为「PLC监控」
+                        BeginInvoke(new Action(() => TriggerAutoRun(isManualTrigger: false, "PLC监控")));
+                        Thread.Sleep(2000); // 防抖动：避免短时间重复读取触发
                     }
                     else
                     {
-                        Thread.Sleep(500);
+                        Thread.Sleep(500); // 非触发状态，降低轮询频率
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"相机监控线程出错: {ex.Message}");
+                    LogHelper.Instance.Log("PLC监控", "ERROR", $"PLC监控线程异常：{ex.Message}");
                     Thread.Sleep(1000);
                 }
             }
@@ -1192,9 +1325,8 @@ namespace Data_Transceiver_Center
         }
 
         /// <summary>
-        /// 启动TCP服务器
+        /// 启动TCP服务器（接收相机数据）
         /// </summary>
-        private TCPServer _tcpServer;  // 使用新的TCPServer类
         private void StartTcpServer()
         {
             if (_tcpServer != null && _tcpServer.IsRunning)
@@ -1208,12 +1340,15 @@ namespace Data_Transceiver_Center
                 _tcpServer.ClientConnected += OnClientConnected;
                 _tcpServer.ClientDisconnected += OnClientDisconnected;
 
-                _tcpServer.Start(_localAddr.ToString(), _localPortNum);
-                Console.WriteLine($"TCP服务器已启动，正在监听 {_localAddr}:{_localPortNum}");
+                // 启动TCP服务器（IP/端口从配置读取，示例值可替换）
+                string tcpIp = _localAddr.ToString(); // 监听所有网卡
+                int tcpPort = _localPortNum;       // 自定义端口
+                _tcpServer.Start(tcpIp, tcpPort);
+                LogHelper.Instance.Log("TCP服务器", "INFO", $"TCP服务器已启动，监听[{tcpIp}:{tcpPort}]");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"启动TCP服务器失败: {ex.Message}");
+                LogHelper.Instance.Log("TCP服务器", "ERROR", $"启动TCP服务器失败：{ex.Message}");
                 tcpServer_checkBox.Checked = false;
                 _tcpServer = null;
             }
@@ -1224,23 +1359,36 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void StopTcpServer()
         {
+            if (_tcpServer == null)
+                return;
             if (_tcpServer != null)
             {
-                // 取消订阅
-                _tcpServer.DataReceived -= OnTcpDataReceived;
-                _tcpServer.ClientConnected -= OnClientConnected;
-                _tcpServer.ClientDisconnected -= OnClientDisconnected;
+                try
+                {
+                    // 取消订阅
+                    _tcpServer.DataReceived -= OnTcpDataReceived;
+                    _tcpServer.ClientConnected -= OnClientConnected;
+                    _tcpServer.ClientDisconnected -= OnClientDisconnected;
 
-                _tcpServer.Stop();
-                _tcpServer = null;
+                    _tcpServer.Stop();
+                    LogHelper.Instance.Log("TCP服务器", "INFO", "TCP服务器已停止");
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Instance.Log("TCP服务器", "ERROR", $"停止TCP服务器异常：{ex.Message}");
+                }
+                finally
+                {
+                    _tcpServer = null;
+                }
+
             }
-            Console.WriteLine("TCP服务器已停止");
         }
 
         // 添加客户端连接事件处理
         private void OnClientConnected(string clientInfo)
         {
-            Console.WriteLine($"客户端 {clientInfo} 已连接");
+            LogHelper.Instance.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已连接");
             // 可以在这里添加UI更新代码
             BeginInvoke(new Action(() =>
             {
@@ -1251,7 +1399,7 @@ namespace Data_Transceiver_Center
         // 添加客户端断开事件处理
         private void OnClientDisconnected(string clientInfo)
         {
-            Console.WriteLine($"客户端 {clientInfo} 已断开连接");
+            LogHelper.Instance.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已断开");
             // 可以在这里添加UI更新代码
             BeginInvoke(new Action(() =>
             {
@@ -1259,29 +1407,36 @@ namespace Data_Transceiver_Center
             }));
         }
 
-        // 修改数据接收处理
+        /// <summary>
+        /// TCP数据接收事件处理（相机数据通过TCP传输）
+        /// </summary>
+        /// <param name="clientInfo">客户端IP+端口</param>
+        /// <param name="data">接收的原始数据</param>
         private void OnTcpDataReceived(string clientInfo, string data)
         {
-            // 显示接收的数据到UI
+            // 1. 日志记录原始数据
+            LogHelper.Instance.Log("TCP服务器", "INFO", $"收到[{clientInfo}]数据：{data}");
+
+            // 2. 更新UI（显示接收的数据）
             BeginInvoke(new Action(() =>
             {
+                //_form1.txtBox_veriCodeHistory.AppendText($"{DateTime.Now:HH:mm:ss} - {data}\r\n");
                 _form1.txtBox_veriCodeHistory.AppendText($"{data}\r\n");
             }));
 
-            // 回发确认信息
-            _tcpServer.SendToClient(clientInfo, $"服务器已收到: {data}");
-
-            // 处理触发逻辑
+            // 3. 解析产品ID（防重复触发用）
             string productId = ParseProductIdFromTcpData(data);
             if (string.IsNullOrEmpty(productId))
             {
-                LogHelper.Instance.Log("TCP触发", "ERROR", "未解析到产品ID，忽略触发");
-                WritePLCReg(cam: CommunicationProtocol.camNG);
+                LogHelper.Instance.Log("TCP服务器", "ERROR", "未解析到有效产品ID，忽略触发");
                 return;
             }
 
-            // 自动触发，受AutoMode控制
-            TriggerAutoRun(isManualTrigger: false);
+            // 4. 触发自动流程，标记触发源为「TCP服务器」
+            TriggerAutoRun(isManualTrigger: false, "TCP服务器");
+
+            // 5. 可选：向客户端发送确认回执
+            _tcpServer.SendToClient(clientInfo, $"服务器已接收并处理数据：{data}");
         }
 
         /// <summary>
