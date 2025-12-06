@@ -28,8 +28,10 @@ namespace Data_Transceiver_Center
         // 静态构造函数：初始化 HttpClient（仅执行一次）
         static MesCommunicationHelper()
         {
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromSeconds(10); // 超时时间和原有一致
+            _httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(10) // 超时时间和原有一致
+            };
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "MES-Client/1.0");
             _httpClient.DefaultRequestHeaders.ConnectionClose = false; // 复用连接
                                                                        // 新增：解决中文编码/Content-Type问题
@@ -58,7 +60,7 @@ namespace Data_Transceiver_Center
 
                 // 2. 序列化数据（与原有逻辑一致）
                 string postJson = JsonConvert.SerializeObject(mesData);
-                Console.WriteLine($"发送MES请求: {postJson}");
+                //LogHelper.Instance.Log("MES-RAW", "INFO", $"发送MES请求: {postJson}");
 
                 // 3. 调用原有HttpUitls.PostJson（核心：复用原有HTTP工具类）
                 // 注意：HttpUitls.PostJson是同步方法，用Task.Run包装为异步
@@ -120,13 +122,13 @@ namespace Data_Transceiver_Center
             if (string.IsNullOrWhiteSpace(url))
             {
                 result.Message = "MES请求URL为空";
-                Console.WriteLine($"[MES-RAW] 错误：{result.Message}");
+                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Message}");
                 return result;
             }
             if (postData == null)
             {
                 result.Message = "MES请求参数（MsePostData）为空";
-                Console.WriteLine($"[MES-RAW] 错误：{result.Message}");
+                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Message}");
                 return result;
             }
 
@@ -134,8 +136,8 @@ namespace Data_Transceiver_Center
             {
                 // 3. 序列化请求参数（和原有函数逻辑一致）
                 string postJson = JsonConvert.SerializeObject(postData);
-                Console.WriteLine($"[MES-RAW] 请求URL：{url}");
-                Console.WriteLine($"[MES-RAW] 请求参数：{postJson}");
+                //LogHelper.Instance.Log("MES-RAW", "INFO",  $"[MES-RAW] 请求URL：{url}");
+                //LogHelper.Instance.Log("MES-RAW", "INFO", $"[MES-RAW] 请求参数：{postJson}");
 
                 // 4. 构建请求内容（指定编码，避免中文乱码）
                 //var content = new StringContent(postJson, Encoding.UTF8, "application/json");
@@ -148,14 +150,14 @@ namespace Data_Transceiver_Center
                 content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
                 // 5. 发送POST请求（核心步骤，await必须保留）
-                Console.WriteLine("[MES-RAW] 开始发送POST请求...");
+                //LogHelper.Instance.Log("MES-RAW", "INFO", "[MES-RAW] 开始发送POST请求...");
                 HttpResponseMessage response = await _httpClient.PostAsync(url, content);
-                Console.WriteLine($"[MES-RAW] 响应状态码：{response.StatusCode}");
+                //LogHelper.Instance.Log("MES-RAW", "INFO", $"[MES-RAW] 响应状态码：{response.StatusCode}");
 
                 // 6. 读取原始响应（无论成功/失败，都读取）
                 string rawResponse = await response.Content.ReadAsStringAsync();
                 result.RawResponse = rawResponse; // 赋值原始响应
-                Console.WriteLine($"[MES-RAW] 原始响应内容：{rawResponse}");
+                //LogHelper.Instance.Log($"[MES-RAW] 原始响应内容：{rawResponse}");
 
                 // 7. 处理HTTP成功响应（200-299）
                 if (response.IsSuccessStatusCode)
@@ -190,7 +192,7 @@ namespace Data_Transceiver_Center
                         // JSON解析失败的兜底
                         result.Message = $"MES响应JSON解析失败：{ex.Message}";
                         result.Data = rawResponse; // 保留原始响应
-                        Console.WriteLine($"[MES-RAW] 解析异常：{ex}");
+                        LogHelper.Instance.Log("MES-RAW", "INFO", $"[MES-RAW] 解析异常：{ex}");
                     }
                 }
                 else
@@ -204,21 +206,21 @@ namespace Data_Transceiver_Center
                 // 单独捕获超时异常（最常见的问题）
                 result.Message = $"MES请求超时（10秒）：{ex.Message}";
                 result.RawResponse = ex.ToString(); // 保留异常堆栈
-                Console.WriteLine($"[MES-RAW] 超时异常：{ex}");
+                LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 超时异常：{ex}");
             }
             catch (HttpRequestException ex)
             {
                 // 网络异常（如URL无效、连接拒绝）
                 result.Message = $"MES网络请求异常：{ex.Message}";
                 result.RawResponse = ex.ToString();
-                Console.WriteLine($"[MES-RAW] 网络异常：{ex}");
+                LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 网络异常：{ex}");
             }
             catch (Exception ex)
             {
                 // 所有其他异常的兜底
                 result.Message = $"MES通信未知异常：{ex.Message}";
                 result.RawResponse = ex.ToString();
-                Console.WriteLine($"[MES-RAW] 未知异常：{ex}");
+                LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 未知异常：{ex}");
             }
 
             // 最终返回结果（无论成功/失败，都有完整信息）

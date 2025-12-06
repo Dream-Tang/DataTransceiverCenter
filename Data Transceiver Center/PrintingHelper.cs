@@ -28,6 +28,9 @@ namespace Data_Transceiver_Center
         /// <returns>打印结果信息</returns>
         public async Task<(bool Success, string Message)> ExecutePrintAsync(string printCode, string zplTemplatePath, string printerPath)
         {
+            // 新增：记录调用信息，方便追踪是否被重复调用
+            var callId = Guid.NewGuid().ToString().Substring(0, 8); // 生成唯一标识
+            //Log($"打印调用[{callId}]", "INFO", $"开始执行打印，内容：{printCode}"); // 假设存在Log方法
             try
             {
                 // 输入参数校验
@@ -57,7 +60,8 @@ namespace Data_Transceiver_Center
                     return (false, saveResult.Message);
 
                 // 4. 发送到打印机
-                var printResult = await SendToPrinterAsync(tempFilePath, printerPath);
+                var printResult = await SendToPrinterAsync(tempFilePath, printerPath); 
+                //Log($"打印调用[{callId}]", "INFO", $"模板加载结果：{loadResult.Message}");
                 if (!printResult.Success)
                     return (false, printResult.Message);
 

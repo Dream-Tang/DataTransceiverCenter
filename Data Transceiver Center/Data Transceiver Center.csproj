@@ -160,6 +160,7 @@
     <Compile Include="ActDefine.cs" />
     <Compile Include="CheckHelper.cs" />
     <Compile Include="IConfigurable.cs" />
+    <Compile Include="LogHelper.cs" />
     <Compile Include="MesCommunicationHelper.cs" />
     <Compile Include="PrintingHelper.cs" />
     <Compile Include="TcpServer.cs" />

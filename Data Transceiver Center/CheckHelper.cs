@@ -138,4 +138,15 @@ namespace Data_Transceiver_Center
     {
         void Log(string module, string level, string message);
     }
+
+    /// <summary>
+    /// 日志接口实现（适配LogHelper）
+    /// </summary>
+    public class LoggerAdapter : ILogger
+    {
+        public void Log(string module, string level, string message)
+        {
+            LogHelper.Instance.Log(module, level, message);
+        }
+    }
 }

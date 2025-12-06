@@ -63,13 +63,6 @@ namespace Data_Transceiver_Center
             Exception   // 异常
         }
 
-        #region 日志文件配置
-        // 日志文件配置
-        private long _maxLogSize = 5 * 1024 * 1024; // 默认5MB
-        private int _maxHistoryLogs = 10; // 默认保留10个历史日志
-        private readonly string _logFilePath = "AutoRun.log"; // 日志文件路径
-        #endregion
-
         /// <summary>
         /// 主窗体构造函数
         /// </summary>
@@ -116,48 +109,12 @@ namespace Data_Transceiver_Center
             _form1.btnRetryChk += btn_RetryChk_Click;
 
             // 初始化校验助手类
-            _checkHelper = new CheckHelper(_form1, _form2, new LoggerAdapter(this));
-        }
-
-        // 新增日志适配器（实现ILogger接口，适配主窗体原有Log方法）
-        private class LoggerAdapter : ILogger
-        {
-            private readonly mainForm _mainForm;
-
-            public LoggerAdapter(mainForm mainForm)
-            {
-                _mainForm = mainForm;
-            }
-
-            public void Log(string module, string level, string message)
-            {
-                _mainForm.Log(module, level, message);
-            }
-        }
-
-        /// <summary>
-        /// 标准化日志输出（带时间戳、模块、级别）
-        /// </summary>
-        /// <param name="module">模块名（如PLC/MES/打印）</param>
-        /// <param name="level">日志级别（INFO/ERROR/WARN）</param>
-        /// <param name="message">日志内容</param>
-        private void Log(string module, string level, string message)
-        {
-            string log = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{module}] [{level}] {message}";
-            Console.WriteLine(log);
-            // 可选：若需要写入日志文件，可在此处追加文件写入逻辑
-            // 检查并切割日志文件
-            CheckAndSplitLogFile();
-
-            // 写入日志到文件
-            try
-            {
-                File.AppendAllText(_logFilePath, log + Environment.NewLine);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"日志写入失败: {ex.Message}");
-            }
+            // 可选：自定义日志配置
+            LogHelper.Instance.SetLogConfig(
+                logFilePath: "AutoRun.log",
+                maxLogSize: 5 * 1024 * 1024, // 5MB
+                maxHistoryLogs: 10
+            );
         }
 
         #region 子窗体管理
@@ -446,21 +403,21 @@ namespace Data_Transceiver_Center
             string consoleInfo = "";
 
             // ========== 1. 读取PLC状态（调用拆分后的函数） ==========
-            Log("PLC", "INFO", "开始读取PLC状态");
+            LogHelper.Instance.Log("PLC", "INFO", "开始读取PLC状态");
             var plcResult = ReadPlcStatus();
             if (!plcResult.Success)
             {
                 // 读取失败时的处理（保持原逻辑：终止流程）
                 consoleInfo = "PLC读取失败，终止本次自动流程";
-                Log("PLC", "ERROR", consoleInfo);
-                Log("PLC", "ERROR", $"读取失败详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
+                LogHelper.Instance.Log("PLC", "ERROR", consoleInfo);
+                LogHelper.Instance.Log("PLC", "ERROR", $"读取失败详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
                 return;
             }
             // 读取成功，赋值给变量
             cam = plcResult.Cam;
             prt = plcResult.Prt;
             scn = plcResult.Scn;
-            Log("PLC", "INFO", $"PLC状态读取成功：cam={cam}, prt={prt}, scn={scn}");
+            LogHelper.Instance.Log("PLC", "INFO", $"PLC状态读取成功：cam={cam}, prt={prt}, scn={scn}");
 
             // 若屏蔽PLC，已在ReadPlcStatus中返回(-1,-1,-1)，无需额外处理
 
@@ -473,14 +430,14 @@ namespace Data_Transceiver_Center
             try
             {
                 // 从Form3获取MES配置（保留原有配置来源，仅修改数据类型）
-                Log("MES", "INFO", "开始获取MES配置信息");
+                LogHelper.Instance.Log("MES", "INFO", "开始获取MES配置信息");
                 postUrl = _form3.MesPostRoot.MesUrl;
                 mesPostData = _form3.MesPostRoot.MesData; // 直接获取实体类，无需手动序列化
                 // 保留原有序列化逻辑，用于打印请求JSON
                 postJson = JsonConvert.SerializeObject(mesPostData, Formatting.Indented);
 
-                Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
-                Log("MES", "INFO", $"MES请求参数（JSON）：{Environment.NewLine}{postJson}");
+                LogHelper.Instance.Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
+                LogHelper.Instance.Log("MES", "INFO", $"MES请求参数（JSON）：{Environment.NewLine}{postJson}");
 
                 // 新增：更新“发送消息”到Form1的txtBox_postData（线程安全）
                 BeginInvoke(new Action(() =>
@@ -491,13 +448,13 @@ namespace Data_Transceiver_Center
             catch (Exception ex)
             {
                 consoleInfo = $"Mes设置未导入: {ex.Message}";
-                Log("MES", "ERROR", consoleInfo);
-                Log("MES", "ERROR", $"异常堆栈：{ex.StackTrace}"); // 保留异常堆栈
+                LogHelper.Instance.Log("MES", "ERROR", consoleInfo);
+                LogHelper.Instance.Log("MES", "ERROR", $"异常堆栈：{ex.StackTrace}"); // 保留异常堆栈
                 // 配置错误直接终止流程
                 return;
             }
             // 步骤2.2：调用MES通信助手类（替换原Task t1）
-            Log("MES", "INFO", "开始发送MES POST请求");
+            LogHelper.Instance.Log("MES", "INFO", "开始发送MES POST请求");
             //var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
             var mesResult = await MesCommunicationHelper.Instance.SendMesRequestWithRawAsync(postUrl, mesPostData);
             // 调用后必看日志（定位问题）
@@ -509,8 +466,8 @@ namespace Data_Transceiver_Center
             {
                 // MES通信成功（逻辑与原一致）
                 consoleInfo = $"已收到MES回复的数据：{mesResult.RawResponse}";
-                Log("MES", "INFO", consoleInfo);
-                Log("MES", "INFO", $"MES响应详情：{mesResult.Message}");
+                LogHelper.Instance.Log("MES", "INFO", consoleInfo);
+                LogHelper.Instance.Log("MES", "INFO", $"MES响应详情：{mesResult.Message}");
                 WritePLCReg(cam: CommunicationProtocol.camOK);
 
                 // 新增1：更新“接收消息”到Form1的txtBox_responseData（线程安全）
@@ -528,7 +485,7 @@ namespace Data_Transceiver_Center
                 BeginInvoke(new Action(() =>
                 {
                     _form1.SetLbReadCode(CommunicationProtocol.readCodeOK);
-                    Log("UI", "INFO", "更新UI：条码读取状态设为OK");
+                    LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为OK");
 
                     // 1. 生成二维码并显示到pictureBox（假设使用pictureBox1显示）
                     _form1.pictureBox1.Image = Form1.SetBarCode128(qrCodeContent);
@@ -542,34 +499,34 @@ namespace Data_Transceiver_Center
                 }));
 
                 cam = CommunicationProtocol.camOK;
-                Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camOK）");
+                LogHelper.Instance.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camOK）");
             }
             else
             {
                 // MES通信失败（逻辑与原一致，仅替换错误信息来源）
                 consoleInfo = mesResult.Message;
-                Log("MES", "ERROR", $"MES通信失败：{consoleInfo}");
+                LogHelper.Instance.Log("MES", "ERROR", $"MES通信失败：{consoleInfo}");
                 WritePLCReg(cam: CommunicationProtocol.camNG);
                 BeginInvoke(new Action(() =>
                 {
                     _form1.SetLbReadCode(CommunicationProtocol.readCodeNG);
-                    Log("UI", "INFO", "更新UI：条码读取状态设为NG");
+                    LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为NG");
                 }));
 
                 cam = CommunicationProtocol.camNG;
-                Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camNG）");
-                Log("AutoRun", "WARN", "MES通信失败，终止本次自动流程");
+                LogHelper.Instance.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camNG）");
+                LogHelper.Instance.Log("AutoRun", "WARN", "MES通信失败，终止本次自动流程");
                 return; // 失败终止后续流程
             }
 
 
             // ========== 打印模块改造核心 ==========
-            Log("打印", "INFO", "进入打印流程，开始前置检查");
+            LogHelper.Instance.Log("打印", "INFO", "进入打印流程，开始前置检查");
             // 标记是否需要等待PLC就绪（屏蔽PLC开关）
             bool needWaitPlcReady = !ignorePlc_checkBox.Checked;
             if (needWaitPlcReady)
             {
-                Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
+                LogHelper.Instance.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
                 prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
 
                 // 步骤1：等待打印机就绪（原有逻辑保留）
@@ -579,7 +536,7 @@ namespace Data_Transceiver_Center
                     var plcRefreshResult = ReadPlcStatus();
                     if (!plcRefreshResult.Success)
                     {
-                        Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
+                        LogHelper.Instance.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
                         prt = CommunicationProtocol.prtNG;
                         WritePLCReg(prt: prt);
                         BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
@@ -589,28 +546,29 @@ namespace Data_Transceiver_Center
                     cam = plcRefreshResult.Cam;
                     scn = plcRefreshResult.Scn;
 
-                    Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    LogHelper.Instance.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
                     await Task.Delay(500);
                 }
-                Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
+                LogHelper.Instance.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
             }
             else
             {
                 // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
-                Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
+                LogHelper.Instance.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
                 prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
             }
 
             // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
             try
             {
-                Log("打印", "INFO", "开始调用打印助手类执行打印");
+                LogHelper.Instance.Log("打印", "INFO", "开始调用打印助手类执行打印");
                 // 获取Form1的打印配置（已暴露属性）
                 string zplTemplatePath = _form1.ZplTemplatePath;
                 string printerPath = _form1.PrintName;
                 string printCode = mesResult.Data; // MES返回的打印内容
 
                 // 异步调用打印助手类
+                LogHelper.Instance.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
                 var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
                     printCode: printCode,
                     zplTemplatePath: _form1.ZplTemplatePath,  // 直接使用Form1暴露的模板路径属性
@@ -620,41 +578,41 @@ namespace Data_Transceiver_Center
                 // 步骤3：处理打印结果（统一逻辑+标准化日志）
                 if (printResult.Success)
                 {
-                    Log("打印", "INFO", $"打印成功：{printResult.Message}");
+                    LogHelper.Instance.Log("打印", "INFO", $"打印成功：{printResult.Message}");
                     prt = CommunicationProtocol.prtOK;
                     // 线程安全更新UI
                     BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeOK)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
-                    Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    LogHelper.Instance.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
                 }
                 else
                 {
-                    Log("打印", "ERROR", $"打印失败：{printResult.Message}");
+                    LogHelper.Instance.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
                     prt = CommunicationProtocol.prtNG;
                     // 线程安全更新UI
                     BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
-                    Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
-                    Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
+                    LogHelper.Instance.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    LogHelper.Instance.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
                     return;
                 }
             }
             catch (Exception ex)
             {
                 // 捕获助手类未覆盖的异常（兜底）
-                Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
-                Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
+                LogHelper.Instance.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
+                LogHelper.Instance.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
                 prt = CommunicationProtocol.prtNG;
                 BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
                 WritePLCReg(prt: prt);
                 return;
             }
 
-            Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+            LogHelper.Instance.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
 
@@ -820,8 +778,8 @@ namespace Data_Transceiver_Center
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log("校验线程", "ERROR", $"校验任务执行异常: {ex.Message}");
-                                    Log("校验线程", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                                    LogHelper.Instance.Log("校验线程", "ERROR", $"校验任务执行异常: {ex.Message}");
+                                    LogHelper.Instance.Log("校验线程", "ERROR", $"异常堆栈: {ex.StackTrace}");
                                 }
                             }));
                             _form1.seriStatus = Form1.STATUS_WAIT;
@@ -926,8 +884,8 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
-                Log("串口校验", "ERROR", $"处理串口校验数据异常: {ex.Message}");
-                Log("串口校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                LogHelper.Instance.Log("串口校验", "ERROR", $"处理串口校验数据异常: {ex.Message}");
+                LogHelper.Instance.Log("串口校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
             }
         }
         #endregion
@@ -1040,14 +998,14 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                Log("手动验码", "INFO", "用户触发手动验码");
+                LogHelper.Instance.Log("手动验码", "INFO", "用户触发手动验码");
                 string checkResult = _checkHelper.ExecuteCheck();
                 _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
             }
             catch (Exception ex)
             {
-                Log("手动验码", "ERROR", $"手动验码执行失败: {ex.Message}");
-                Log("手动验码", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                LogHelper.Instance.Log("手动验码", "ERROR", $"手动验码执行失败: {ex.Message}");
+                LogHelper.Instance.Log("手动验码", "ERROR", $"异常堆栈: {ex.StackTrace}");
             }
         }
         #endregion
@@ -1368,72 +1326,5 @@ namespace Data_Transceiver_Center
             StopCamMonitor(); // 确保相机监控线程停止
         }
 
-        #region 日志大小切割器
-        /// <summary>
-        /// 检查日志文件大小，超过限制则切割
-        /// </summary>
-        private void CheckAndSplitLogFile()
-        {
-            if (!File.Exists(_logFilePath))
-                return;
-
-            FileInfo logFile = new FileInfo(_logFilePath);
-
-            // 若日志文件超过最大限制，进行切割
-            if (logFile.Length > _maxLogSize)
-            {
-                try
-                {
-                    // 生成带时间戳的历史日志文件名（如AutoRun_20240520_153000.log）
-                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                    string historyLogPath = $"{Path.GetFileNameWithoutExtension(_logFilePath)}_{timestamp}.log";
-
-                    // 移动当前日志到历史日志
-                    File.Move(_logFilePath, historyLogPath);
-
-                    // 清理过期历史日志（保留最近的MAX_HISTORY_LOGS个）
-                    CleanupHistoryLogs();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"日志切割失败: {ex.Message}");
-                }
-            }
-        }
-
-        /// <summary>
-        /// 清理超出数量限制的历史日志
-        /// </summary>
-        private void CleanupHistoryLogs()
-        {
-            // 获取所有历史日志文件（匹配AutoRun_*.log格式）
-            string logDir = Path.GetDirectoryName(_logFilePath);
-            string logPrefix = Path.GetFileNameWithoutExtension(_logFilePath);
-            var historyLogs = Directory.GetFiles(
-                logDir,
-                $"{logPrefix}_*.log",
-                SearchOption.TopDirectoryOnly
-            )
-            .OrderByDescending(f => File.GetCreationTime(f)) // 按创建时间倒序（最新的在前）
-            .ToList();
-
-            // 若历史日志数量超过限制，删除最旧的
-            if (historyLogs.Count > _maxHistoryLogs)
-            {
-                for (int i = _maxHistoryLogs; i < historyLogs.Count; i++)
-                {
-                    try
-                    {
-                        File.Delete(historyLogs[i]);
-                        Console.WriteLine($"已删除过期日志: {historyLogs[i]}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"删除过期日志失败: {ex.Message}");
-                    }
-                }
-            }
-        }
-        #endregion
     }
 }
