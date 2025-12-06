@@ -70,42 +70,43 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                if (ignorePlc)
+                if (ignorePlc) // 屏蔽PLC时直接返回
                 {
                     _logger.Log("校验", "INFO", "已忽略PLC，不更新校验结果");
                     return;
                 }
 
-                // .NET 4.6不支持switch表达式，改用传统switch语句
-                short scn;
+                // 屏蔽校验时，强制checkResult为OK
+                if (_form1.ignoreCheck)
+                {
+                    checkResult = "OK";
+                    _logger.Log("校验", "INFO", "屏蔽校验状态，强制结果为OK");
+                }
+
+                short scnValue;
                 switch (checkResult)
                 {
                     case "OK":
-                        scn = CommunicationProtocol.checkOK;
+                        scnValue = CommunicationProtocol.checkOK;
                         break;
                     case "NG":
-                        scn = CommunicationProtocol.checkNG;
+                        scnValue = CommunicationProtocol.checkNG;
                         break;
                     default:
-                        scn = CommunicationProtocol.checkLose;
+                        scnValue = CommunicationProtocol.checkIgnore;
                         break;
                 }
 
-                var plcRegValue = _form2.ReadPlc();
-                if (plcRegValue == null)
+                // 直接调用Form2的重载方法，仅更新scn寄存器（其他寄存器保持原值）
+                if (_form2.InvokeRequired)
                 {
-                    _logger.Log("校验", "WARN", "PLC寄存器值读取为空，无法更新校验结果");
-                    return;
+                    _form2.Invoke(new Action(() => _form2.SafeWritePlc(scn: scnValue)));
                 }
-
-                short cam = plcRegValue.Item1;
-                short prt = plcRegValue.Item2;
-
-                if (plcRegValue.Item3 != CommunicationProtocol.checkLose)
+                else
                 {
-                    UpdatePlcSafely(cam, prt, scn);
-                    _logger.Log("校验", "INFO", $"已发送校验结果到PLC: {scn}");
+                    _form2.SafeWritePlc(scn: scnValue);
                 }
+                _logger.Log("校验", "INFO", $"已发送校验结果到PLC: {scnValue}");
             }
             catch (Exception ex)
             {

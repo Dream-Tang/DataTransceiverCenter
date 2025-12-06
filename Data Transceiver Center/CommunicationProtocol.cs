@@ -38,7 +38,7 @@
         // 判定数据OK，放行 = 12
         // 判定数据NG，报警 = 13
         public const short checkErro = 0;
-        public const short checkLose = 1;
+        public const short checkIgnore = 1;
         public const short checkOK = 12;
         public const short checkNG = 13;
         #endregion

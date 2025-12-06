@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -46,6 +47,8 @@ namespace Data_Transceiver_Center
 
         // 新增校验线程标志位
         private bool _isCheckMonitorRunning = false;
+        // 忽略校验，scn监控线程标志位
+        private bool _isScnMonitorRunning = false; 
 
         // 在mainForm类中添加CheckHelper实例变量
         private CheckHelper _checkHelper;
@@ -59,6 +62,13 @@ namespace Data_Transceiver_Center
             Complete,   // 完成
             Exception   // 异常
         }
+
+        #region 日志文件配置
+        // 日志文件配置
+        private long _maxLogSize = 5 * 1024 * 1024; // 默认5MB
+        private int _maxHistoryLogs = 10; // 默认保留10个历史日志
+        private readonly string _logFilePath = "AutoRun.log"; // 日志文件路径
+        #endregion
 
         /// <summary>
         /// 主窗体构造函数
@@ -136,7 +146,18 @@ namespace Data_Transceiver_Center
             string log = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] [{module}] [{level}] {message}";
             Console.WriteLine(log);
             // 可选：若需要写入日志文件，可在此处追加文件写入逻辑
-            File.AppendAllText("AutoRun.log", log + Environment.NewLine);
+            // 检查并切割日志文件
+            CheckAndSplitLogFile();
+
+            // 写入日志到文件
+            try
+            {
+                File.AppendAllText(_logFilePath, log + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"日志写入失败: {ex.Message}");
+            }
         }
 
         #region 子窗体管理
@@ -702,14 +723,50 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void chkbox_ignoreCheck_checked(object sender, EventArgs e)
         {
-            // 先停止已有线程
+            // 先停止已有线程（包括原校验线程和新增的scn监控线程）
             _isCheckMonitorRunning = false;
+            _isScnMonitorRunning = false; // 新增：停止scn监控
             Task.Delay(500).Wait();
-            // 传递参数，更新Form1的忽略校验状态
+            // 更新Form1的忽略校验状态
             _form1.ignoreCheck = ignoreCheck_checkBox.Checked;
 
-            // 启动新线程（若未勾选“忽略校验”）
-            if (!ignoreCheck_checkBox.Checked)
+            // 勾选"忽略校验"：启动scn寄存器监控线程（类似跳过相机的监控逻辑）
+            if (ignoreCheck_checkBox.Checked)
+            {
+                _isScnMonitorRunning = true;
+                var scnMonitorTask = Task.Run(async () =>
+                {
+                    while (_isScnMonitorRunning)
+                    {
+                        // 监控scn寄存器，checkIgnore（1）时触发校验
+                        var scnValue = ReadPlcSpecificRegister(CommunicationProtocol.scannerRegister);
+                        if (scnValue.HasValue && scnValue.Value == CommunicationProtocol.checkIgnore)
+                        {
+                            Console.WriteLine($"忽略校验模式：检测到scn={scnValue.Value}，触发强制校验");
+                            // 执行校验（此时会返回OK）并写入PLC
+                            if (this.InvokeRequired)
+                            {
+                                this.Invoke(new Action(() =>
+                                {
+                                    string checkResult = _checkHelper.ExecuteCheck();
+                                    _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+                                }));
+                            }
+                            else
+                            {
+                                string checkResult = _checkHelper.ExecuteCheck();
+                                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+                            }
+                            // 延迟避免短时间重复触发
+                            await Task.Delay(1000);
+                        }
+                        await Task.Delay(500); // 监控间隔
+                    }
+                });
+            }
+
+            // 未勾选"忽略校验"：启动校验监控线程
+            else 
             {
                 _isCheckMonitorRunning = true;
                 // 启动校验监控线程
@@ -747,18 +804,16 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void t5CheckTask()
         {
-            short cam = -1, prt = -1, scn = -1;
-            Tuple<short, short, short> plcRegValue;
+            short scn = -1;
             string checkResult = "";
-
             try
             {
-                // 线程安全获取校验结果
+                // 无论是否屏蔽校验，都获取校验结果（此时CheckScnPrtCode会返回OK）
                 if (_form1.InvokeRequired)
                 {
                     _form1.Invoke(new Action(() =>
                     {
-                        checkResult = _form1.GetCheckResult();
+                        checkResult = _form1.GetCheckResult(); // 屏蔽时已强制为OK
                     }));
                 }
                 else
@@ -766,11 +821,11 @@ namespace Data_Transceiver_Center
                     checkResult = _form1.GetCheckResult();
                 }
 
-                // 根据校验结果设置PLC信号
+                // 根据结果设置scn值（屏蔽时checkResult已为OK）
                 if (checkResult == "OK")
                 {
                     scn = CommunicationProtocol.checkOK;
-                    Console.WriteLine("task t5：校验结果OK");
+                    Console.WriteLine("task t5：校验结果OK（含屏蔽强制OK）");
                 }
                 else if (checkResult == "NG")
                 {
@@ -779,43 +834,34 @@ namespace Data_Transceiver_Center
                 }
                 else
                 {
-                    scn = CommunicationProtocol.checkLose;
+                    scn = CommunicationProtocol.checkIgnore;
                     Console.WriteLine("task t5：未校验");
                     return;
                 }
 
-                // 写入PLC（如果未屏蔽）
+                // 写入PLC（即使屏蔽校验，只要未勾选"忽略PLC"，就执行写入）
                 if (!ignorePlc_checkBox.Checked)
                 {
-                    plcRegValue = _form2.ReadPlc();
-                    if (plcRegValue != null)
+                    // 仅更新scn寄存器，复用重载方法减少通信
+                    if (_form2.InvokeRequired)
                     {
-                        cam = plcRegValue.Item1;
-                        prt = plcRegValue.Item2;
-
-                        if (plcRegValue.Item3 != CommunicationProtocol.checkLose)
-                        {
-                            if (_form2.InvokeRequired)
-                            {
-                                _form2.Invoke(new Action(() =>
-                                    _form2.SafeWritePlc(cam, prt, scn)));
-                            }
-                            else
-                            {
-                                _form2.SafeWritePlc(cam, prt, scn);
-                            }
-                            Console.WriteLine("task t5：已发送校验结果给PLC");
-                        }
+                        _form2.Invoke(new Action(() =>
+                            _form2.SafeWritePlc(scn: scn))); // 只传scn，其他保持原值
                     }
+                    else
+                    {
+                        _form2.SafeWritePlc(scn: scn);
+                    }
+                    Console.WriteLine($"task t5：已发送校验结果{checkResult}给PLC（含屏蔽状态）");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"t5CheckTask出错: {ex.Message}");
+                Console.WriteLine($"校验任务异常: {ex.Message}");
             }
             finally
             {
-                // 重置状态
+                // 重置状态（保持原逻辑）
                 if (_form1.InvokeRequired)
                 {
                     _form1.Invoke(new Action(() => _form1.seriStatus = Form1.STATUS_WAIT));
@@ -1288,5 +1334,73 @@ namespace Data_Transceiver_Center
         {
             StopCamMonitor(); // 确保相机监控线程停止
         }
+
+        #region 日志大小切割器
+        /// <summary>
+        /// 检查日志文件大小，超过限制则切割
+        /// </summary>
+        private void CheckAndSplitLogFile()
+        {
+            if (!File.Exists(_logFilePath))
+                return;
+
+            FileInfo logFile = new FileInfo(_logFilePath);
+
+            // 若日志文件超过最大限制，进行切割
+            if (logFile.Length > MAX_LOG_SIZE)
+            {
+                try
+                {
+                    // 生成带时间戳的历史日志文件名（如AutoRun_20240520_153000.log）
+                    string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    string historyLogPath = $"{Path.GetFileNameWithoutExtension(_logFilePath)}_{timestamp}.log";
+
+                    // 移动当前日志到历史日志
+                    File.Move(_logFilePath, historyLogPath);
+
+                    // 清理过期历史日志（保留最近的MAX_HISTORY_LOGS个）
+                    CleanupHistoryLogs();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"日志切割失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 清理超出数量限制的历史日志
+        /// </summary>
+        private void CleanupHistoryLogs()
+        {
+            // 获取所有历史日志文件（匹配AutoRun_*.log格式）
+            string logDir = Path.GetDirectoryName(_logFilePath);
+            string logPrefix = Path.GetFileNameWithoutExtension(_logFilePath);
+            var historyLogs = Directory.GetFiles(
+                logDir,
+                $"{logPrefix}_*.log",
+                SearchOption.TopDirectoryOnly
+            )
+            .OrderByDescending(f => File.GetCreationTime(f)) // 按创建时间倒序（最新的在前）
+            .ToList();
+
+            // 若历史日志数量超过限制，删除最旧的
+            if (historyLogs.Count > MAX_HISTORY_LOGS)
+            {
+                for (int i = MAX_HISTORY_LOGS; i < historyLogs.Count; i++)
+                {
+                    try
+                    {
+                        File.Delete(historyLogs[i]);
+                        Console.WriteLine($"已删除过期日志: {historyLogs[i]}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"删除过期日志失败: {ex.Message}");
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

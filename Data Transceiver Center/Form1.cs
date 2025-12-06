@@ -540,11 +540,13 @@ namespace Data_Transceiver_Center
         // 进行一次验码，将串口接收的数据与打印的条码进行对比，给出OK,NG,IG的信号，没有直接写PLC
         private string CheckScnPrtCode()
         {
+            string checkResult;
             if (ignoreCheck)    // 屏蔽校验
             {
+                // 强制返回OK，而非原逻辑的"OK"（原逻辑可能因其他条件变化）
                 checkResult = "OK";
                 SetLbChkCode(CommunicationProtocol.chkCodeIG);
-                Console.WriteLine("    Check result:ignore");
+                Console.WriteLine("    Check result:ignore (强制返回OK)");
             }
             else
             {
@@ -563,6 +565,12 @@ namespace Data_Transceiver_Center
                         SetLbChkCode(CommunicationProtocol.chkCodeNG);
                         Console.WriteLine("    Check result:NG");
                     }
+                }
+                else
+                {
+                    checkResult = "Lose"; // 未获取到完整数据
+                    SetLbChkCode("未校验");
+                    Console.WriteLine("    Check result:Lose");
                 }
                 // 校验完成后清空旧数据
 
