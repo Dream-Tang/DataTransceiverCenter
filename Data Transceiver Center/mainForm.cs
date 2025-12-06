@@ -481,6 +481,12 @@ namespace Data_Transceiver_Center
 
                 Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
                 Log("MES", "INFO", $"MES请求参数（JSON）：{Environment.NewLine}{postJson}");
+
+                // 新增：更新“发送消息”到Form1的txtBox_postData（线程安全）
+                BeginInvoke(new Action(() =>
+                {
+                    _form1.txtBox_postData.Text = $"POST发送:\r\n{JsonConvert.SerializeObject(mesPostData)}";
+                }));
             }
             catch (Exception ex)
             {
@@ -492,20 +498,47 @@ namespace Data_Transceiver_Center
             }
             // 步骤2.2：调用MES通信助手类（替换原Task t1）
             Log("MES", "INFO", "开始发送MES POST请求");
-            var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
+            //var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
+            var mesResult = await MesCommunicationHelper.Instance.SendMesRequestWithRawAsync(postUrl, mesPostData);
+            // 调用后必看日志（定位问题）
+            Console.WriteLine($"最终结果：Success={mesResult.Success}，Message={mesResult.Message}");
+            Console.WriteLine($"原始响应：{mesResult.RawResponse}");
 
             // 步骤2.3：处理MES响应结果（复用原有业务逻辑，仅适配新的返回值）
             if (mesResult.Success)
             {
                 // MES通信成功（逻辑与原一致）
-                consoleInfo = $"已收到MES回复的数据：{mesResult.Data}";
+                consoleInfo = $"已收到MES回复的数据：{mesResult.RawResponse}";
                 Log("MES", "INFO", consoleInfo);
                 Log("MES", "INFO", $"MES响应详情：{mesResult.Message}");
                 WritePLCReg(cam: CommunicationProtocol.camOK);
+
+                // 新增1：更新“接收消息”到Form1的txtBox_responseData（线程安全）
+                BeginInvoke(new Action(() =>
+                {
+                    _form1.txtBox_responseData.Text = $"Mes响应:\r\n{mesResult.RawResponse}";
+                }));
+
+                // 新增：生成二维码并更新标签
+                // MES返回的是JSON对象，需先解析
+
+                //var mesDataObj = JsonConvert.DeserializeObject<MesData2>(mesResult.Data);
+                string qrCodeContent = mesResult.Data; // 需要显示panelId字段
+
                 BeginInvoke(new Action(() =>
                 {
                     _form1.SetLbReadCode(CommunicationProtocol.readCodeOK);
                     Log("UI", "INFO", "更新UI：条码读取状态设为OK");
+
+                    // 1. 生成二维码并显示到pictureBox（假设使用pictureBox1显示）
+                    _form1.pictureBox1.Image = Form1.SetBarCode128(qrCodeContent);
+
+                    // 2. 将数值显示到lastPrtCode_label
+                    _form1.lastPrtCode_label.Text = qrCodeContent;
+
+                    // 3. 可选：同步更新打印码文本框
+                    _form1.txtBox_prtCode.Text = qrCodeContent;
+
                 }));
 
                 cam = CommunicationProtocol.camOK;
@@ -1347,7 +1380,7 @@ namespace Data_Transceiver_Center
             FileInfo logFile = new FileInfo(_logFilePath);
 
             // 若日志文件超过最大限制，进行切割
-            if (logFile.Length > MAX_LOG_SIZE)
+            if (logFile.Length > _maxLogSize)
             {
                 try
                 {
@@ -1385,9 +1418,9 @@ namespace Data_Transceiver_Center
             .ToList();
 
             // 若历史日志数量超过限制，删除最旧的
-            if (historyLogs.Count > MAX_HISTORY_LOGS)
+            if (historyLogs.Count > _maxHistoryLogs)
             {
-                for (int i = MAX_HISTORY_LOGS; i < historyLogs.Count; i++)
+                for (int i = _maxHistoryLogs; i < historyLogs.Count; i++)
                 {
                     try
                     {
