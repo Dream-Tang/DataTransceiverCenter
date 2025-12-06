@@ -30,7 +30,7 @@ namespace Data_Transceiver_Center
         {
             // 新增：记录调用信息，方便追踪是否被重复调用
             var callId = Guid.NewGuid().ToString().Substring(0, 8); // 生成唯一标识
-            //Log($"打印调用[{callId}]", "INFO", $"开始执行打印，内容：{printCode}"); // 假设存在Log方法
+            LogHelper.Instance.Log($"打印调用[{callId}]", "INFO", $"开始执行打印，内容：{printCode}"); // 假设存在Log方法
             try
             {
                 // 输入参数校验
@@ -54,14 +54,15 @@ namespace Data_Transceiver_Center
                     return (false, "生成ZPL指令指令失败");
 
                 // 3. 保存ZPL文件
-                string tempFilePath = Path.Combine(Path.GetTempPath(), "print_temp.zpl");
+                // 生成唯一临时文件名，避免冲突
+                //string tempFilePath = Path.Combine(Path.GetTempPath(), "print_temp.zpl");
+                string tempFilePath = Path.Combine(Path.GetTempPath(), $"print_{Guid.NewGuid()}.zpl");
                 var saveResult = await SaveZplFileAsync(tempFilePath, zplContent);
                 if (!saveResult.Success)
                     return (false, saveResult.Message);
 
                 // 4. 发送到打印机
                 var printResult = await SendToPrinterAsync(tempFilePath, printerPath); 
-                //Log($"打印调用[{callId}]", "INFO", $"模板加载结果：{loadResult.Message}");
                 if (!printResult.Success)
                     return (false, printResult.Message);
 
@@ -150,8 +151,9 @@ namespace Data_Transceiver_Center
                 {
                     if (!File.Exists(filePath))
                         return (false, $"临时文件不存在: {filePath}");
-
+                    LogHelper.Instance.Log($"发送打印文件", "INFO", $"准备复制文件到打印机：{filePath} -> {printerPath}");
                     File.Copy(filePath, printerPath, true);
+                    LogHelper.Instance.Log($"发送打印文件", "INFO", $"复制完成");
                     return (true, $"已发送到打印机: {printerPath}");
                 }
                 catch (Exception ex)

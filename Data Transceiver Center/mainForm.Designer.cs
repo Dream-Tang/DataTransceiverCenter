@@ -41,7 +41,7 @@ namespace Data_Transceiver_Center
             this.btn_LoadConfig = new System.Windows.Forms.Button();
             this.autoRun_btn = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.autoRun_checkBox = new System.Windows.Forms.CheckBox();
+            this.chkBox_autoMode = new System.Windows.Forms.CheckBox();
             this.ignorePlc_checkBox = new System.Windows.Forms.CheckBox();
             this.tcpServer_checkBox = new System.Windows.Forms.CheckBox();
             this.connectPlc_checkBox = new System.Windows.Forms.CheckBox();
@@ -148,14 +148,14 @@ namespace Data_Transceiver_Center
             // 
             // autoRun_checkBox
             // 
-            this.autoRun_checkBox.AutoSize = true;
-            this.autoRun_checkBox.Location = new System.Drawing.Point(12, 513);
-            this.autoRun_checkBox.Name = "autoRun_checkBox";
-            this.autoRun_checkBox.Size = new System.Drawing.Size(106, 22);
-            this.autoRun_checkBox.TabIndex = 7;
-            this.autoRun_checkBox.Text = "自动流程";
-            this.autoRun_checkBox.UseVisualStyleBackColor = true;
-            this.autoRun_checkBox.CheckedChanged += new System.EventHandler(this.trigger1_CheckBox_CheckedChanged);
+            this.chkBox_autoMode.AutoSize = true;
+            this.chkBox_autoMode.Location = new System.Drawing.Point(12, 513);
+            this.chkBox_autoMode.Name = "autoRun_checkBox";
+            this.chkBox_autoMode.Size = new System.Drawing.Size(106, 22);
+            this.chkBox_autoMode.TabIndex = 7;
+            this.chkBox_autoMode.Text = "自动流程";
+            this.chkBox_autoMode.UseVisualStyleBackColor = true;
+            this.chkBox_autoMode.CheckedChanged += new System.EventHandler(this.chkBox_autoMode_CheckedChanged);
             // 
             // ignorePlc_checkBox
             // 
@@ -211,7 +211,7 @@ namespace Data_Transceiver_Center
             this.ignoreCam_checkBox.TabIndex = 15;
             this.ignoreCam_checkBox.Text = "跳过相机";
             this.ignoreCam_checkBox.UseVisualStyleBackColor = true;
-            this.ignoreCam_checkBox.CheckedChanged += new System.EventHandler(this.ignoreCam_checkBox_CheckedChanged);
+            this.ignoreCam_checkBox.CheckedChanged += new System.EventHandler(this.chkBox_ignoreCam_CheckedChanged);
             // 
             // mainForm
             // 
@@ -224,7 +224,7 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.connectPlc_checkBox);
             this.Controls.Add(this.tcpServer_checkBox);
             this.Controls.Add(this.ignorePlc_checkBox);
-            this.Controls.Add(this.autoRun_checkBox);
+            this.Controls.Add(this.chkBox_autoMode);
             this.Controls.Add(this.autoRun_btn);
             this.Controls.Add(this.btn_LoadConfig);
             this.Controls.Add(this.btn_SaveIni);
@@ -255,7 +255,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Button btn_LoadConfig;
         private System.Windows.Forms.Button autoRun_btn;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.CheckBox autoRun_checkBox;
+        private System.Windows.Forms.CheckBox chkBox_autoMode;
         private System.Windows.Forms.CheckBox ignorePlc_checkBox;
         private System.Windows.Forms.CheckBox tcpServer_checkBox;
         private System.Windows.Forms.CheckBox ignoreCheck_checkBox;

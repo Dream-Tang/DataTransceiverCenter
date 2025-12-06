@@ -158,11 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActDefine.cs" />
-    <Compile Include="CheckHelper.cs" />
+    <Compile Include="Helpers\CheckHelper.cs" />
+    <Compile Include="Helpers\IniHelper.cs" />
     <Compile Include="IConfigurable.cs" />
-    <Compile Include="LogHelper.cs" />
-    <Compile Include="MesCommunicationHelper.cs" />
-    <Compile Include="PrintingHelper.cs" />
+    <Compile Include="Helpers\LogHelper.cs" />
+    <Compile Include="Helpers\MesCommunicationHelper.cs" />
+    <Compile Include="Helpers\PrintingHelper.cs" />
     <Compile Include="TcpServer.cs" />
     <Compile Include="HttpUitls.cs" />
     <Compile Include="CommunicationProtocol.cs" />

@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -48,7 +47,7 @@ namespace Data_Transceiver_Center
         // 新增校验线程标志位
         private bool _isCheckMonitorRunning = false;
         // 忽略校验，scn监控线程标志位
-        private bool _isScnMonitorRunning = false; 
+        private bool _isScnMonitorRunning = false;
 
         // 在mainForm类中添加CheckHelper实例变量
         private CheckHelper _checkHelper;
@@ -62,6 +61,17 @@ namespace Data_Transceiver_Center
             Complete,   // 完成
             Exception   // 异常
         }
+
+        #region 自动流程触发的互斥锁和状态变量
+        // 自动模式状态（是否控制是否响应外部触发信号）
+        private bool _isAutoModeEnabled = false;
+
+        // 流程执行状态（是否正在执行执行AutoRun流程，用于互斥）
+        private bool _isAutoRunning = false;
+
+        // 互斥锁（保护流程执行状态的原子性）
+        private readonly object _autoRunLock = new object();
+        #endregion
 
         /// <summary>
         /// 主窗体构造函数
@@ -318,7 +328,7 @@ namespace Data_Transceiver_Center
                 ignoreCheck_checkBox.Checked = ini.ReadBoolean("ignoreCheck", "Checkbox", false);
                 ignorePlc_checkBox.Checked = ini.ReadBoolean("ignorePlc", "Checkbox", false);
                 connectPlc_checkBox.Checked = ini.ReadBoolean("connectPlc", "Checkbox", false);
-                autoRun_checkBox.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
+                chkBox_autoMode.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
                 tcpServer_checkBox.Checked = ini.ReadBoolean("tcpServer", "Checkbox", false);
 
                 Console.WriteLine("mainForm CheckBox状态加载完成");
@@ -372,7 +382,7 @@ namespace Data_Transceiver_Center
                 ini.Write("ignoreCheck", ignoreCheck_checkBox.Checked.ToString(), "Checkbox");
                 ini.Write("ignorePlc", ignorePlc_checkBox.Checked.ToString(), "Checkbox");
                 ini.Write("connectPlc", connectPlc_checkBox.Checked.ToString(), "Checkbox");
-                ini.Write("autoRun", autoRun_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("autoRun", chkBox_autoMode.Checked.ToString(), "Checkbox");
                 ini.Write("tcpServer", tcpServer_checkBox.Checked.ToString(), "Checkbox");
 
                 Console.WriteLine("MainForm配置保存完成");
@@ -390,14 +400,14 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void autoRun_btn_Click(object sender, EventArgs e)
         {
-            AutoRunMode();
+            TriggerAutoRun(isManualTrigger: true); // 手动触发，忽略自动模式状态
         }
 
         /// <summary>
-        /// 自动运行模式主流程
+        /// 全流程执行逻辑（仅负责按顺序执行操作，不处理触发判断）
         /// 流程：读PLC -> MES通信 -> 生成打印指令 -> 发送打印 -> 校验 -> 写PLC结果
         /// </summary>
-        private async void AutoRunMode()
+        private async void ExecuteFullProcess()
         {
             short cam = -1, prt = -1, scn = -1;
             string consoleInfo = "";
@@ -457,7 +467,7 @@ namespace Data_Transceiver_Center
             LogHelper.Instance.Log("MES", "INFO", "开始发送MES POST请求");
             //var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
             var mesResult = await MesCommunicationHelper.Instance.SendMesRequestWithRawAsync(postUrl, mesPostData);
-            // 调用后必看日志（定位问题）
+            // 调用后查看日志（定位问题）
             Console.WriteLine($"最终结果：Success={mesResult.Success}，Message={mesResult.Message}");
             Console.WriteLine($"原始响应：{mesResult.RawResponse}");
 
@@ -620,42 +630,80 @@ namespace Data_Transceiver_Center
         private void StopAutoRunThread()
         {
             // 临时取消自动流程勾选，触发线程退出循环
-            bool wasAutoRunChecked = autoRun_checkBox.Checked;
-            autoRun_checkBox.Checked = false;
+            bool wasAutoRunChecked = chkBox_autoMode.Checked;
+            chkBox_autoMode.Checked = false;
             // 短暂延迟确保线程退出
             Task.Delay(500).Wait();
             // 恢复原状态（若需要）
-            autoRun_checkBox.Checked = wasAutoRunChecked;
+            chkBox_autoMode.Checked = wasAutoRunChecked;
         }
-
 
         /// <summary>
         /// 自动流程复选框状态变更事件
         /// </summary>
-        private void trigger1_CheckBox_CheckedChanged(object sender, EventArgs e)
+        private void chkBox_autoMode_CheckedChanged(object sender, EventArgs e)
         {
-            // 启动自动触发监控线程
-            var t1 = Task.Run(async () =>
+            // 更新自动模式状态
+            _isAutoModeEnabled = chkBox_autoMode.Checked;
+
+            if (_isAutoModeEnabled)
             {
-                while (autoRun_checkBox.Checked)
+                // 开启自动模式：启动所有触发源的监控线程
+                StartCamMonitor();
+                if (!tcpServer_checkBox.Checked)
                 {
-                    if (_form1.trigSigner == Form1.STATUS_WORKING)
-                    {
-                        Console.WriteLine("trigger：自动运行已触发");
-
-                        if (!ignorePlc_checkBox.Checked)
-                        {
-                            WritePLCReg(cam: CommunicationProtocol.camOK);
-                        }
-
-                        // 执行自动流程
-                        Invoke(new Action(AutoRunMode));
-                        _form1.trigSigner = Form1.STATUS_WAIT;
-                    }
-                    await Task.Delay(1000);
+                    tcpServer_checkBox.Checked = true; // 自动模式下自动开启TCP服务器
                 }
-            });
+                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已开启，开始监听触发信号");
+            }
+            else
+            {
+                // 关闭自动模式：停止所有触发源的监控线程
+                StopCamMonitor();
+                // 保持TCP服务器状态不变，由用户手动控制
+                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已关闭，停止监听触发信号");
+            }
         }
+
+        /// <summary>
+        /// 统一触发AutoRun流程的入口
+        /// </summary>
+        /// <param name="isManualTrigger">是否为手动触发（true：忽略自动模式状态；false：仅在自动模式下执行）</param>
+        private void TriggerAutoRun(bool isManualTrigger = false)
+        {
+            // 自动触发时，需校验是否处于自动模式
+            if (!isManualTrigger && !_isAutoModeEnabled)
+            {
+                LogHelper.Instance.Log("触发控制", "INFO", "未开启自动模式，忽略外部触发信号");
+                return;
+            }
+
+            // 互斥锁：确保同一时间只有一个流程在执行
+            lock (_autoRunLock)
+            {
+                if (_isAutoRunning)
+                {
+                    LogHelper.Instance.Log("触发控制", "WARN", "已有流程在执行，忽略本次触发");
+                    return;
+                }
+                _isAutoRunning = true;
+            }
+
+            try
+            {
+                // 执行全流程（原AutoRunMode，建议重命名为ExecuteFullProcess更清晰）
+                ExecuteFullProcess();
+            }
+            finally
+            {
+                // 无论成功失败，释放执行状态
+                lock (_autoRunLock)
+                {
+                    _isAutoRunning = false;
+                }
+            }
+        }
+
         #endregion
 
         #region 流程拆分
@@ -757,7 +805,7 @@ namespace Data_Transceiver_Center
             }
 
             // 未勾选"忽略校验"：启动校验监控线程
-            else 
+            else
             {
                 _isCheckMonitorRunning = true;
                 // 启动校验监控线程
@@ -1014,7 +1062,7 @@ namespace Data_Transceiver_Center
         /// <summary>
         /// 跳过相机复选框状态变更事件
         /// </summary>
-        private void ignoreCam_checkBox_CheckedChanged(object sender, EventArgs e)
+        private void chkBox_ignoreCam_CheckedChanged(object sender, EventArgs e)
         {
             // 清空校验码
             if (_form1.InvokeRequired)
@@ -1039,7 +1087,7 @@ namespace Data_Transceiver_Center
 
         /// <summary>
         /// 启动相机监控线程
-        /// 监控PLC寄存器，当cam值为10时触发自动运行流程
+        /// 监控PLC寄存器，当cam值为1时触发自动运行流程
         /// </summary>
         private void StartCamMonitor()
         {
@@ -1109,7 +1157,8 @@ namespace Data_Transceiver_Center
                     if (camValue.HasValue && camValue.Value == CommunicationProtocol.camAllow)
                     {
                         Console.WriteLine($"检测到cam值为{camValue.Value}，触发AutoRun流程");
-                        BeginInvoke(new Action(AutoRunMode));
+                        // 自动触发，受AutoMode控制
+                        BeginInvoke(new Action(() => TriggerAutoRun(isManualTrigger: false)));
                         Thread.Sleep(2000); // 避免短时间重复触发
                     }
                     else
@@ -1145,29 +1194,28 @@ namespace Data_Transceiver_Center
         /// <summary>
         /// 启动TCP服务器
         /// </summary>
+        private TCPServer _tcpServer;  // 使用新的TCPServer类
         private void StartTcpServer()
         {
-            if (_isTcpServerRunning || _server != null)
+            if (_tcpServer != null && _tcpServer.IsRunning)
                 return;
 
             try
             {
-                _server = new TcpListener(_localAddr, _localPortNum);
-                _server.Start();
-                _isTcpServerRunning = true;
+                _tcpServer = new TCPServer();
+                // 订阅事件
+                _tcpServer.DataReceived += OnTcpDataReceived;
+                _tcpServer.ClientConnected += OnClientConnected;
+                _tcpServer.ClientDisconnected += OnClientDisconnected;
 
-                // 启动监听线程
-                _tcpListenerThread = new Thread(TcpListenLoop);
-                _tcpListenerThread.IsBackground = true;
-                _tcpListenerThread.Start();
-
+                _tcpServer.Start(_localAddr.ToString(), _localPortNum);
                 Console.WriteLine($"TCP服务器已启动，正在监听 {_localAddr}:{_localPortNum}");
             }
-            catch (SocketException ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"启动TCP服务器失败: {ex.Message}");
                 tcpServer_checkBox.Checked = false;
-                CleanupServer();
+                _tcpServer = null;
             }
         }
 
@@ -1176,146 +1224,94 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void StopTcpServer()
         {
-            _isTcpServerRunning = false;
-            CleanupServer();
-
-            // 等待监听线程终止
-            if (_tcpListenerThread != null && _tcpListenerThread.IsAlive)
+            if (_tcpServer != null)
             {
-                _tcpListenerThread.Join(1000);
-                _tcpListenerThread = null;
-            }
+                // 取消订阅
+                _tcpServer.DataReceived -= OnTcpDataReceived;
+                _tcpServer.ClientConnected -= OnClientConnected;
+                _tcpServer.ClientDisconnected -= OnClientDisconnected;
 
+                _tcpServer.Stop();
+                _tcpServer = null;
+            }
             Console.WriteLine("TCP服务器已停止");
         }
 
-        /// <summary>
-        /// 清理TCP服务器资源
-        /// </summary>
-        private void CleanupServer()
+        // 添加客户端连接事件处理
+        private void OnClientConnected(string clientInfo)
         {
-            if (_server != null)
+            Console.WriteLine($"客户端 {clientInfo} 已连接");
+            // 可以在这里添加UI更新代码
+            BeginInvoke(new Action(() =>
             {
-                try
-                {
-                    _server.Stop();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"停止服务器时出错: {ex.Message}");
-                }
-                _server = null;
+                // 更新UI显示客户端连接状态
+            }));
+        }
+
+        // 添加客户端断开事件处理
+        private void OnClientDisconnected(string clientInfo)
+        {
+            Console.WriteLine($"客户端 {clientInfo} 已断开连接");
+            // 可以在这里添加UI更新代码
+            BeginInvoke(new Action(() =>
+            {
+                // 更新UI显示客户端断开状态
+            }));
+        }
+
+        // 修改数据接收处理
+        private void OnTcpDataReceived(string clientInfo, string data)
+        {
+            // 显示接收的数据到UI
+            BeginInvoke(new Action(() =>
+            {
+                _form1.txtBox_veriCodeHistory.AppendText($"{data}\r\n");
+            }));
+
+            // 回发确认信息
+            _tcpServer.SendToClient(clientInfo, $"服务器已收到: {data}");
+
+            // 处理触发逻辑
+            string productId = ParseProductIdFromTcpData(data);
+            if (string.IsNullOrEmpty(productId))
+            {
+                LogHelper.Instance.Log("TCP触发", "ERROR", "未解析到产品ID，忽略触发");
+                WritePLCReg(cam: CommunicationProtocol.camNG);
+                return;
             }
+
+            // 自动触发，受AutoMode控制
+            TriggerAutoRun(isManualTrigger: false);
         }
 
         /// <summary>
-        /// TCP监听循环
-        /// 持续接受客户端连接并创建新线程处理
+        /// 从TCP数据中解析产品唯一标识（纯ID格式）
         /// </summary>
-        private void TcpListenLoop()
+        /// <param name="tcpData">TCP接收的原始字符串</param>
+        /// <returns>产品ID（空字符串表示解析失败）</returns>
+        private string ParseProductIdFromTcpData(string tcpData)
         {
-            while (_isTcpServerRunning)
+            if (string.IsNullOrWhiteSpace(tcpData))
             {
-                try
-                {
-                    // 接受客户端连接
-                    TcpClient client = _server.AcceptTcpClient();
+                LogHelper.Instance.Log("TCP解析", "WARN", "TCP数据为空，无法解析产品ID");
+                return string.Empty;
+            }
 
-                    // 启动客户端处理线程
-                    Thread clientThread = new Thread(HandleClientCommunication);
-                    clientThread.IsBackground = true;
-                    clientThread.Start(client);
+            // 去除首尾空格（防止数据带空白符）
+            string productId = tcpData.Trim();
 
-                    Console.WriteLine($"客户端 {GetClientInfo(client)} 已连接");
-                }
-                catch (SocketException ex)
-                {
-                    if (_isTcpServerRunning)
-                        Console.WriteLine($"监听客户端连接时出错: {ex.Message}");
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    if (_isTcpServerRunning)
-                        Console.WriteLine($"TCP监听循环异常: {ex.Message}");
-                    break;
-                }
+            // 简单校验（如果收到的为NoRead，则通知camNG）
+            if (productId.StartsWith("NoRead"))
+            {
+                LogHelper.Instance.Log("TCP解析", "ERROR", $"无效产品ID格式：{tcpData}");
+                return string.Empty;
+            }
+            else
+            {
+                return productId;
             }
         }
 
-        /// <summary>
-        /// 处理与客户端的通信
-        /// </summary>
-        /// <param name="obj">TcpClient实例</param>
-        private void HandleClientCommunication(object obj)
-        {
-            TcpClient client = obj as TcpClient;
-            if (client == null) return;
-
-            NetworkStream stream = null;
-            try
-            {
-                stream = client.GetStream();
-                byte[] buffer = new byte[256];
-                string data;
-
-                // 持续接收数据
-                while (_isTcpServerRunning && client.Connected)
-                {
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0)
-                    {
-                        Console.WriteLine($"客户端 {GetClientInfo(client)} 已断开连接");
-                        break;
-                    }
-
-                    // 解析并显示数据
-                    data = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Console.WriteLine($"收到来自 {GetClientInfo(client)} 的数据: {data}");
-
-                    // 更新UI显示
-                    BeginInvoke(new MethodInvoker(() =>
-                    {
-                        _form1.txtBox_veriCodeHistory.AppendText($"{data}\r\n");
-                    }));
-
-                    // 回发确认信息
-                    byte[] response = System.Text.Encoding.UTF8.GetBytes($"服务器已收到: {data}");
-                    stream.Write(response, 0, response.Length);
-                }
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine($"与客户端 {GetClientInfo(client)} 通信时出错: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"处理客户端通信时发生异常: {ex.Message}");
-            }
-            finally
-            {
-                // 清理资源
-                stream?.Close();
-                client.Close();
-                Console.WriteLine($"与客户端 {GetClientInfo(client)} 的连接已关闭");
-            }
-        }
-
-        /// <summary>
-        /// 获取客户端信息（IP:端口）
-        /// </summary>
-        private string GetClientInfo(TcpClient client)
-        {
-            try
-            {
-                IPEndPoint remoteEndPoint = client.Client.RemoteEndPoint as IPEndPoint;
-                return $"{remoteEndPoint.Address}:{remoteEndPoint.Port}";
-            }
-            catch
-            {
-                return "未知客户端";
-            }
-        }
         #endregion
 
         /// <summary>
