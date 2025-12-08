@@ -140,6 +140,10 @@ namespace Data_Transceiver_Center
             _form1.btnRetryChk += btn_RetryChk_Click;
 
             // 初始化校验助手类
+            _checkHelper = new CheckHelper(_form1,_form2,
+                                            new LoggerAdapter()  // 这里使用CheckHelper中定义的LoggerAdapter
+                                          );
+
             // 可选：自定义日志配置
             LogHelper.Instance.SetLogConfig(
                 logFilePath: "AutoRun.log",

@@ -1,0 +1,12 @@
+{
+  "MesUrl": "http://127.0.0.1:8000",
+  "MesData": {
+    "input": {
+      "stepId": "S1",
+      "lineId": "L2",
+      "eqpId": "E1",
+      "panelId": "",
+      "fixture": "001"
+    }
+  }
+}
