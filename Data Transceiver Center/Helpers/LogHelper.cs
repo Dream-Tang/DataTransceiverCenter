@@ -91,6 +91,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void CheckAndSplitLogFile()
         {
+            // 若文件不存在，直接返回（后续AppendAllText会自动创建）
             if (!File.Exists(_logFilePath))
                 return;
 
@@ -147,6 +148,9 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
+                // 调试阶段显示错误信息
+                System.Windows.Forms.MessageBox.Show($"日志写入失败: {ex.Message}\n路径: {_logFilePath}");
+                Console.WriteLine($"日志写入失败: {ex.Message}");
                 Console.WriteLine($"清理过期日志失败: {ex.Message}");
             }
         }
