@@ -1,315 +1,253 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 
 
 namespace Data_Transceiver_Center
 {
-    public partial class Form3 : Form
+    public partial class Form3 : Form, IJsonConfigurable, IJsonSavable
     {
-        public Form1 f1;    // 创建窗口1 窗口变量
-        public Form2 f2;    // 创建窗口2 窗口变量
-        public Form4 f4;    // 创建窗口2 窗口变量
+        // 通过POST发送给Mes的Json数据
+        private MesPostRoot _MesPostRoot;
+
+        // 提供公共属性，让外部可以读取数据
+        public MesPostRoot MesPostRoot
+        {
+            get { return _MesPostRoot; }
+            private set { _MesPostRoot = FormToJson(); }
+        }
 
         public Form3()
         {
             InitializeComponent();
         }
 
-        private void Form3_Load(object sender, EventArgs e)
+
+        // 实现json配置加载接口
+        public void LoadJson(string jsonFilePath)
         {
-            f1 = new Form1();   // 实例化f1
-            f2 = new Form2();   // 实例化f2
-            f4 = new Form4();   // 实例化f2
+            // 复用原有读取json的逻辑
+            _MesPostRoot = ReadFromJsonFile<MesPostRoot>(jsonFilePath);
+            JsonDataToForm(); // 更新UI
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        // 实现IJson配置保存接口
+        public void SaveJson(string jsonFilePath)
         {
-            f1.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f1);    // 将窗体1加入容器panel1
-            f1.Show();      // 将窗口1进行显示
+            try
+            {
+                // 先更新内存中的配置对象
+                _MesPostRoot = FormToJson();
+
+                // 序列化并保存（复用原有方法）
+                SaveToJsonFile(_MesPostRoot, jsonFilePath);
+                Console.WriteLine("Form3配置保存成功");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Form3配置保存失败: {ex.Message}");
+                MessageBox.Show($"保存JSON配置失败: {ex.Message}");
+            }
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            f2.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f2);    // 将窗体2加入容器panel1
-            f2.Show();      // 将窗口2进行显示
-        }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            f4.TopLevel = false;
-            panel1.Controls.Clear();    // 清空原容器上的控件
-            panel1.Controls.Add(f4);    // 将窗体4加入容器panel1
-            f4.Show();      // 将窗口4进行显示
-        }
-
-        private void btnSaveIni_Click(object sender, EventArgs e)
+        // 保存配置按钮
+        private void btnSaveJson_Click(object sender, EventArgs e)
         {
             // 选择文件夹路径
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             // 提示信息
-            dialog.Description = "请选择ini保存位置";
-            string iniPath = "";
+            dialog.Description = "请选择json保存位置";
+            string jsonPath = "";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                iniPath = dialog.SelectedPath + "\\settings.ini";
-            }
-            try
-            {
-                f1.SaveIniSettings(iniPath);
-                MessageBox.Show("已保存，文件位置：" + iniPath);
-            }
-            catch (Exception)
-            {
-                return;
+                jsonPath = dialog.SelectedPath + "\\MesSettings.json";
             }
 
+            SaveJson(jsonPath);
         }
 
-        private void btnLoadIni_Click(object sender, EventArgs e)
+        // 加载配置按钮
+        public void btnLoadJson_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();   // 选择文件
             dialog.Multiselect = false; // 是否可以选择多个 文件
-            dialog.Title = "请选择setting.ini文件";
-            dialog.Filter = "ini文件(*.ini)|*.ini";
-            string file = "";
+            dialog.Title = "请选择MesSettings.json文件";
+            dialog.Filter = "json文件(*.json)|*.json";
             try
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    file = dialog.FileName;
+                    // 调用接口方法加载配置
+                    LoadJson(dialog.FileName);
                 }
             }
             catch (Exception)
             { return; }
+        }
 
+        // 将JsonData的数据写入页面文本框
+        private void JsonDataToForm()
+        {
+            txtBox_mesUrl.Text = _MesPostRoot.MesUrl;
+            txtBox_stepId.Text = _MesPostRoot.MesData.input.stepId;
+            txtBox_lineId.Text = _MesPostRoot.MesData.input.lineId;
+            txtBox_eqpId.Text = _MesPostRoot.MesData.input.eqpId;
+            //txtBox_panelId.Text = _MesPostRoot.MesData.input.panelId;
+            txtBox_fixture.Text = _MesPostRoot.MesData.input.fixture;
+        }
+
+        // 将页面文本框中的数据，存入JsonData中
+        public MesPostRoot FormToJson()
+        {
+            // 从页面的文本框保存Json数据
+            MesInputJson mesInputData = new MesInputJson
+            {
+                stepId = txtBox_stepId.Text,
+                lineId = txtBox_lineId.Text,
+                eqpId = txtBox_eqpId.Text,
+                panelId = txtBox_panelId.Text,
+                fixture = txtBox_fixture.Text
+            };
+
+            MsePostData mesPostData = new MsePostData
+            {
+                input = mesInputData
+            };
+
+
+            MesPostRoot MesPostRoot = new MesPostRoot
+            {
+                MesUrl = txtBox_mesUrl.Text,
+                MesData = mesPostData
+            };
+
+            return MesPostRoot;
+        }
+
+        // 保存配置
+        public void SaveToJsonFile<T>(T data, string filePath)
+        {
             try
             {
-                f1.LoadIniSettings(file);
+                // 序列化对象为JSON字符串（带格式化）
+                string jsonString = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+                // 写入文件
+                File.WriteAllText(filePath, jsonString);
+
+                Console.WriteLine($"JSON数据已成功保存到: {filePath}");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return;
+                Console.WriteLine($"保存JSON文件时出错: {ex.Message}");
             }
-        }
-
-        // 自动模式：
-        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
-        // task0：读PLC
-        // task1：（启动条件）读csv=》mes1=》mes2
-        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
-        // task3：refalsh()=>methedInvoke();
-        // task4：获取CheckResult，读取判定结果，写PLC
-        private void autoRun_btn_Click(object sender, EventArgs e)
-        {
-            AutoRunMode();
-        }
-
-        // 自动模式：
-        // 流程：读CSV->mes1->mes2->  生成打印指令->发送打印->mes3->串口(Event)
-        // task0：读PLC
-        // task1：（启动条件）读csv=》mes1=》mes2
-        // async task2：（启动条件）makeZPL=》发送ZPL=》await mes3
-        // task3：refalsh()=>methedInvoke();
-        // task4：获取CheckResult，读取判定结果，写PLC
-        private async void AutoRunMode()
-        {
-            short cam, prt, scn;
-            // 读PLC
-            (cam, prt, scn) = f2.ReadPlc();
-            MethodInvoker mi0 = new MethodInvoker(() =>
-            {
-                f1.refreshPLC(cam, prt, scn);
-            });
-            this.BeginInvoke(mi0);
-
-            // 读CSV
-            f1.refreshCSV();
-
-            string url1 = "";
-            string url2 = "";
-            string url3 = "";
-
-            string getJson1 = "getJson1", getJson2 = "getJson2", getJson3 = "getJson3";
-
-            string mesID = "";
-            string fogID = "";
-
-            // MES1 
-            var t1 = Task.Run(() =>
-            {
-                if (f1.testHttpAPI)
-                {
-                    Random rnd = new Random();
-                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //随机数生成快递单号，用来查询数据，测试Json
-                    url1 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson1 = Form1.HttpUitls.Get(url1);
-                    try
-                    {
-                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson1);
-                        mesID = rt.nu;
-                    }
-                    catch (Exception)
-                    {
-                        mesID = "解析出错";
-                    }
-                }
-                else
-                {
-                    url1 = f1.GetUrl("position", f1.GetMes1prt());
-                    getJson1 = Form1.HttpUitls.Get(url1);
-                    try
-                    {
-                        MesRoot1 msrt1 = JsonConvert.DeserializeObject<MesRoot1>(getJson1);
-                        mesID = msrt1.data.id;
-                    }
-                    catch (Exception)
-                    {
-                        mesID = "解析出错";
-                    }
-                }
-                MethodInvoker mi1 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes1(url1, getJson1, mesID);
-                });
-                BeginInvoke(mi1);
-            });
-            await t1;
-            Console.WriteLine("Json1:" + getJson1);
-
-            // MES2
-            var t2 = Task.Run(() =>
-            {
-                if (f1.testHttpAPI)
-                {
-                    Random rnd = new Random();
-                    string postid = Convert.ToString(rnd.Next(999999)) + Convert.ToString(rnd.Next(999999));
-                    //我们的接口
-                    url2 = "http://www.kuaidi100.com/query?type=shunfeng&postid=" + postid;
-                    getJson2 = Form1.HttpUitls.Get(url2);
-                    try
-                    {
-                        testApiRoot rt = JsonConvert.DeserializeObject<testApiRoot>(getJson2);
-                        fogID = rt.nu;
-                    }
-                    catch (Exception)
-                    {
-                        fogID = "解析出错"; 
-                    }
-                    
-                }
-                else
-                {
-                    url2 = f1.GetUrl("print", f1.GetMes2prt());
-                    getJson2 = Form1.HttpUitls.Get(url2);
-                    try
-                    {
-                        MesRoot2 msrt2 = JsonConvert.DeserializeObject<MesRoot2>(getJson2);
-                        fogID = msrt2.data.fogId;
-                    }
-                    catch (Exception)
-                    {
-                        fogID = "解析出错";
-                    }
-                }
-                MethodInvoker mi2 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes2(url2, getJson2, fogID);
-                });
-                BeginInvoke(mi2);
-            });
-            await t2;
-            Console.WriteLine("Json2:" + getJson2);
-
-            // 打印
-            f1.makeZpl_btn_Click(null, null);
-            f1.sendToPrt_btn_Click(null, null);
-            prt = CommunicationProtocol.prtComplete;
-
-            // 校验 并与PLC通信
-            var t4 = Task.Run(() =>
-            {
-                string result = f1.GetCheckResult();
-                if (result == "OK")
-                {
-                    scn = CommunicationProtocol.checkOK;
-                }
-                if (result == "NG")
-                {
-                    scn = CommunicationProtocol.checkNG;
-                }
-                f2.WritePlc(cam, prt, scn);
-                this.BeginInvoke(mi0);
-            });
-
-            // MES3
-            var t3 = Task.Run(() =>
-            {
-
-                url3 = f1.GetUrl("printCallBack", f1.GetMes3prt());
-
-                getJson3 = Form1.HttpUitls.Get(url3);
-
-                MethodInvoker mi2 = new MethodInvoker(() =>
-                {
-                    f1.refreshMes3(url3, getJson3);
-                });
-                BeginInvoke(mi2);
-            });
-
-            Console.WriteLine("Json3:" + getJson3);
-
         }
 
         /// <summary>
-        /// 文件监控，当有文件改变，则触发事件。filechanged会被多次触发，使用lastRead和lastWrite的时间对比，来避免重复触发
+        /// 从JSON文件读取数据并反序列化为指定类型
         /// </summary>
-        /// 
-        DateTime lastRead = DateTime.Now;
-        private void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
+        /// <typeparam name="T">目标对象类型</typeparam>
+        /// <param name="filePath">JSON文件路径</param>
+        /// <returns>反序列化后的对象</returns>
+        public T ReadFromJsonFile<T>(string filePath)
         {
-            DateTime lastWriteTime = File.GetLastWriteTime(e.FullPath);
-            if (lastWriteTime != lastRead)
+            try
             {
-                Console.WriteLine("changend");
-                lastRead = lastWriteTime;
-                AutoRunMode();
+                // 检查文件是否存在
+                if (!File.Exists(filePath))
+                {
+                    Console.WriteLine($"错误：文件不存在 - {filePath}");
+                    return default(T);
+                }
+
+                // 读取文件内容
+                string jsonContent = File.ReadAllText(filePath);
+
+                // 反序列化JSON到对象
+                T result = JsonConvert.DeserializeObject<T>(jsonContent);
+
+                Console.WriteLine($"成功从 {filePath} 读取并解析JSON数据");
+                return result;
             }
-            else
+            catch (JsonException ex)
             {
-                Console.WriteLine(lastRead);
+                Console.WriteLine($"JSON格式错误：{ex.Message}");
             }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"文件读写错误：{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"发生错误：{ex.Message}");
+            }
+
+            return default(T);
         }
 
-        ///  CSV监控选框
-        private void fileWatcher_chkbox_CheckedChanged(object sender, EventArgs e)
-        {
-            string fileWatchPath= f1.GetCsvPath();
-            if (fileWatchPath == "")
-            {
-                string appPath = System.AppDomain.CurrentDomain.BaseDirectory;
-                fileWatchPath = appPath.Substring(0,appPath.IndexOf("DataTransceiverCenter")+21);
-                Console.WriteLine(fileWatchPath);
-            }
-            fileSystemWatcher1.Path = fileWatchPath;
 
-            if (fileWatcher_chkbox.Checked == true)
+        // 提供公共方法：允许外部设置文本框内容
+        // 用于接收从MainForm同步过来的数据
+        public void UpdateIDText(string text)
+        {
+            // 线程安全检查：确保在UI线程操作控件
+            if (txtBox_panelId.InvokeRequired)
             {
-                fileSystemWatcher1.EnableRaisingEvents = true;
-                Console.WriteLine("AutoMode is running");
+                // 如果当前线程不是UI线程，通过Invoke切换到UI线程
+                txtBox_panelId.Invoke(new Action<string>(UpdateIDText), text);
             }
             else
             {
-                fileSystemWatcher1.EnableRaisingEvents = false;
-                Console.WriteLine("AutoMode is closing");
+                // 仅在文本不同时更新，减少不必要的UI刷新
+                if (txtBox_panelId.Text != text)
+                {
+                    txtBox_panelId.Text = text;
+
+                    // 保持光标在文本末尾，提升用户体验
+                    txtBox_panelId.SelectionStart = txtBox_panelId.TextLength;
+                    txtBox_panelId.ScrollToCaret();
+                }
             }
+            FormToJson();
+        }
+
+        // 测试按钮
+        private void btn_apiTest_Click(object sender, EventArgs e)
+        {
+            // 将页面数据存入Json中
+            _MesPostRoot = FormToJson();
+
+            string JsonUrl = txtBox_mesUrl.Text;
+            // 取出Json中的input字段内容
+            string JsonData = JsonConvert.SerializeObject(_MesPostRoot.MesData);
+
+            // 页面显示
+            txtBox_postData.Text = "Post Data:\r\n" + JsonData;
+
+            // 使用多线程处理http事件
+            Task t1 = new Task(() =>
+            {
+                string getJson = HttpUitls.PostJson(JsonUrl, JsonData);
+
+                // 跨线程修改UI
+                MethodInvoker mi = new MethodInvoker(() =>
+                {
+                    txtBox_responseData.Text = "Response Data:\r\n" + getJson;
+                });
+                this.BeginInvoke(mi);
+            });
+            t1.Start();
+
+        }
+
+        // 存储panelID
+        private void txtBox_panelId_TextChanged(object sender, EventArgs e)
+        {
+            this.MesPostRoot = FormToJson();
         }
     }
+
 }

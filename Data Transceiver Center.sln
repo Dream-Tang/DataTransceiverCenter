@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33801.447
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11222.16 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data Transceiver Center", "Data Transceiver Center\Data Transceiver Center.csproj", "{0B6D08A8-A6BA-4EFC-8815-C98D402DCACD}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DataTransceiverCenter_setup", "setup\DataTransceiverCenter_setup\DataTransceiverCenter_setup.vdproj", "{A80D04FA-0CD2-407E-922D-13560046F34E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,9 @@ Global
 		{0B6D08A8-A6BA-4EFC-8815-C98D402DCACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B6D08A8-A6BA-4EFC-8815-C98D402DCACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B6D08A8-A6BA-4EFC-8815-C98D402DCACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A80D04FA-0CD2-407E-922D-13560046F34E}.Debug|Any CPU.ActiveCfg = Debug
+		{A80D04FA-0CD2-407E-922D-13560046F34E}.Debug|Any CPU.Build.0 = Debug
+		{A80D04FA-0CD2-407E-922D-13560046F34E}.Release|Any CPU.ActiveCfg = Debug
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

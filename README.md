@@ -6,6 +6,7 @@ DTC实现的功能：
 2.玻璃码通过http协议，与Mes通信，获取Mes回复的FogID。  
 3.FogID按照ZPL模板，生成斑马打印机所需的指令文件，发送给打印机打印成条码。  
 4.通知PLC已打印。PLC控制机械手取条码，并进行贴付。  
+![image](https://github.com/Dream-Tang/DataTransceiverCenter/blob/dev2/操作演示.gif)
 5.扫码枪校验打印的条码，输出校验结果给PLC。  
   
   
