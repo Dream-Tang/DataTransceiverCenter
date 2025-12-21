@@ -18,40 +18,40 @@
         // 扫描NG报警 取料 = 12
         public const short camReset = 0;
         public const short camAllow = 1;
-        public const short camOK = 11;
-        public const short camNG = 12;
+        public const short camOK    = 11;
+        public const short camNG    = 12;
         public const short camRetry = 13;
         // 打印机信号
         // 取标平台准备好 = 1
         // 标打印完成 = 11
-        public const short prtReady = 1;
+        public const short prtReady    = 1;
         public const short prtComplete = 11;
-        public const short prtOK = 11;
-        public const short prtNG = 13;
+        public const short prtOK       = 11;
+        public const short prtNG       = 13;
         // 扫码枪信号
         // 扫码开始 = 1
         // 扫码完成，标头返回 = 11
-        public const short scannerStart = 1;
+        public const short scannerStart    = 1;
         public const short scannerComplete = 11;
         // 核验信号
         // 未校验， = 0
         // 判定数据OK，放行 = 12
         // 判定数据NG，报警 = 13
-        public const short checkErro = 0;
+        public const short checkErro   = 0;
         public const short checkIgnore = 1;
-        public const short checkOK = 12;
-        public const short checkNG = 13;
+        public const short checkOK     = 12;
+        public const short checkNG     = 13;
         #endregion
 
         #region "Form1调用信号"
 
         public const string readCodeOK = "读码OK";
         public const string readCodeNG = "读码NG";
-        public const string prtCodeOK = "打印OK";
-        public const string prtCodeNG = "打印NG";
-        public const string chkCodeOK = "验码OK";
-        public const string chkCodeNG = "验码NG";
-        public const string chkCodeIG = "屏蔽校验";
+        public const string prtCodeOK  = "打印OK";
+        public const string prtCodeNG  = "打印NG";
+        public const string chkCodeOK  = "验码OK";
+        public const string chkCodeNG  = "验码NG";
+        public const string chkCodeIG  = "屏蔽校验";
 
         #endregion
     }
