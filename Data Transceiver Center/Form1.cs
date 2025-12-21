@@ -9,7 +9,7 @@ using ZXing.Common;
 
 namespace Data_Transceiver_Center
 {
-    public partial class Form1 : Form, IIniConfigurable, IIniSavable
+    public partial class Form1 : Form, IIniConfigurable, IIniSavable, IDataProvider
     {
         // 定义文本更新事件：当文本框内容变化时触发
         // 事件类型为Action<string>，用于传递最新文本内容
@@ -30,12 +30,28 @@ namespace Data_Transceiver_Center
         // 存储从form3查询到的MesRoot数据
         private MesPostRoot _receivedMesRoot;
 
-        public Form1()
+        // 1. 声明CheckHelper实例（在Form1构造函数中初始化）
+        private CheckHelper _checkHelper;
+
+        private readonly IPLCService _plcService;                   // PLC服务接口
+        private readonly LogHelper _logHelper = LogHelper.Instance; // 日志助手(单例模式)
+
+        /// <summary>
+        /// 构造函数：接收IPLCService
+        /// </summary>
+        public Form1(IPLCService plcService)
         {
             InitializeComponent();
             // 绑定文本框内容变化事件
+
             // 当用户输入文本时，自动触发事件传递数据
             txtBox_prtCode.TextChanged += TxtInput_TextChanged;
+
+            // 初始化plcService
+            _plcService = plcService ?? throw new ArgumentNullException(
+           nameof(plcService), "IPLCService实例不能为空");
+            // 初始化CheckHelper
+            _checkHelper = new CheckHelper(this, _plcService);
         }
 
         private StringBuilder cmd_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
@@ -62,8 +78,6 @@ namespace Data_Transceiver_Center
         internal const int STATUS_EXCEPTION = 3;
         internal const int CONNECT_EXCEPTION = 4;
         internal const int CONVERT_EXCEPTION = 5;
-
-        string checkResult = "";
 
         public string retryRead = "";
 
@@ -244,7 +258,8 @@ namespace Data_Transceiver_Center
         // 校验扫码 文本框变化
         private void scnCode_txtBox_TextChanged(object sender, EventArgs e)
         {
-            CheckScnPrtCode();
+            TextUpdated?.Invoke(txtBox_scnCode.Text);
+            _logHelper.Log("Form1", "INFO", $"打印码文本框变更：{txtBox_scnCode.Text}");
         }
 
         // 打印码 文本框变化，生成条码
@@ -259,7 +274,9 @@ namespace Data_Transceiver_Center
         public void MakeZpl(string filePathZPL, string str)
         {
             // ZPL文件生成，使用模板来生成，替换模板中 ^FD到^FS之间的文本
-            string zpl_cmd = cmd_template.ToString();
+            StringBuilder zpl_cmd_SB = cmd_template;
+
+            string zpl_cmd = zpl_cmd_SB.ToString();
             if (zpl_cmd == "")
             {
                 Console.WriteLine("还未加载有效的ZPL模板");
@@ -268,11 +285,16 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                int index_FD = zpl_cmd.IndexOf("^FD") + 3; // 找到模板中^FD到^FS之间的位置
+                int index_FD = zpl_cmd.IndexOf("^FD")+3; // 找到模板中^FD到^FS之间的位置
                 int index_FS = zpl_cmd.IndexOf("^FS");
+                zpl_cmd_SB.Remove(index_FD, index_FS - index_FD);// 移出模板中^FD到^FS之间的内容
+                zpl_cmd_SB.Insert(index_FD, str);
 
-                cmd_template.Remove(index_FD, index_FS - index_FD);// 移出模板中^FD到^FS之间的内容
-                cmd_template.Insert(index_FD, str);
+                zpl_cmd = zpl_cmd_SB.ToString();
+                int index_FDQA = zpl_cmd.IndexOf("^FDQA,")+6; // 找到模板中^FD到^FS之间的位置
+                int index_FS2 = zpl_cmd.IndexOf("^FS", index_FS+3);
+                zpl_cmd_SB.Remove(index_FDQA, index_FS2 - index_FDQA);
+                zpl_cmd_SB.Insert(index_FDQA, str);
 
                 // 利用正则表达式替换字符串中的值，此处替换为""，相当于提取字符串中的对应字符
                 //string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);// 提取字母部分
@@ -291,7 +313,7 @@ namespace Data_Transceiver_Center
                 System.IO.File.WriteAllText(filePathZPL, string.Empty);
                 using (System.IO.StreamWriter sw = new System.IO.StreamWriter(filePathZPL, false, Encoding.UTF8))
                 {
-                    sw.Write(cmd_template.ToString());
+                    sw.Write(zpl_cmd_SB.ToString());
                     sw.Close();
                 }
                 runStatus_lable.Text = "zpl文件生产成功";
@@ -537,58 +559,11 @@ namespace Data_Transceiver_Center
             cobBox_SeriPortNum.Items.AddRange(comPort);
         }
 
-        // 进行一次验码，将串口接收的数据与打印的条码进行对比，给出OK,NG,IG的信号，没有直接写PLC
-        private string CheckScnPrtCode()
-        {
-            string checkResult;
-            if (ignoreCheck)    // 屏蔽校验
-            {
-                // 强制返回OK，而非原逻辑的"OK"（原逻辑可能因其他条件变化）
-                checkResult = "OK";
-                SetLbChkCode(CommunicationProtocol.chkCodeIG);
-                Console.WriteLine("    Check result:ignore (强制返回OK)");
-            }
-            else
-            {
-                // prtCode和ScnCode都不为空时，进行一次校验
-                if ((txtBox_prtCode.Text != "") & (txtBox_scnCode.Text != ""))
-                {
-                    if (txtBox_scnCode.Text == txtBox_prtCode.Text)
-                    {
-                        checkResult = "OK";
-                        SetLbChkCode(CommunicationProtocol.chkCodeOK);
-                        Console.WriteLine("    Check result:OK");
-                    }
-                    else
-                    {
-                        checkResult = "NG";
-                        SetLbChkCode(CommunicationProtocol.chkCodeNG);
-                        Console.WriteLine("    Check result:NG");
-                    }
-                }
-                else
-                {
-                    checkResult = "Lose"; // 未获取到完整数据
-                    SetLbChkCode("未校验");
-                    Console.WriteLine("    Check result:Lose");
-                }
-                // 校验完成后清空旧数据
-
-                //seriStatus = STATUS_WAIT;
-
-                lastPrtCode_label.Text = txtBox_prtCode.Text;
-                //txtBox_scnCode.Text = "";
-                //txtBox_prtCode.Text = "";
-            }
-            return checkResult;
-        }
-
-        // 获取校验数据，public对外接口
+        // 获取校验数据
         public string GetCheckResult()
         {
-            string chckResult;
-            chckResult = CheckScnPrtCode();
-            return chckResult;
+            // 直接调用helper的校验方法
+            return _checkHelper.ExecuteCheck();
         }
 
         // 三个模块的头尾提示标签
@@ -942,5 +917,31 @@ namespace Data_Transceiver_Center
             _mPrintName = txtBox_prtPath.Text;
         }
 
+        #region IDataProvider接口实现
+        public string GetScnCode() // 获取scn
+        {
+            // 确保在UI线程访问控件
+            if (txtBox_scnCode.InvokeRequired)
+            {
+                return (string)txtBox_scnCode.Invoke(new Func<string>(() => txtBox_scnCode.Text.Trim()));
+            }
+            return txtBox_scnCode.Text.Trim();
+        }
+
+        public string GetPrtCode()// 获取prt
+        {
+            if (txtBox_prtCode.InvokeRequired)
+            {
+                return (string)txtBox_prtCode.Invoke(new Func<string>(() => txtBox_prtCode.Text.Trim()));
+            }
+            return txtBox_prtCode.Text.Trim();
+        }
+
+        public bool GetIgnoreCheck() // 获取是否忽略校验
+        {
+            return ignoreCheck;
+        }
+
+        #endregion
     }
 }

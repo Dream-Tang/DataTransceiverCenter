@@ -672,7 +672,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.ComboBox cobBox_SeriPortNum;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Label label1_5;
-        private System.Windows.Forms.TextBox txtBox_scnCode;
         private System.Windows.Forms.Label label1_6;
         private System.Windows.Forms.Label serialPort_label;
         private System.Windows.Forms.Button btn_reloadPort;
@@ -706,6 +705,7 @@ namespace Data_Transceiver_Center
         public System.Windows.Forms.TextBox txtBox_prtCode;
         public System.Windows.Forms.TextBox txtBox_postData;
         public System.Windows.Forms.TextBox txtBox_responseData;
+        public System.Windows.Forms.TextBox txtBox_scnCode;
         //private System.Windows.Forms.Label veriCount_label;
         //private System.Windows.Forms.Label label6;
     }

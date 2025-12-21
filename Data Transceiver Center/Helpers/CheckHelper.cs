@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Data_Transceiver_Center
@@ -8,57 +9,69 @@ namespace Data_Transceiver_Center
     /// </summary>
     public class CheckHelper
     {
-        private readonly Form1 _form1;
-        private readonly Form2 _form2;
-        private readonly ILogger _logger;
+        private readonly IDataProvider _dataProvider;   // 依赖接口，而非具体Form1
+        private readonly IPLCService _plcService;       // 依赖抽象接口
+        private readonly LogHelper _logHelper;          // 日志助手
 
         /// <summary>
-        /// 构造函数
+        /// 构造函数注入：要求外部提供IDataProvider实现（如Form1）
         /// </summary>
-        /// <param name="form1">主窗体实例</param>
-        /// <param name="form2">PLC窗体实例</param>
+        /// <param name="plcService">PLC服务接口</param>
         /// <param name="logger">日志接口</param>
-        public CheckHelper(Form1 form1, Form2 form2, ILogger logger)
+        public CheckHelper(IDataProvider dataProvider, IPLCService plcService)
         {
-            _form1 = form1 ?? throw new ArgumentNullException(nameof(form1));
-            _form2 = form2 ?? throw new ArgumentNullException(nameof(form2));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _dataProvider = dataProvider ?? throw new ArgumentNullException(nameof(dataProvider)); // 验证接口是否存在
+            _plcService = plcService ?? throw new ArgumentNullException(nameof(plcService)); // 验证接口是否存在
+            _logHelper = LogHelper.Instance; // 单例LogHelper
         }
+
+        // 1. 定义结果与PLC值的映射关系（公共配置）
+        private readonly Dictionary<string, short> _resultToPlcValueMap = new Dictionary<string, short>
+        {
+            {"OK", CommunicationProtocol.checkOK},
+            {"NG", CommunicationProtocol.checkNG},
+            {"忽略", CommunicationProtocol.checkIgnore}
+        };
 
         /// <summary>
         /// 执行校验逻辑
         /// </summary>
-        /// <returns>校验结果</returns>
+        /// <returns>校验结果（"验码OK"/"验码NG"/"屏蔽校验"）</returns>
         public string ExecuteCheck()
         {
             try
             {
-                _logger.Log("校验", "INFO", "开始执行校验逻辑");
+                // 通过接口获取代码，而非直接访问Form1控件
+                string scnCode = _dataProvider.GetScnCode();
+                string prtCode = _dataProvider.GetPrtCode();
+                bool ignoreCheck = _dataProvider.GetIgnoreCheck();
 
-                // 线程安全获取校验结果
-                string checkResult = GetCheckResultSafely();
+                _logHelper.Log("校验", "INFO", "开始执行扫码码/打印码校验");
 
-                _logger.Log("校验", "INFO", $"校验结果: {checkResult}");
-                return checkResult;
+                // 忽略校验时，强制返回OK
+                if (ignoreCheck)
+                {
+                    _logHelper.Log("校验", "WARN", "已勾选忽略校验，强制返回OK");
+                    return "OK";
+                }
+
+                // 校验时，若校验数据为空，返回NG
+                if (string.IsNullOrEmpty(scnCode) || string.IsNullOrEmpty(prtCode))
+                {
+                    _logHelper.Log("校验", "WARN", "扫码码/打印码为空，返回NG");
+                    return "NG";
+                }
+
+                // 其余时候，根据校验是否相等返回OK或NG
+                string result = scnCode.Equals(prtCode, StringComparison.OrdinalIgnoreCase) ? "OK" : "NG";
+                _logHelper.Log("校验", "INFO", $"校验结果：{result}（扫码码：{scnCode} | 打印码：{prtCode}）");
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.Log("校验", "ERROR", $"校验执行失败: {ex.Message}");
-                _logger.Log("校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
-                return "ERROR";
+                _logHelper.Log("校验", "ERROR", $"校验执行失败: {ex.Message}");
+                return "校验异常";
             }
-        }
-
-        /// <summary>
-        /// 线程安全获取校验结果
-        /// </summary>
-        private string GetCheckResultSafely()
-        {
-            if (_form1.InvokeRequired)
-            {
-                return (string)_form1.Invoke(new Func<string>(() => _form1.GetCheckResult()));
-            }
-            return _form1.GetCheckResult();
         }
 
         /// <summary>
@@ -70,83 +83,28 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                if (ignorePlc) // 屏蔽PLC时直接返回
-                {
-                    _logger.Log("校验", "INFO", "已忽略PLC，不更新校验结果");
+                if (ignorePlc || !_resultToPlcValueMap.ContainsKey(checkResult))
                     return;
-                }
 
-                // 屏蔽校验时，强制checkResult为OK
-                if (_form1.ignoreCheck)
-                {
-                    checkResult = "OK";
-                    _logger.Log("校验", "INFO", "屏蔽校验状态，强制结果为OK");
-                }
+                // 2. 直接使用映射关系，避免重复判断
+                short scnValue = _resultToPlcValueMap[checkResult];
 
-                short scnValue;
-                switch (checkResult)
+                // 通过接口操作PLC，而非直接依赖Form2
+                if (_plcService.InvokeRequired)
                 {
-                    case "OK":
-                        scnValue = CommunicationProtocol.checkOK;
-                        break;
-                    case "NG":
-                        scnValue = CommunicationProtocol.checkNG;
-                        break;
-                    default:
-                        scnValue = CommunicationProtocol.checkIgnore;
-                        break;
-                }
-
-                // 直接调用Form2的重载方法，仅更新scn寄存器（其他寄存器保持原值）
-                if (_form2.InvokeRequired)
-                {
-                    _form2.Invoke(new Action(() => _form2.SafeWritePlc(scn: scnValue)));
+                    _plcService.Invoke(new Action(() => _plcService.SafeWritePlc(scnValue)));
                 }
                 else
                 {
-                    _form2.SafeWritePlc(scn: scnValue);
+                    _plcService.SafeWritePlc(scnValue);
                 }
-                _logger.Log("校验", "INFO", $"已发送校验结果到PLC: {scnValue}");
+                _logHelper.Log("校验->PLC", "INFO", $"已发送校验结果到PLC: {scnValue}");
             }
             catch (Exception ex)
             {
-                _logger.Log("校验", "ERROR", $"更新PLC校验状态失败: {ex.Message}");
-                _logger.Log("校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                _logHelper.Log("校验->PLC", "ERROR", $"更新PLC校验状态失败: {ex.Message}");
+                _logHelper.Log("校验->PLC", "ERROR", $"异常堆栈: {ex.StackTrace}");
             }
-        }
-
-        /// <summary>
-        /// 线程安全更新PLC
-        /// </summary>
-        private void UpdatePlcSafely(short cam, short prt, short scn)
-        {
-            if (_form2.InvokeRequired)
-            {
-                _form2.Invoke(new Action(() => _form2.SafeWritePlc(cam, prt, scn)));
-            }
-            else
-            {
-                _form2.SafeWritePlc(cam, prt, scn);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 日志接口，统一日志调用
-    /// </summary>
-    public interface ILogger
-    {
-        void Log(string module, string level, string message);
-    }
-
-    /// <summary>
-    /// 日志接口实现（适配LogHelper）
-    /// </summary>
-    public class LoggerAdapter : ILogger
-    {
-        public void Log(string module, string level, string message)
-        {
-            LogHelper.Instance.Log(module, level, message);
         }
     }
 }

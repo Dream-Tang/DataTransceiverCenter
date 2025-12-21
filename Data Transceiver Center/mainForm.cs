@@ -26,8 +26,8 @@ namespace Data_Transceiver_Center
         #endregion
 
         #region 相机监控线程相关
-        private Thread _camMonitorThread;               // 相机监控线程
-        private bool _isCamMonitorRunning;            // 相机监控线程运行状态
+        private Thread _camMonitorThread;                       // 相机监控线程
+        private bool _isCamMonitorRunning;                      // 相机监控线程运行状态
         private readonly object _camMonitorLock = new object(); // 线程同步锁
         #endregion
 
@@ -36,12 +36,7 @@ namespace Data_Transceiver_Center
         private IJsonConfigurable _jsonLoadForm; // Form3配置加载接口
         private IIniSavable _iniSaveForm;        // Form1配置保存接口
         private IJsonSavable _jsonSaveForm;      // Form3配置保存接口
-        #endregion
-
-        #region TCP服务器相关
-        private TcpListener _server;               // TCP服务器实例
-        private bool _isTcpServerRunning;          // TCP服务器运行状态
-        private Thread _tcpListenerThread;         // TCP监听线程
+        private IPLCService _plcService;
         #endregion
 
         // 新增校验线程标志位
@@ -102,15 +97,20 @@ namespace Data_Transceiver_Center
             InitializeComponent();
 
             // 初始化子窗体
-            _form1 = new Form1();
             _form2 = new Form2();
+            _plcService = _form2;  // 将 Form2 赋值给 _plcService（因 Form2 实现了 IPLCService）
+            _form1 = new Form1(_plcService);
             _form3 = new Form3();
+
+            // 初始化校验助手类
+            _checkHelper = new CheckHelper(_form1, _plcService);
 
             // 依赖注入：绑定配置接口实现
             _iniLoadForm = _form1;
             _jsonLoadForm = _form3;
             _iniSaveForm = _form1;
             _jsonSaveForm = _form3;
+           
 
             // 初始化子窗体嵌入属性
             InitChildForm(_form1);
@@ -138,11 +138,6 @@ namespace Data_Transceiver_Center
             // 绑定Form1的重试按钮事件
             _form1.btnRetryRead += btn_RetryRead_Click;
             _form1.btnRetryChk += btn_RetryChk_Click;
-
-            // 初始化校验助手类
-            _checkHelper = new CheckHelper(_form1,_form2,
-                                            new LoggerAdapter()  // 这里使用CheckHelper中定义的LoggerAdapter
-                                          );
 
             // 可选：自定义日志配置
             LogHelper.Instance.SetLogConfig(
@@ -515,6 +510,7 @@ namespace Data_Transceiver_Center
                 }));
 
                 // 新增：生成二维码并更新标签
+
                 // MES返回的是JSON对象，需先解析
 
                 //var mesDataObj = JsonConvert.DeserializeObject<MesData2>(mesResult.Data);
@@ -958,80 +954,6 @@ namespace Data_Transceiver_Center
                         await Task.Delay(500);
                     }
                 });
-            }
-        }
-
-        /// <summary>
-        /// 校验任务：处理校验结果并写入PLC
-        /// </summary>
-        private void t5CheckTask()
-        {
-            short scn = -1;
-            string checkResult = "";
-            try
-            {
-                // 无论是否屏蔽校验，都获取校验结果（此时CheckScnPrtCode会返回OK）
-                if (_form1.InvokeRequired)
-                {
-                    _form1.Invoke(new Action(() =>
-                    {
-                        checkResult = _form1.GetCheckResult(); // 屏蔽时已强制为OK
-                    }));
-                }
-                else
-                {
-                    checkResult = _form1.GetCheckResult();
-                }
-
-                // 根据结果设置scn值（屏蔽时checkResult已为OK）
-                if (checkResult == "OK")
-                {
-                    scn = CommunicationProtocol.checkOK;
-                    Console.WriteLine("task t5：校验结果OK（含屏蔽强制OK）");
-                }
-                else if (checkResult == "NG")
-                {
-                    scn = CommunicationProtocol.checkNG;
-                    Console.WriteLine("task t5：校验结果NG");
-                }
-                else
-                {
-                    scn = CommunicationProtocol.checkIgnore;
-                    Console.WriteLine("task t5：未校验");
-                    return;
-                }
-
-                // 写入PLC（即使屏蔽校验，只要未勾选"忽略PLC"，就执行写入）
-                if (!ignorePlc_checkBox.Checked)
-                {
-                    // 仅更新scn寄存器，复用重载方法减少通信
-                    if (_form2.InvokeRequired)
-                    {
-                        _form2.Invoke(new Action(() =>
-                            _form2.SafeWritePlc(scn: scn))); // 只传scn，其他保持原值
-                    }
-                    else
-                    {
-                        _form2.SafeWritePlc(scn: scn);
-                    }
-                    Console.WriteLine($"task t5：已发送校验结果{checkResult}给PLC（含屏蔽状态）");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"校验任务异常: {ex.Message}");
-            }
-            finally
-            {
-                // 重置状态（保持原逻辑）
-                if (_form1.InvokeRequired)
-                {
-                    _form1.Invoke(new Action(() => _form1.seriStatus = Form1.STATUS_WAIT));
-                }
-                else
-                {
-                    _form1.seriStatus = Form1.STATUS_WAIT;
-                }
             }
         }
 

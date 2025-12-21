@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace Data_Transceiver_Center
 {
 
-    public partial class Form2 : Form
+    public partial class Form2 : Form, IPLCService
     {
 
         // 声明变量，存储信号值。定时刷新时，根据此变量设定rediobox
@@ -985,15 +985,26 @@ namespace Data_Transceiver_Center
         }
         #endregion
 
-
-
         #endregion
-
         public string GetReturnCode()
         {
             string returnCode = txt_ReturnCode.Text;
             return returnCode;
         }
 
+        #region 实现IPLCService接口的方法，解除代码耦合
+        public void SafeWritePlc(short scn)
+        {
+            // 复用原有重载方法，仅传递scn参数（其他参数用默认值）
+            SafeWritePlc(cam: 0, prt: 0, scn: scn);
+        }
+
+        // 暴露InvokeRequired属性（Form本身已实现）
+        bool IPLCService.InvokeRequired => this.InvokeRequired;
+
+        // 暴露Invoke方法（Form本身已实现）
+        object IPLCService.Invoke(Delegate method) => this.Invoke(method);
+
+        #endregion
     }
 }

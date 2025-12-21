@@ -116,6 +116,25 @@ namespace Data_Transceiver_Center
                 zplBuilder.Remove(fdIndex, fsIndex - fdIndex);
                 zplBuilder.Insert(fdIndex, printCode);
 
+                // 再次查找字符串，进行第二个位置的替换（适用于二维码打印）
+                string zpl_cmd;
+                zpl_cmd = zplBuilder.ToString();
+                int index_FDQA = zpl_cmd.IndexOf("^FDQA,"); // 找到模板中^FDQA,的位置
+                int index_FS2 = zpl_cmd.IndexOf("^FS", fsIndex + 3); // 查找第二个^FS
+
+                // 仅当^FDQA,和第二个^FS都存在且顺序正确时，才进行第二次替换
+                if (index_FDQA >= 0 && index_FS2 > index_FDQA)
+                {
+                    index_FDQA += "^FDQA,".Length; // 移动到^FDQA,之后的位置
+                    if (index_FS2 > index_FDQA)
+                    {
+                        zplBuilder.Remove(index_FDQA, index_FS2 - index_FDQA);
+                        zplBuilder.Insert(index_FDQA, printCode);
+                    }
+                }
+
+
+
                 return zplBuilder.ToString();
             }
             catch
