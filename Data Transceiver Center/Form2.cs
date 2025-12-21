@@ -934,23 +934,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 新增重载方法，支持只修改指定寄存器
-        //允许只传入需要修改的寄存器（如SafeWritePlc(cam: 11)），其他寄存器保持当前值，避免误写。
-        public void SafeWritePlc(short? cam = null, short? prt = null, short? scn = null)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action<short?, short?, short?>(SafeWritePlc), cam, prt, scn);
-                return;
-            }
-            // 读取当前值，未指定的参数用当前值填充
-            var current = ReadPlc();
-            short newCam = cam ?? current.Item1;
-            short newPrt = prt ?? current.Item2;
-            short newScn = scn ?? current.Item3;
-            WritePlc(newCam, newPrt, newScn); // 调用原写入方法
-        }
-
         #region "读取指定位置寄存器值"
         /// <summary>
         /// 读取指定地址的PLC寄存器值（线程安全）
@@ -993,10 +976,21 @@ namespace Data_Transceiver_Center
         }
 
         #region 实现IPLCService接口的方法，解除代码耦合
-        public void SafeWritePlc(short scn)
+        // 新增重载方法，支持只修改指定寄存器
+        //允许只传入需要修改的寄存器（如SafeWritePlc(cam: 11)），其他寄存器保持当前值，避免误写。
+        public void SafeWritePlc(short? cam = null, short? prt = null, short? scn = null)
         {
-            // 复用原有重载方法，仅传递scn参数（其他参数用默认值）
-            SafeWritePlc(cam: 0, prt: 0, scn: scn);
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<short?, short?, short?>(SafeWritePlc), cam, prt, scn);
+                return;
+            }
+            // 读取当前值，未指定的参数用当前值填充
+            var current = ReadPlc();
+            short newCam = cam ?? current.Item1;
+            short newPrt = prt ?? current.Item2;
+            short newScn = scn ?? current.Item3;
+            WritePlc(newCam, newPrt, newScn); // 调用原写入方法
         }
 
         // 暴露InvokeRequired属性（Form本身已实现）

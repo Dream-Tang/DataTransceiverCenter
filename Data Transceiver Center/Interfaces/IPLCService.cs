@@ -12,7 +12,7 @@ namespace Data_Transceiver_Center
     public interface IPLCService
     {
         // 线程安全地写入PLC扫描器相关寄存器
-        void SafeWritePlc(short scnValue);
+        void SafeWritePlc(short? cam = null, short? prt = null, short? scn = null);
         // 检查是否需要跨线程调用（用于线程安全操作）
         bool InvokeRequired { get; }
         // 跨线程调用委托（用于线程安全操作）

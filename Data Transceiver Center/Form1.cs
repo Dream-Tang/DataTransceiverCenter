@@ -24,6 +24,8 @@ namespace Data_Transceiver_Center
         public string _zplFilePath = "";
         public string _mPrintName = "";
 
+        private bool _isWaitingForManualCheck = false; // 手动验码等待数据标记
+
         public string ZplTemplatePath => zplTemplatePath; // 暴露ZPL模板路径
         public string PrintName => _mPrintName; // 暴露打印机路径
 
@@ -204,14 +206,13 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                // textBox3 读出串口缓存内的数据，textBox4 将string数据转换成16进制byte，然后按ASCII转换成string
-
-                // string portData = serialPort1.ReadTo("\r\n"); // 若结尾无换行，会阻塞线程
-
+                
                 if (!serialPort1.IsOpen) return;
 
                 // 读取所有可用数据（非阻塞）
-                string newData = serialPort1.ReadExisting();
+                string newData = serialPort1.ReadExisting(); 
+                _logHelper.Log("[串口]", "[INFO]", $"收到新数据：{newData}");
+
                 if (string.IsNullOrEmpty(newData)) return;
 
                 serialDataBuffer.Append(newData);
@@ -559,15 +560,9 @@ namespace Data_Transceiver_Center
             cobBox_SeriPortNum.Items.AddRange(comPort);
         }
 
-        // 获取校验数据
-        public string GetCheckResult()
-        {
-            // 直接调用helper的校验方法
-            return _checkHelper.ExecuteCheck();
-        }
-
+        #region "设置三个模块的头尾提示标签" UI页面更新功能
         // 三个模块的头尾提示标签
-        public void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码","屏蔽校验"
+        private void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码","屏蔽校验"
         {
             switch (str)
             {
@@ -587,24 +582,30 @@ namespace Data_Transceiver_Center
 
                 case "手动验码":
                     lb_ChkCode.Text = "手动验码中";
-                    lb_ChkCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ChkCode.BackColor = System.Drawing.Color.BurlyWood;
                     lb_ChkCodeNote.Text = "请重新扫码";
-                    lb_ChkCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ChkCodeNote.BackColor = System.Drawing.Color.BurlyWood;
                     break;
 
-                case "屏蔽校验":
+                case "忽略校验":
                     lb_ChkCode.Text = "校验已屏蔽";
                     lb_ChkCode.BackColor = System.Drawing.SystemColors.GrayText;
                     lb_ChkCodeNote.Text = "校验已屏蔽";
                     lb_ChkCodeNote.BackColor = System.Drawing.SystemColors.GrayText;
                     break;
 
+                case "等待校验":
+                    lb_ChkCode.Text = "等待校验";
+                    lb_ChkCode.BackColor = System.Drawing.Color.LightGoldenrodYellow;
+                    lb_ChkCodeNote.Text = "等待校验";
+                    lb_ChkCodeNote.BackColor = System.Drawing.Color.LightGoldenrodYellow;
+                    break;
                 default:
                     break;
             }
         }
 
-        public void SetLbReadCode(string str) // str = "读码OK" 或 "读码NG", "手动读码"
+        private void SetLbReadCode(string str) // str = "读码OK" 或 "读码NG", "手动读码"
         {
             switch (str)
             {
@@ -624,9 +625,9 @@ namespace Data_Transceiver_Center
 
                 case "手动读码":
                     lb_ReadCode.Text = "手动读码中";
-                    lb_ReadCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ReadCode.BackColor = System.Drawing.Color.BurlyWood;
                     lb_ReadCodeNote.Text = "请重新读玻璃码";
-                    lb_ReadCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                    lb_ReadCodeNote.BackColor = System.Drawing.Color.BurlyWood;
                     break;
 
                 default:
@@ -635,7 +636,7 @@ namespace Data_Transceiver_Center
 
         }
 
-        public void SetLbPrtCode(string str) // str = "打印OK" 或 "打印NG"
+        private void SetLbPrtCode(string str) // str = "打印OK" 或 "打印NG"
         {
             switch (str)
             {
@@ -657,6 +658,43 @@ namespace Data_Transceiver_Center
                     break;
             }
         }
+
+        public void SafeSetLbChkCode(string str) // 跨线程安全调用SetLbChkCode
+        {
+            if (this.InvokeRequired)
+            { // 跨线程时通过Invoke切换到UI线程执行
+                this.Invoke(new Action<string>(SetLbChkCode), str);
+            }
+            else
+            {   // 同线程时直接执行
+                SetLbChkCode(str);
+            }
+        }
+
+        public void SafeSetLbReadCode(string str) // 跨线程安全调用SetLbReadCode
+        {
+            if (this.InvokeRequired)
+            { // 跨线程时通过Invoke切换到UI线程执行
+                this.Invoke(new Action<string>(SetLbReadCode), str);
+            }
+            else
+            {   // 同线程时直接执行
+                SetLbReadCode(str);
+            }
+        }
+
+        public void SafeSetLbPrtCode(string str) // 跨线程安全调用SetLbPrtCode
+        {
+            if (this.InvokeRequired)
+            { // 跨线程时通过Invoke切换到UI线程执行
+                this.Invoke(new Action<string>(SetLbPrtCode), str);
+            }
+            else
+            {   // 同线程时直接执行
+                SetLbPrtCode(str);
+            }
+        }
+        #endregion
 
         // 给打印文本框传入str，用于跳过相机的情况
         public void SetPrtCode()
@@ -872,7 +910,7 @@ namespace Data_Transceiver_Center
         private void btn_RetryRead_Click(object sender, EventArgs e)
         {
             txtBox_veriCode.Text = "";
-            SetLbReadCode("手动读码");
+            SafeSetLbReadCode("手动读码");
             btn_RetryRead.Enabled = false;
             btn_RetryRead.BackColor = System.Drawing.SystemColors.ControlDark;
             timer1.Enabled = true;
@@ -884,19 +922,32 @@ namespace Data_Transceiver_Center
         // 手动验码
         private void btn_RetryChk_Click(object sender, EventArgs e)
         {
-            ClearSerial();
-            SetLbChkCode("手动验码");
-            seriStatus = Form1.STATUS_WAIT;
+            if(ignoreCheck)
+            {
+                SafeSetLbChkCode("忽略校验");
+                _logHelper.Log("[手动验码]", "[INFO]", "Form1已设置为忽略校验状态");
+                return;
+            }
+            // 启动timer1定时器,用来防止多次点击
             btn_RetryChk.Enabled = false;
             btn_RetryChk.BackColor = System.Drawing.SystemColors.ControlDark;
             timer1.Enabled = true;
             timer1.Start();
+
+            // 1. 清除串口文本框历史数据
+            ClearSerial();
+            SafeSetLbChkCode("手动验码");
+            _logHelper.Log("[手动验码]", "[INFO]", "Form1已清除历史串口数据，等待新数据...");
+
+            // 2. 标记为“等待新数据”状态
+            _isWaitingForManualCheck = true;
+
             // 触发外部委托，mainForm通知PLC验码动作
-            btnRetryChk?.Invoke();
+            // btnRetryChk?.Invoke();
         }
 
-        // timer2定时器：手动扫码和手动验码延时，防止多次点击
-        private void timer2_Tick(object sender, EventArgs e)
+        // timer1定时器：手动扫码和手动验码延时，防止多次点击
+        private void timer1_Tick(object sender, EventArgs e)
         {
             timer1.Enabled = false;
             btn_RetryChk.Enabled = true;

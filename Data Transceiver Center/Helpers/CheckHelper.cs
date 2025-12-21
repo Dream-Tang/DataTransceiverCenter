@@ -28,9 +28,9 @@ namespace Data_Transceiver_Center
         // 1. 定义结果与PLC值的映射关系（公共配置）
         private readonly Dictionary<string, short> _resultToPlcValueMap = new Dictionary<string, short>
         {
-            {"OK", CommunicationProtocol.checkOK},
-            {"NG", CommunicationProtocol.checkNG},
-            {"忽略", CommunicationProtocol.checkIgnore}
+            {"验码OK", CommunicationProtocol.checkOK},
+            {"验码NG", CommunicationProtocol.checkNG},
+            {"忽略校验", CommunicationProtocol.checkIgnore}
         };
 
         /// <summary>
@@ -52,18 +52,18 @@ namespace Data_Transceiver_Center
                 if (ignoreCheck)
                 {
                     _logHelper.Log("校验", "WARN", "已勾选忽略校验，强制返回OK");
-                    return "OK";
+                    return "验码OK";
                 }
 
                 // 校验时，若校验数据为空，返回NG
                 if (string.IsNullOrEmpty(scnCode) || string.IsNullOrEmpty(prtCode))
                 {
                     _logHelper.Log("校验", "WARN", "扫码码/打印码为空，返回NG");
-                    return "NG";
+                    return "验码NG";
                 }
 
                 // 其余时候，根据校验是否相等返回OK或NG
-                string result = scnCode.Equals(prtCode, StringComparison.OrdinalIgnoreCase) ? "OK" : "NG";
+                string result = scnCode.Equals(prtCode, StringComparison.OrdinalIgnoreCase) ? "验码OK" : "验码NG";
                 _logHelper.Log("校验", "INFO", $"校验结果：{result}（扫码码：{scnCode} | 打印码：{prtCode}）");
                 return result;
             }
@@ -92,11 +92,11 @@ namespace Data_Transceiver_Center
                 // 通过接口操作PLC，而非直接依赖Form2
                 if (_plcService.InvokeRequired)
                 {
-                    _plcService.Invoke(new Action(() => _plcService.SafeWritePlc(scnValue)));
+                    _plcService.Invoke(new Action(() => _plcService.SafeWritePlc(scn:scnValue)));
                 }
                 else
                 {
-                    _plcService.SafeWritePlc(scnValue);
+                    _plcService.SafeWritePlc(scn:scnValue);
                 }
                 _logHelper.Log("校验->PLC", "INFO", $"已发送校验结果到PLC: {scnValue}");
             }

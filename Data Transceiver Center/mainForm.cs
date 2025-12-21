@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.IO.Ports;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -31,6 +32,13 @@ namespace Data_Transceiver_Center
         private readonly object _camMonitorLock = new object(); // 线程同步锁
         #endregion
 
+        #region 校验与SCN监控线程相关
+        private bool _isCheckMonitorRunning = false; // 校验监控线程标记
+        private bool _isScnMonitorRunning = false;   // SCN监控线程标记（原忽略校验时的PLC监控）
+        private Thread _checkMonitorThread;          // 校验监控线程
+        private Thread _scnMonitorThread;            // SCN监控线程
+        #endregion
+
         #region 配置接口依赖
         private IIniConfigurable _iniLoadForm;   // Form1配置加载接口
         private IJsonConfigurable _jsonLoadForm; // Form3配置加载接口
@@ -38,11 +46,6 @@ namespace Data_Transceiver_Center
         private IJsonSavable _jsonSaveForm;      // Form3配置保存接口
         private IPLCService _plcService;
         #endregion
-
-        // 新增校验线程标志位
-        private bool _isCheckMonitorRunning = false;
-        // 忽略校验，scn监控线程标志位
-        private bool _isScnMonitorRunning = false;
 
         // 在mainForm类中添加CheckHelper实例变量
         private CheckHelper _checkHelper;
@@ -111,18 +114,19 @@ namespace Data_Transceiver_Center
             _iniSaveForm = _form1;
             _jsonSaveForm = _form3;
            
-
             // 初始化子窗体嵌入属性
             InitChildForm(_form1);
             InitChildForm(_form2);
             InitChildForm(_form3);
 
             // 事件订阅：建立子窗体间数据同步机制
-            _form1.TextUpdated += OnForm1TextChanged;
-            _form1.RequestMesRootData += OnForm1RequestMesRootData;
-            _form1.SerialDataReceived += OnSerialDataReceived;
-            _form1.PanelIDgot += CamOK;
-            this.FormClosing += mainForm_FormClosing;
+            _form1.btnRetryRead += btn_RetryRead_Click; // form1的手动读码按钮事件
+            _form1.btnRetryChk += btn_RetryChk_Click;   // form1的手动验码按钮事件
+            _form1.TextUpdated += OnForm1TextChanged;   // form1的文本框更新事件
+            _form1.RequestMesRootData += OnForm1RequestMesRootData; // form1的Mes查询事件
+            _form1.SerialDataReceived += OnSerialDataReceived; // form1的串口收到数据事件
+            _form1.PanelIDgot += CamOK;                 // form1的Cam放行事件
+            this.FormClosing += mainForm_FormClosing;   // 窗口关闭
 
             // 默认显示工作流程窗体
             ShowForm(_form1);
@@ -134,10 +138,6 @@ namespace Data_Transceiver_Center
         private void MainForm_Load(object sender, EventArgs e)
         {
             this.Text = Application.ProductName + "  V" + Application.ProductVersion;
-
-            // 绑定Form1的重试按钮事件
-            _form1.btnRetryRead += btn_RetryRead_Click;
-            _form1.btnRetryChk += btn_RetryChk_Click;
 
             // 可选：自定义日志配置
             LogHelper.Instance.SetLogConfig(
@@ -204,7 +204,7 @@ namespace Data_Transceiver_Center
         private void OnForm1TextChanged(string text)
         {
             // 若勾选跳过相机，则清空文本
-            if (ignoreCam_checkBox.Checked)
+            if (checkBox_ignoreCam.Checked)
             {
                 text = "";
             }
@@ -220,7 +220,7 @@ namespace Data_Transceiver_Center
             MesPostRoot mesData = _form3.MesPostRoot;
 
             // 若勾选跳过相机，清空panelID
-            if (ignoreCam_checkBox.Checked)
+            if (checkBox_ignoreCam.Checked)
             {
                 mesData.MesData.input.panelId = "";
             }
@@ -344,12 +344,12 @@ namespace Data_Transceiver_Center
             {
                 var ini = new IniFile(iniFilePath);
                 // 加载复选框状态
-                ignoreCam_checkBox.Checked = ini.ReadBoolean("ignoreCam", "Checkbox", false);
-                ignoreCheck_checkBox.Checked = ini.ReadBoolean("ignoreCheck", "Checkbox", false);
-                ignorePlc_checkBox.Checked = ini.ReadBoolean("ignorePlc", "Checkbox", false);
-                connectPlc_checkBox.Checked = ini.ReadBoolean("connectPlc", "Checkbox", false);
-                chkBox_autoMode.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
-                tcpServer_checkBox.Checked = ini.ReadBoolean("tcpServer", "Checkbox", false);
+                checkBox_ignoreCam.Checked = ini.ReadBoolean("ignoreCam", "Checkbox", false);
+                checkBox_ignoreCheck.Checked = ini.ReadBoolean("ignoreCheck", "Checkbox", false);
+                checkBox_ignorePlc.Checked = ini.ReadBoolean("ignorePlc", "Checkbox", false);
+                checkBox_connectPlc.Checked = ini.ReadBoolean("connectPlc", "Checkbox", false);
+                checkBox_autoMode.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
+                checkBox_tcpServer.Checked = ini.ReadBoolean("tcpServer", "Checkbox", false);
 
                 Console.WriteLine("mainForm CheckBox状态加载完成");
             }
@@ -398,12 +398,12 @@ namespace Data_Transceiver_Center
             {
                 var ini = new IniFile(iniFilePath);
                 // 保存复选框状态
-                ini.Write("ignoreCam", ignoreCam_checkBox.Checked.ToString(), "Checkbox");
-                ini.Write("ignoreCheck", ignoreCheck_checkBox.Checked.ToString(), "Checkbox");
-                ini.Write("ignorePlc", ignorePlc_checkBox.Checked.ToString(), "Checkbox");
-                ini.Write("connectPlc", connectPlc_checkBox.Checked.ToString(), "Checkbox");
-                ini.Write("autoRun", chkBox_autoMode.Checked.ToString(), "Checkbox");
-                ini.Write("tcpServer", tcpServer_checkBox.Checked.ToString(), "Checkbox");
+                ini.Write("ignoreCam", checkBox_ignoreCam.Checked.ToString(), "Checkbox");
+                ini.Write("ignoreCheck", checkBox_ignoreCheck.Checked.ToString(), "Checkbox");
+                ini.Write("ignorePlc", checkBox_ignorePlc.Checked.ToString(), "Checkbox");
+                ini.Write("connectPlc", checkBox_connectPlc.Checked.ToString(), "Checkbox");
+                ini.Write("autoRun", checkBox_autoMode.Checked.ToString(), "Checkbox");
+                ini.Write("tcpServer", checkBox_tcpServer.Checked.ToString(), "Checkbox");
 
                 Console.WriteLine("MainForm配置保存完成");
             }
@@ -518,7 +518,7 @@ namespace Data_Transceiver_Center
 
                 BeginInvoke(new Action(() =>
                 {
-                    _form1.SetLbReadCode(CommunicationProtocol.readCodeOK);
+                    _form1.SafeSetLbReadCode(CommunicationProtocol.readCodeOK);
                     LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为OK");
 
                     // 1. 生成二维码并显示到pictureBox（假设使用pictureBox1显示）
@@ -543,7 +543,7 @@ namespace Data_Transceiver_Center
                 WritePLCReg(cam: CommunicationProtocol.camNG);
                 BeginInvoke(new Action(() =>
                 {
-                    _form1.SetLbReadCode(CommunicationProtocol.readCodeNG);
+                    _form1.SafeSetLbReadCode(CommunicationProtocol.readCodeNG);
                     LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为NG");
                 }));
 
@@ -554,10 +554,10 @@ namespace Data_Transceiver_Center
             }
 
 
-            // ========== 打印模块改造核心 ==========
+            // ========== 打印模块 ==========
             LogHelper.Instance.Log("打印", "INFO", "进入打印流程，开始前置检查");
             // 标记是否需要等待PLC就绪（屏蔽PLC开关）
-            bool needWaitPlcReady = !ignorePlc_checkBox.Checked;
+            bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
             if (needWaitPlcReady)
             {
                 LogHelper.Instance.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
@@ -573,7 +573,7 @@ namespace Data_Transceiver_Center
                         LogHelper.Instance.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
                         prt = CommunicationProtocol.prtNG;
                         WritePLCReg(prt: prt);
-                        BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                        BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
                         return;
                     }
                     prt = plcRefreshResult.Prt;
@@ -615,7 +615,7 @@ namespace Data_Transceiver_Center
                     LogHelper.Instance.Log("打印", "INFO", $"打印成功：{printResult.Message}");
                     prt = CommunicationProtocol.prtOK;
                     // 线程安全更新UI
-                    BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeOK)));
+                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
@@ -626,7 +626,7 @@ namespace Data_Transceiver_Center
                     LogHelper.Instance.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
                     prt = CommunicationProtocol.prtNG;
                     // 线程安全更新UI
-                    BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
@@ -641,7 +641,7 @@ namespace Data_Transceiver_Center
                 LogHelper.Instance.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
                 LogHelper.Instance.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
                 prt = CommunicationProtocol.prtNG;
-                BeginInvoke(new Action(() => _form1.SetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
                 WritePLCReg(prt: prt);
                 return;
             }
@@ -654,12 +654,12 @@ namespace Data_Transceiver_Center
         private void StopAutoRunThread()
         {
             // 临时取消自动流程勾选，触发线程退出循环
-            bool wasAutoRunChecked = chkBox_autoMode.Checked;
-            chkBox_autoMode.Checked = false;
+            bool wasAutoRunChecked = checkBox_autoMode.Checked;
+            checkBox_autoMode.Checked = false;
             // 短暂延迟确保线程退出
             Task.Delay(500).Wait();
             // 恢复原状态（若需要）
-            chkBox_autoMode.Checked = wasAutoRunChecked;
+            checkBox_autoMode.Checked = wasAutoRunChecked;
         }
 
         /// <summary>
@@ -674,12 +674,12 @@ namespace Data_Transceiver_Center
         private void chkBox_autoMode_CheckedChanged(object sender, EventArgs e)
         {
             // 更新自动模式总开关状态
-            _isAutoModeEnabled = chkBox_autoMode.Checked;
+            _isAutoModeEnabled = checkBox_autoMode.Checked;
 
             if (_isAutoModeEnabled)
             {
                 // 开启自动模式：仅控制触发源过滤，不启停TCP服务器
-                if (ignoreCam_checkBox.Checked)
+                if (checkBox_ignoreCam.Checked)
                 {
                     // 场景1：勾选跳过相机 → 启动PLC监控（响应PLC触发），TCP服务器保持运行（仅过滤触发信号）
                     StartCamMonitor(); // 启动PLC cam寄存器监控线程
@@ -691,9 +691,9 @@ namespace Data_Transceiver_Center
                     // 场景2：未勾选跳过相机 → 停止PLC监控触发（仅保留TCP触发），TCP服务器保持运行
                     StopCamMonitor(); // 停止PLC cam寄存器监控（避免PLC误触发）
                                       // 确保TCP服务器运行（相机数据传输需要）
-                    if (!tcpServer_checkBox.Checked)
+                    if (!checkBox_tcpServer.Checked)
                     {
-                        tcpServer_checkBox.Checked = true;
+                        checkBox_tcpServer.Checked = true;
                         StartTcpServer();
                     }
                     LogHelper.Instance.Log("自动模式", "INFO", "【正常模式】自动模式已开启，仅响应TCP触发信号，TCP服务器保持运行");
@@ -734,14 +734,14 @@ namespace Data_Transceiver_Center
                 bool isTcpTrigger = triggerSource.Contains("TCP"); // TCP触发源标识
 
                 // 规则1：跳过相机模式 → 仅允许PLC触发
-                if (ignoreCam_checkBox.Checked && !isPlcTrigger)
+                if (checkBox_ignoreCam.Checked && !isPlcTrigger)
                 {
                     LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 跳过相机模式下仅允许PLC触发，忽略本次非PLC触发");
                     return;
                 }
 
                 // 规则2：正常模式（未跳过相机）→ 仅允许TCP触发
-                if (!ignoreCam_checkBox.Checked && !isTcpTrigger)
+                if (!checkBox_ignoreCam.Checked && !isTcpTrigger)
                 {
                     LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 正常模式下仅允许TCP触发，忽略本次非TCP触发");
                     return;
@@ -833,7 +833,7 @@ namespace Data_Transceiver_Center
         private (bool Success, short Cam, short Prt, short Scn) ReadPlcStatus()
         {
             // 若勾选"屏蔽PLC"，直接返回默认值（成功状态）
-            if (ignorePlc_checkBox.Checked)
+            if (checkBox_ignorePlc.Checked)
             {
                 Console.WriteLine("ReadPlcStatus：已屏蔽PLC，返回默认值");
                 return (true, -1, -1, -1);
@@ -872,7 +872,6 @@ namespace Data_Transceiver_Center
         }
 
 
-
         #endregion
 
         #region 校验相关
@@ -881,99 +880,118 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void chkbox_ignoreCheck_checked(object sender, EventArgs e)
         {
-            // 先停止已有线程（包括原校验线程和新增的scn监控线程）
-            _isCheckMonitorRunning = false;
-            _isScnMonitorRunning = false; // 新增：停止scn监控
-            Task.Delay(500).Wait();
-            // 更新Form1的忽略校验状态
-            _form1.ignoreCheck = ignoreCheck_checkBox.Checked;
+            // 1. 先停止所有相关监控线程（避免线程冲突）
+            StopAllCheckRelatedThreads();
 
-            // 勾选"忽略校验"：启动scn寄存器监控线程（类似跳过相机的监控逻辑）
-            if (ignoreCheck_checkBox.Checked)
+            // 2. 更新Form1的忽略校验状态（跨线程安全）
+            if (_form1.InvokeRequired)
             {
-                _isScnMonitorRunning = true;
-                var scnMonitorTask = Task.Run(async () =>
-                {
-                    while (_isScnMonitorRunning)
-                    {
-                        // 监控scn寄存器，checkIgnore（1）时触发校验
-                        var scnValue = ReadPlcSpecificRegister(CommunicationProtocol.scannerRegister);
-                        if (scnValue.HasValue && scnValue.Value == CommunicationProtocol.checkIgnore)
-                        {
-                            Console.WriteLine($"忽略校验模式：检测到scn={scnValue.Value}，触发强制校验");
-                            // 执行校验（此时会返回OK）并写入PLC
-                            if (this.InvokeRequired)
-                            {
-                                this.Invoke(new Action(() =>
-                                {
-                                    string checkResult = _checkHelper.ExecuteCheck();
-                                    _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
-                                }));
-                            }
-                            else
-                            {
-                                string checkResult = _checkHelper.ExecuteCheck();
-                                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
-                            }
-                            // 延迟避免短时间重复触发
-                            await Task.Delay(1000);
-                        }
-                        await Task.Delay(500); // 监控间隔
-                    }
-                });
+                _form1.Invoke(new Action(() => _form1.ignoreCheck = checkBox_ignoreCheck.Checked));
             }
-
-            // 未勾选"忽略校验"：启动校验监控线程
             else
             {
+                _form1.ignoreCheck = checkBox_ignoreCheck.Checked;
+            }
+            _form1.SafeSetLbChkCode(checkBox_ignoreCheck.Checked ? "忽略校验" : "等待校验");
+
+            // 3. 根据忽略校验状态，启停对应监控线程
+            if (checkBox_ignoreCheck.Checked)
+            {   // 勾选"忽略校验"：启动scn寄存器监控线程（类似跳过相机的监控逻辑）
+                _isScnMonitorRunning = true;
+                _scnMonitorThread = new Thread(ScnMonitorLoop);
+                _scnMonitorThread.IsBackground = true;
+                _scnMonitorThread.Start();
+                LogHelper.Instance.Log("忽略校验", "INFO", "勾选忽略校验，启动PLC SCN监控（PLC触发校验）");
+            }
+
+            else
+            {   // 取消忽略校验：启动校验监控线程（串口触发，仅监听不主动执行）
                 _isCheckMonitorRunning = true;
-                // 启动校验监控线程
-                var t5 = Task.Run(async () =>
-                {
-                    while (_isCheckMonitorRunning)  // 使用标志位控制
-                    {
-                        _form1.ignoreCheck = false;
-                        if (_form1.seriStatus == Form1.STATUS_READY)
-                        {
-                            // 使用CheckHelper执行校验逻辑
-                            BeginInvoke(new Action(() =>
-                            {
-                                try
-                                {
-                                    string checkResult = _checkHelper.ExecuteCheck();
-                                    _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
-                                }
-                                catch (Exception ex)
-                                {
-                                    LogHelper.Instance.Log("校验线程", "ERROR", $"校验任务执行异常: {ex.Message}");
-                                    LogHelper.Instance.Log("校验线程", "ERROR", $"异常堆栈: {ex.StackTrace}");
-                                }
-                            }));
-                            _form1.seriStatus = Form1.STATUS_WAIT;
-                        }
-                        await Task.Delay(500);
-                    }
-                });
+                _checkMonitorThread = new Thread(CheckMonitorLoop);
+                _checkMonitorThread.IsBackground = true;
+                _checkMonitorThread.Start();
+                LogHelper.Instance.Log("忽略校验", "INFO", "取消忽略校验，启动串口校验监控（串口触发校验）");
             }
         }
 
-        // 新增校验线程终止方法
-        private void StopCheckMonitorThread()
+        //校验线程终止方法
+        private void StopAllCheckRelatedThreads()
         {
+            // 停止校验监控线程（原串口触发时的线程）
             _isCheckMonitorRunning = false;
+            if (_checkMonitorThread != null && _checkMonitorThread.IsAlive)
+            {
+                _checkMonitorThread.Join(500); // 等待线程退出（复用原有等待逻辑）
+            }
+
+            // 停止SCN监控线程（原忽略校验时的PLC线程）
+            _isScnMonitorRunning = false;
+            if (_scnMonitorThread != null && _scnMonitorThread.IsAlive)
+            {
+                _scnMonitorThread.Join(500);
+            }
         }
 
         /// <summary>
-        /// 串口数据接收事件处理
+        /// PLC SCN寄存器监控线程循环（忽略校验模式下使用）
+        /// </summary>
+        private void ScnMonitorLoop()
+        {
+            // 1. 循环入口：只要线程运行标记为true，就一直执行（线程核心循环）
+            while (_isScnMonitorRunning)
+            {
+                try
+                {
+                    // 2. 读取PLC指定寄存器的值
+                    // 作用：查PLC的状态，PLC必须进入校验准备模式（即scn寄存器值为特定触发值），才执行校验 
+                    short? scnValue = ReadPlcSpecificRegister(CommunicationProtocol.scannerRegister);
+                    // 3. 核心判断：PLC寄存器有值 且 这个值等于“触发校验”的约定值（产品已经到达校验位置）
+                    if (scnValue.HasValue && scnValue.Value == CommunicationProtocol.checkIgnore)
+                    {
+                        // 4. 执行校验逻辑，获取校验结果
+                        string checkResult = _checkHelper.ExecuteCheck();
+                        // 5. 根据校验结果更新PLC（第二个参数是“是否忽略PLC”的复选框状态）
+                        // 作用：把校验结果（OK/NG）写给PLC，同时判断是否要跳过PLC写入
+                        _checkHelper.UpdatePlcByCheckResult(checkResult, checkBox_ignorePlc.Checked);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Instance.Log("SCN监控", "ERROR", ex.Message);
+                }
+                Thread.Sleep(200); // 轮询间隔
+            }
+        }
+
+        /// <summary>
+        /// 校验监控线程循环-监控串口数据接收（非忽略校验模式下使用）
+        /// </summary>
+        private void CheckMonitorLoop()
+        {
+            while (_isCheckMonitorRunning)
+            {
+                // 取消忽略校验时：仅监听串口数据，不主动执行校验（校验由串口事件触发）
+                // 原有串口接收事件（SerialPort_DataReceived）会自行触发校验，此处仅保持线程存活
+                Thread.Sleep(200); // 复用原有休眠逻辑
+            }
+        }
+
+        /// <summary>
+        /// 串口数据接收事件处理，触发校验流程
         /// </summary>
         private void OnSerialDataReceived()
         {
-            Console.WriteLine("串口接收到验码数据");
+            // 执行验码以及放行的功能
+            if (checkBox_ignoreCheck.Checked)
+            {
+                return;
+            }
             // 使用CheckHelper处理校验
             try
             {
                 string checkResult = _checkHelper.ExecuteCheck();
-                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+                _checkHelper.UpdatePlcByCheckResult(checkResult, checkBox_ignorePlc.Checked);
+                _form1.SafeSetLbChkCode(checkResult);
             }
             catch (Exception ex)
             {
@@ -989,7 +1007,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void connectPlc_checkBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (connectPlc_checkBox.Checked)
+            if (checkBox_connectPlc.Checked)
             {
                 // 连接PLC
                 _form2.btn_Open_Click(null, null);
@@ -1001,7 +1019,7 @@ namespace Data_Transceiver_Center
                 }
                 else
                 {
-                    connectPlc_checkBox.Checked = false;
+                    checkBox_connectPlc.Checked = false;
                     lable_PlcConnectStatus.Text = "PLC 无法连接";
                     lable_PlcConnectStatus.ForeColor = System.Drawing.Color.Black;
                     lable_PlcConnectStatus.BackColor = System.Drawing.Color.FromArgb(246, 111, 81);
@@ -1015,9 +1033,9 @@ namespace Data_Transceiver_Center
                 lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
                 lable_PlcConnectStatus.BackColor = System.Drawing.Color.Black;
                 // 关键：停止所有可能操作PLC的线程
-                StopAutoRunThread();       // 停止自动流程线程
-                StopCheckMonitorThread();  // 停止校验监控线程
-                StopCamMonitor();          // 停止相机监控线程（若启用）
+                StopAutoRunThread();            // 停止自动流程线程
+                StopAllCheckRelatedThreads();   // 停止校验监控线程
+                StopCamMonitor();               // 停止相机监控线程（若启用）
             }
         }
 
@@ -1030,7 +1048,7 @@ namespace Data_Transceiver_Center
         /// <param name="scn">扫描状态值（不修改传null）</param>
         private void WritePLCReg(short? cam = null, short? prt = null, short? scn = null)
         {
-            if (!ignorePlc_checkBox.Checked && connectPlc_checkBox.Checked)
+            if (!checkBox_ignorePlc.Checked && checkBox_connectPlc.Checked)
             {
                 try
                 {
@@ -1052,13 +1070,13 @@ namespace Data_Transceiver_Center
         private short? ReadPlcSpecificRegister(string deviceName)
         {
             // 新增：若未连接PLC，直接返回null
-            if (!connectPlc_checkBox.Checked)
+            if (!checkBox_connectPlc.Checked)
             {
                 Console.WriteLine("PLC未连接，跳过读取");
                 return null;
             }
             // 检查PLC连接状态和屏蔽设置
-            if (ignorePlc_checkBox.Checked || !connectPlc_checkBox.Checked)
+            if (checkBox_ignorePlc.Checked || !checkBox_connectPlc.Checked)
             {
                 Console.WriteLine("PLC已屏蔽或未连接，跳过读取");
                 return null;
@@ -1093,7 +1111,7 @@ namespace Data_Transceiver_Center
             {
                 LogHelper.Instance.Log("手动验码", "INFO", "用户触发手动验码");
                 string checkResult = _checkHelper.ExecuteCheck();
-                _checkHelper.UpdatePlcByCheckResult(checkResult, ignorePlc_checkBox.Checked);
+                _checkHelper.UpdatePlcByCheckResult(checkResult, checkBox_ignorePlc.Checked);
             }
             catch (Exception ex)
             {
@@ -1131,7 +1149,7 @@ namespace Data_Transceiver_Center
             else
             {
                 // 非自动模式下，仅控制PLC监控线程（TCP由用户手动控制）
-                if (ignoreCam_checkBox.Checked)
+                if (checkBox_ignoreCam.Checked)
                 {
                     StartCamMonitor();
                     LogHelper.Instance.Log("跳过相机", "INFO", "非自动模式下，跳过相机已勾选，启动PLC监控（仅监听，不触发流程）");
@@ -1203,7 +1221,7 @@ namespace Data_Transceiver_Center
                 try
                 {
                     // 检查PLC连接状态
-                    if (!connectPlc_checkBox.Checked)
+                    if (!checkBox_connectPlc.Checked)
                     {
                         Thread.Sleep(1000);
                         continue;
@@ -1240,7 +1258,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         private void tcpServer_checkBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (tcpServer_checkBox.Checked)
+            if (checkBox_tcpServer.Checked)
             {
                 StartTcpServer();
             }
@@ -1275,7 +1293,7 @@ namespace Data_Transceiver_Center
             catch (Exception ex)
             {
                 LogHelper.Instance.Log("TCP服务器", "ERROR", $"启动TCP服务器失败：{ex.Message}");
-                tcpServer_checkBox.Checked = false;
+                checkBox_tcpServer.Checked = false;
                 _tcpServer = null;
             }
         }
@@ -1401,6 +1419,7 @@ namespace Data_Transceiver_Center
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             StopCamMonitor(); // 确保相机监控线程停止
+            StopAllCheckRelatedThreads(); // 停止校验相关线程
         }
 
     }

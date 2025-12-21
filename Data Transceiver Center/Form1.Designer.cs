@@ -531,7 +531,7 @@ namespace Data_Transceiver_Center
             // timer1
             // 
             this.timer1.Interval = 2500;
-            this.timer1.Tick += new System.EventHandler(this.timer2_Tick);
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // btn_apiTest
             // 
