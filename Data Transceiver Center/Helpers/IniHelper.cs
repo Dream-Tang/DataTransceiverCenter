@@ -75,10 +75,10 @@ namespace Data_Transceiver_Center
         /// 写入字符串值
         /// </summary>
         /// <param name="filePath">INI文件路径</param>
-        /// <param name="section">节名</param>
         /// <param name="key">键名</param>
+        /// <param name="section">节名</param>
         /// <param name="value">值</param>
-        public void WriteString(string filePath, string section, string key, string value)
+        public void WriteString(string filePath, string key, string section, string value)
         {
             ValidateFilePath(filePath);
             EnsureDirectoryExists(filePath);
@@ -90,12 +90,12 @@ namespace Data_Transceiver_Center
         /// 写入布尔值（存储为"1"或"0"）
         /// </summary>
         /// <param name="filePath">INI文件路径</param>
-        /// <param name="section">节名</param>
         /// <param name="key">键名</param>
+        /// <param name="section">节名</param>
         /// <param name="value">布尔值</param>
-        public void WriteBoolean(string filePath, string section, string key, bool value)
+        public void WriteBoolean(string filePath, string key, string section, bool value)
         {
-            WriteString(filePath, section, key, value ? "1" : "0");
+            WriteString(filePath, key, section, value ? "1" : "0");
         }
 
         /// <summary>

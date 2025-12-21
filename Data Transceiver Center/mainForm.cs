@@ -49,6 +49,7 @@ namespace Data_Transceiver_Center
 
         // 在mainForm类中添加CheckHelper实例变量
         private CheckHelper _checkHelper;
+        private readonly IniHelper _iniHelper = IniHelper.Instance; // 单例IniHelper实例
 
         // 自动流程 状态标签
         public enum ProcessStatus
@@ -334,6 +335,7 @@ namespace Data_Transceiver_Center
         /// </summary>
         public void LoadMainConfig(string iniFilePath)
         {
+            // 校验文件是否存在
             if (!File.Exists(iniFilePath))
             {
                 MessageBox.Show($"ini配置文件不存在：{iniFilePath}");
@@ -342,14 +344,13 @@ namespace Data_Transceiver_Center
 
             try
             {
-                var ini = new IniFile(iniFilePath);
                 // 加载复选框状态
-                checkBox_ignoreCam.Checked = ini.ReadBoolean("ignoreCam", "Checkbox", false);
-                checkBox_ignoreCheck.Checked = ini.ReadBoolean("ignoreCheck", "Checkbox", false);
-                checkBox_ignorePlc.Checked = ini.ReadBoolean("ignorePlc", "Checkbox", false);
-                checkBox_connectPlc.Checked = ini.ReadBoolean("connectPlc", "Checkbox", false);
-                checkBox_autoMode.Checked = ini.ReadBoolean("autoRun", "Checkbox", false);
-                checkBox_tcpServer.Checked = ini.ReadBoolean("tcpServer", "Checkbox", false);
+                checkBox_ignoreCam.Checked   = _iniHelper.ReadBoolean(iniFilePath, "ignoreCam",   "Checkbox", false);
+                checkBox_ignoreCheck.Checked = _iniHelper.ReadBoolean(iniFilePath, "ignoreCheck", "Checkbox", false);
+                checkBox_ignorePlc.Checked   = _iniHelper.ReadBoolean(iniFilePath, "ignorePlc",   "Checkbox", false);
+                checkBox_connectPlc.Checked  = _iniHelper.ReadBoolean(iniFilePath, "connectPlc",  "Checkbox", false);
+                checkBox_autoMode.Checked    = _iniHelper.ReadBoolean(iniFilePath, "autoRun",     "Checkbox", false);
+                checkBox_tcpServer.Checked   = _iniHelper.ReadBoolean(iniFilePath, "tcpServer",   "Checkbox", false);
 
                 Console.WriteLine("mainForm CheckBox状态加载完成");
             }
@@ -396,14 +397,13 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                var ini = new IniFile(iniFilePath);
                 // 保存复选框状态
-                ini.Write("ignoreCam", checkBox_ignoreCam.Checked.ToString(), "Checkbox");
-                ini.Write("ignoreCheck", checkBox_ignoreCheck.Checked.ToString(), "Checkbox");
-                ini.Write("ignorePlc", checkBox_ignorePlc.Checked.ToString(), "Checkbox");
-                ini.Write("connectPlc", checkBox_connectPlc.Checked.ToString(), "Checkbox");
-                ini.Write("autoRun", checkBox_autoMode.Checked.ToString(), "Checkbox");
-                ini.Write("tcpServer", checkBox_tcpServer.Checked.ToString(), "Checkbox");
+                _iniHelper.WriteBoolean(iniFilePath, "ignoreCam",   "Checkbox", checkBox_ignoreCam.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "ignoreCheck", "Checkbox", checkBox_ignoreCheck.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "ignorePlc",   "Checkbox", checkBox_ignorePlc.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "connectPlc",  "Checkbox", checkBox_connectPlc.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "autoRun",     "Checkbox", checkBox_autoMode.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "tcpServer",   "Checkbox", checkBox_tcpServer.Checked);
 
                 Console.WriteLine("MainForm配置保存完成");
             }

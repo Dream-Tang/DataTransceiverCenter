@@ -34,9 +34,10 @@ namespace Data_Transceiver_Center
 
         // 1. 声明CheckHelper实例（在Form1构造函数中初始化）
         private CheckHelper _checkHelper;
+        private readonly IniHelper _iniHelper = IniHelper.Instance;  // INI助手单例
+        private readonly LogHelper _logHelper = LogHelper.Instance; // 日志助手(单例模式)
 
         private readonly IPLCService _plcService;                   // PLC服务接口
-        private readonly LogHelper _logHelper = LogHelper.Instance; // 日志助手(单例模式)
 
         /// <summary>
         /// 构造函数：接收IPLCService
@@ -475,16 +476,14 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                var myIni = new IniFile(iniFilePath);
-
                 // 保存文本框配置
-                myIni.Write("filePathZPL", txtBox_zplPath.Text, "Textbox");
-                myIni.Write("prtName", txtBox_prtPath.Text, "Textbox");
-                myIni.Write("zplTemplate", zplTemplatePath, "Textbox");
-                myIni.Write("seriPortNum", cobBox_SeriPortNum.Text, "Textbox");
+                _iniHelper.WriteString(iniFilePath, "filePathZPL", "Textbox", txtBox_zplPath.Text);
+                _iniHelper.WriteString(iniFilePath, "prtName",     "Textbox", txtBox_prtPath.Text);
+                _iniHelper.WriteString(iniFilePath, "zplTemplate", "Textbox", zplTemplatePath);
+                _iniHelper.WriteString(iniFilePath, "seriPortNum", "Textbox", cobBox_SeriPortNum.Text);
 
                 // 保存复选框状态（与加载时对应）
-                myIni.Write("lockSettings", lockSettings_checkBox.Checked.ToString(), "Checkbox");
+                _iniHelper.WriteBoolean(iniFilePath,"lockSettings", "Checkbox", lockSettings_checkBox.Checked);
 
                 Console.WriteLine("Form1配置保存成功");
             }
@@ -499,15 +498,13 @@ namespace Data_Transceiver_Center
 
         // 从ini读出数据到页面
         // static 静态类，不用创建实例，只需要通过(类名.方法名)即可进行调用
-        public void LoadIniSettings(string iniFile)
+        public void LoadIniSettings(string iniFilePath)
         {
-            var myIni = new IniFile(iniFile);
-
             // string Read(string Key,string Section = null)
-            string filePathZPL = myIni.ReadString("filePathZPL", "Textbox");
-            string prtName = myIni.ReadString("prtName", "Textbox");
-            string zplTemplate = myIni.ReadString("zplTemplate", "Textbox");
-            string seriPortNum = myIni.ReadString("seriPortNum", "Textbox");
+            string filePathZPL = _iniHelper.ReadString(iniFilePath, "filePathZPL", "Textbox");
+            string prtName     = _iniHelper.ReadString(iniFilePath, "prtName",     "Textbox");
+            string zplTemplate = _iniHelper.ReadString(iniFilePath, "zplTemplate", "Textbox");
+            string seriPortNum = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
 
             txtBox_zplPath.Text = filePathZPL;
             txtBox_prtPath.Text = prtName;

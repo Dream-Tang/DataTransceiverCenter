@@ -160,7 +160,7 @@
     <Compile Include="ActDefine.cs" />
     <Compile Include="Helpers\CheckHelper.cs" />
     <Compile Include="Helpers\IniHelper.cs" />
-    <Compile Include="IConfigurable.cs" />
+    <Compile Include="Interfaces\IConfigurable.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\MesCommunicationHelper.cs" />
     <Compile Include="Helpers\PrintingHelper.cs" />
@@ -175,7 +175,6 @@
     <Compile Include="Form3.Designer.cs">
       <DependentUpon>Form3.cs</DependentUpon>
     </Compile>
-    <Compile Include="IniFile.cs" />
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
