@@ -61,6 +61,15 @@ namespace Data_Transceiver_Center
             Exception   // 异常
         }
 
+        // 定义极简的PLC状态结构体（用于将PLC的状态打包）
+        private struct PlcState
+        {
+            public short Prt;       //
+            public short Cam;       //
+            public short Scn;       //
+            public bool ReadSuccess;//
+        }
+
         #region 自动流程触发的互斥锁和状态变量
         /// <summary>
         /// 自动模式总开关：是否允许响应外部触发信号
@@ -430,6 +439,7 @@ namespace Data_Transceiver_Center
         /// 全流程执行逻辑（仅负责按顺序执行操作，不处理触发判断）
         /// 流程：读PLC -> MES通信 -> 生成打印指令 -> 发送打印 -> 校验 -> 写PLC结果
         /// </summary>
+        
         private async void ExecuteFullProcess()
         {
             short cam = -1, prt = -1, scn = -1;
@@ -553,6 +563,27 @@ namespace Data_Transceiver_Center
                 return; // 失败终止后续流程
             }
 
+            // 新增一个判断，拍照位的阻挡气缸是否放下，放下才开始打印流程
+            bool camHolderReady = true;
+            if (!checkBox_ignorePlc.Checked) // 如果未勾选"忽略PLC"，则执行等待
+            {
+                camHolderReady = await WaitForCamHolderZeroAsync(); // 调用等待函数
+            }
+            else
+            {
+                LogHelper.Instance.Log("打印流程", "INFO", "已勾选忽略PLC，跳过阻挡气缸检查");
+            }
+            // 如果等待成功（或被跳过），则执行打印模块
+            if (camHolderReady)
+            {
+                // 执行原打印模块逻辑
+                //await ExecutePrintProcessAsync(); // 假设打印模块也是异步方法
+            }
+            else
+            {
+                LogHelper.Instance.Log("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
+                return;
+            }
 
             // ========== 打印模块 ==========
             LogHelper.Instance.Log("打印", "INFO", "进入打印流程，开始前置检查");
@@ -648,6 +679,41 @@ namespace Data_Transceiver_Center
 
             LogHelper.Instance.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
+        }
+
+       
+
+        /// <summary>
+        /// 等待camHolder变为0（异步方式，不阻塞UI线程）
+        /// </summary>
+        /// <returns>是否成功等待到camHolder=0（true=成功，false=超时或被跳过）</returns>
+        private async Task<bool> WaitForCamHolderZeroAsync()
+        {
+            // 读取初始值
+            short? camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
+
+            // 超时计时器（可选，避免无限等待，单位：毫秒）
+            int timeoutMs = 30000; // 30秒超时
+            DateTime startTime = DateTime.Now;
+
+            while (camHolder != 0)
+            {
+                // 检查是否超时
+                if ((DateTime.Now - startTime).TotalMilliseconds > timeoutMs)
+                {
+                    LogHelper.Instance.Log("打印流程", "ERROR", $"等待camHolder超时（{timeoutMs}ms），当前值: {camHolder}");
+                    return false;
+                }
+
+                LogHelper.Instance.Log("打印流程", "INFO", $"等待camHolder变为0，当前值: {camHolder}");
+                // 异步等待500ms（不阻塞线程）
+                await Task.Delay(500);
+                // 重新读取值
+                camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
+            }
+
+            LogHelper.Instance.Log("打印流程", "INFO", "camHolder已变为0，继续执行打印");
+            return true;
         }
 
         // 新增线程终止方法
@@ -845,6 +911,7 @@ namespace Data_Transceiver_Center
                 short? cam = ReadPlcSpecificRegister(CommunicationProtocol.camRegister);
                 short? prt = ReadPlcSpecificRegister(CommunicationProtocol.prtRegister);
                 short? scn = ReadPlcSpecificRegister(CommunicationProtocol.scannerRegister);
+                //short? camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
 
                 // 检查是否有任一寄存器读取失败
                 if (!cam.HasValue || !prt.HasValue || !scn.HasValue)
@@ -870,7 +937,6 @@ namespace Data_Transceiver_Center
                 return (false, -1, -1, -1);
             }
         }
-
 
         #endregion
 

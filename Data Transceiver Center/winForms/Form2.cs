@@ -829,7 +829,7 @@ namespace Data_Transceiver_Center
 
         #endregion 
 
-        // 发送数据
+        // 读取寄存器数值
         public Tuple<short, short, short> ReadPlc()
         {
             if (!IsPlcConnected())

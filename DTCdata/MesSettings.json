@@ -1,10 +1,10 @@
 {
-  "MesUrl": "http://127.0.0.1:8000",
+  "MesUrl": "http://192.168.0.82:8000/weforsys/patchTrackOut",
   "MesData": {
     "input": {
-      "stepId": "S1",
-      "lineId": "L2",
-      "eqpId": "E1",
+      "stepId": "FOG-3",
+      "lineId": "03001",
+      "eqpId": "FOG-TP-001",
       "panelId": "",
       "fixture": "001"
     }

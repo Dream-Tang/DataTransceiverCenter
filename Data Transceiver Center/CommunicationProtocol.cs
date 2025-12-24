@@ -9,6 +9,8 @@
         public const string prtRegister = "D1001";
         // 扫码枪动作交互寄存器
         public const string scannerRegister = "D1002";
+        // 相机位阻挡气缸IO
+        public const string camPstHolder = "Y016";
         #endregion
 
         #region "定义PLC通信信号数值"
@@ -41,6 +43,12 @@
         public const short checkIgnore = 1;
         public const short checkOK     = 12;
         public const short checkNG     = 13;
+        // 相机阻挡气缸信号
+        // 阻挡放下， = 0
+        // 阻挡抬起， = 1
+        // 当阻挡放下之后，产品往下走，MES的数据才往下走，生成ZPL，发给打印机
+        public const short dataFlow = 0;
+        public const short dataHold = 1;
         #endregion
 
         #region "Form1调用信号"
