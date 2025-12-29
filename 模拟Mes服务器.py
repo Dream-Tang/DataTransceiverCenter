@@ -68,9 +68,25 @@ curl -X POST ^
             json_data = json.loads(post_data)
 
             # 从解析后的json数据中，提取需要的字段值
-            specific_value = json_data.get("input").get("panelId")
-            if not specific_value or specific_value == "":
-                specific_value = "Test001"
+            panel_id = json_data.get("input").get("panelId")
+
+            # 当传入的数据是空时，传出Test001
+            if not panel_id or panel_id == "":
+                panel_id = "Test001"
+
+            # 当传入的数据时error500,触发code:500的测试
+            if panel_id == "error500":
+                # 主动返回500错误的JSON响应
+                self.send_response(500)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                error_resp = {
+                    "code": 500,
+                    "msg": "Internal Server Error ",
+                    "data": "Test002"
+                }
+                self.wfile.write(json.dumps(error_resp).encode('utf-8'))
+                return
 
             # 4. 构建成功响应（使用datetime替代log_date_time_string）
             self.send_response(200)
@@ -80,7 +96,7 @@ curl -X POST ^
                 "code":200,
                 "info":"上传成功",
                 "received_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),  # 更稳定的时间格式
-                "data": specific_value
+                "data": panel_id
             },indent=2,ensure_ascii=False)
             self.wfile.write(response.encode('utf-8'))
 
@@ -111,8 +127,9 @@ if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
     server_address = ('', port)
     httpd = HTTPServer(server_address, JSONHandler)
-    print(f"修复版JSON服务器启动在端口 {port}...")
-    print(f"控制台将显示详细错误信息，方便调试")
+    print(f"服务器已启动，端口：{port}")
+    print(f"触发500错误：请求体中设置 panelId: 'error500'")
+    print(f"停止服务器：按 Ctrl+C")
     httpd.serve_forever()
 
 

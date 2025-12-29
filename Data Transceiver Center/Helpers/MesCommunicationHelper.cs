@@ -11,7 +11,8 @@ namespace Data_Transceiver_Center
     public class MesResult
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
+        public string Code { get; set; }
+        public string Info { get; set; }
         public string Data { get; set; }
         public string RawResponse { get; set; } // 新增：存储完整原始响应
     }
@@ -113,7 +114,8 @@ namespace Data_Transceiver_Center
             var result = new MesResult
             {
                 Success = false,
-                Message = "初始状态：未执行请求",
+                Code = "400",
+                Info = "初始状态：未执行请求",
                 Data = string.Empty,
                 RawResponse = string.Empty
             };
@@ -121,14 +123,14 @@ namespace Data_Transceiver_Center
             // 2. 前置校验：URL和参数非空
             if (string.IsNullOrWhiteSpace(url))
             {
-                result.Message = "MES请求URL为空";
-                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Message}");
+                result.Info = "MES请求URL为空";
+                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Info}");
                 return result;
             }
             if (postData == null)
             {
-                result.Message = "MES请求参数（MsePostData）为空";
-                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Message}");
+                result.Info = "MES请求参数（MsePostData）为空";
+                //LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 错误：{result.Info}");
                 return result;
             }
 
@@ -172,25 +174,26 @@ namespace Data_Transceiver_Center
                             if (mesResponse.code == "200")
                             {
                                 result.Success = true;
+                                result.Code = mesResponse.code;
                                 result.Data = mesResponse.data ?? string.Empty;
-                                result.Message = mesResponse.info ?? "MES响应成功（无信息）";
+                                result.Info = mesResponse.info ?? "MES响应成功（无信息）";
                             }
                             else
                             {
-                                result.Message = $"MES返回错误码：{mesResponse.code}，信息：{mesResponse.info}";
+                                result.Info = $"MES返回错误码：{mesResponse.code}，信息：{mesResponse.info}";
                             }
                         }
                         else
                         {
                             // 解析为空的兜底处理
-                            result.Message = "MES响应解析为MesResponseJson失败（空对象）";
+                            result.Info = "MES响应解析为MesResponseJson失败（空对象）";
                             result.Data = rawResponse; // 原始响应兜底
                         }
                     }
                     catch (JsonException ex)
                     {
                         // JSON解析失败的兜底
-                        result.Message = $"MES响应JSON解析失败：{ex.Message}";
+                        result.Info = $"MES响应JSON解析失败：{ex.Message}";
                         result.Data = rawResponse; // 保留原始响应
                         LogHelper.Instance.Log("MES-RAW", "INFO", $"[MES-RAW] 解析异常：{ex}");
                     }
@@ -198,27 +201,27 @@ namespace Data_Transceiver_Center
                 else
                 {
                     // HTTP状态码失败（如404/500）
-                    result.Message = $"HTTP请求失败，状态码：{response.StatusCode}，原因：{response.ReasonPhrase}";
+                    result.Info = $"HTTP请求失败，状态码：{response.StatusCode}，原因：{response.ReasonPhrase}";
                 }
             }
             catch (TaskCanceledException ex)
             {
                 // 单独捕获超时异常（最常见的问题）
-                result.Message = $"MES请求超时（10秒）：{ex.Message}";
+                result.Info = $"MES请求超时（10秒）：{ex.Message}";
                 result.RawResponse = ex.ToString(); // 保留异常堆栈
                 LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 超时异常：{ex}");
             }
             catch (HttpRequestException ex)
             {
                 // 网络异常（如URL无效、连接拒绝）
-                result.Message = $"MES网络请求异常：{ex.Message}";
+                result.Info = $"MES网络请求异常：{ex.Message}";
                 result.RawResponse = ex.ToString();
                 LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 网络异常：{ex}");
             }
             catch (Exception ex)
             {
                 // 所有其他异常的兜底
-                result.Message = $"MES通信未知异常：{ex.Message}";
+                result.Info = $"MES通信未知异常：{ex.Message}";
                 result.RawResponse = ex.ToString();
                 LogHelper.Instance.Log("MES-RAW", "Erro", $"[MES-RAW] 未知异常：{ex}");
             }

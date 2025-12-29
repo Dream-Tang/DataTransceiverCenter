@@ -21,7 +21,7 @@
     // 新增接口定义（可放在单独的接口文件中）
     public interface IIniSavable
     {
-        void SaveIni(string iniFilePath);
+        void SaveIniSettings(string iniFilePath);
     }
 
     public interface IJsonSavable

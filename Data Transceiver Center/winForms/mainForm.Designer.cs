@@ -47,7 +47,13 @@ namespace Data_Transceiver_Center
             this.checkBox_connectPlc = new System.Windows.Forms.CheckBox();
             this.lable_PlcConnectStatus = new System.Windows.Forms.Label();
             this.checkBox_ignoreCam = new System.Windows.Forms.CheckBox();
+            this.statusStrip_mainForm = new System.Windows.Forms.StatusStrip();
+            this.statusModule = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLevel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusTime = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusMessage = new System.Windows.Forms.ToolStripStatusLabel();
             this.panelContainer.SuspendLayout();
+            this.statusStrip_mainForm.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelContainer
@@ -83,7 +89,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_openForm3
             // 
-            this.btn_openForm3.Location = new System.Drawing.Point(19, 72);
+            this.btn_openForm3.Location = new System.Drawing.Point(16, 74);
             this.btn_openForm3.Name = "btn_openForm3";
             this.btn_openForm3.Size = new System.Drawing.Size(90, 40);
             this.btn_openForm3.TabIndex = 3;
@@ -103,7 +109,7 @@ namespace Data_Transceiver_Center
             // 
             // btn_openForm2
             // 
-            this.btn_openForm2.Location = new System.Drawing.Point(16, 137);
+            this.btn_openForm2.Location = new System.Drawing.Point(16, 136);
             this.btn_openForm2.Name = "btn_openForm2";
             this.btn_openForm2.Size = new System.Drawing.Size(90, 40);
             this.btn_openForm2.TabIndex = 2;
@@ -143,8 +149,9 @@ namespace Data_Transceiver_Center
             // 
             // timer1
             // 
-            this.timer1.Interval = 2500;
-            this.timer1.Tick += new System.EventHandler(this.autoRun_btn_Click);
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // checkBox_autoMode
             // 
@@ -166,6 +173,7 @@ namespace Data_Transceiver_Center
             this.checkBox_ignorePlc.TabIndex = 8;
             this.checkBox_ignorePlc.Text = "屏蔽PLC";
             this.checkBox_ignorePlc.UseVisualStyleBackColor = true;
+            this.checkBox_ignorePlc.Visible = false;
             // 
             // checkBox_tcpServer
             // 
@@ -195,7 +203,7 @@ namespace Data_Transceiver_Center
             this.lable_PlcConnectStatus.BackColor = System.Drawing.Color.Gray;
             this.lable_PlcConnectStatus.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lable_PlcConnectStatus.ForeColor = System.Drawing.Color.White;
-            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(4, 433);
+            this.lable_PlcConnectStatus.Location = new System.Drawing.Point(5, 448);
             this.lable_PlcConnectStatus.Name = "lable_PlcConnectStatus";
             this.lable_PlcConnectStatus.Size = new System.Drawing.Size(110, 40);
             this.lable_PlcConnectStatus.TabIndex = 14;
@@ -213,10 +221,55 @@ namespace Data_Transceiver_Center
             this.checkBox_ignoreCam.UseVisualStyleBackColor = true;
             this.checkBox_ignoreCam.CheckedChanged += new System.EventHandler(this.chkBox_ignoreCam_CheckedChanged);
             // 
+            // statusStrip_mainForm
+            // 
+            this.statusStrip_mainForm.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.statusStrip_mainForm.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.statusStrip_mainForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusTime,
+            this.statusModule,
+            this.statusLevel,
+            this.statusMessage});
+            this.statusStrip_mainForm.Location = new System.Drawing.Point(0, 665);
+            this.statusStrip_mainForm.Name = "statusStrip_mainForm";
+            this.statusStrip_mainForm.Size = new System.Drawing.Size(938, 39);
+            this.statusStrip_mainForm.SizingGrip = false;
+            this.statusStrip_mainForm.TabIndex = 16;
+            this.statusStrip_mainForm.Text = "statusStrip1";
+            // 
+            // statusModule
+            // 
+            this.statusModule.Name = "statusModule";
+            this.statusModule.Size = new System.Drawing.Size(103, 32);
+            this.statusModule.Text = "[module]";
+            // 
+            // statusLevel
+            // 
+            this.statusLevel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)));
+            this.statusLevel.Name = "statusLevel";
+            this.statusLevel.Size = new System.Drawing.Size(77, 32);
+            this.statusLevel.Text = "[level]";
+            // 
+            // statusTime
+            // 
+            this.statusTime.BackColor = System.Drawing.SystemColors.ControlText;
+            this.statusTime.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.statusTime.ForeColor = System.Drawing.SystemColors.Control;
+            this.statusTime.Name = "statusTime";
+            this.statusTime.Size = new System.Drawing.Size(0, 32);
+            // 
+            // statusMessage
+            // 
+            this.statusMessage.Name = "statusMessage";
+            this.statusMessage.Size = new System.Drawing.Size(697, 32);
+            this.statusMessage.Spring = true;
+            this.statusMessage.Text = "[message]";
+            // 
             // mainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(937, 674);
+            this.ClientSize = new System.Drawing.Size(938, 704);
+            this.Controls.Add(this.statusStrip_mainForm);
             this.Controls.Add(this.checkBox_ignoreCam);
             this.Controls.Add(this.checkBox_ignoreCheck);
             this.Controls.Add(this.lable_PlcConnectStatus);
@@ -239,6 +292,8 @@ namespace Data_Transceiver_Center
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.panelContainer.ResumeLayout(false);
             this.panelContainer.PerformLayout();
+            this.statusStrip_mainForm.ResumeLayout(false);
+            this.statusStrip_mainForm.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -262,5 +317,10 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.CheckBox checkBox_connectPlc;
         private System.Windows.Forms.Label lable_PlcConnectStatus;
         private System.Windows.Forms.CheckBox checkBox_ignoreCam;
+        private System.Windows.Forms.StatusStrip statusStrip_mainForm;
+        private System.Windows.Forms.ToolStripStatusLabel statusModule;
+        private System.Windows.Forms.ToolStripStatusLabel statusLevel;
+        private System.Windows.Forms.ToolStripStatusLabel statusTime;
+        private System.Windows.Forms.ToolStripStatusLabel statusMessage;
     }
 }

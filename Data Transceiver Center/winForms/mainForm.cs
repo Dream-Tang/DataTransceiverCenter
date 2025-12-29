@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Net;
@@ -50,6 +51,7 @@ namespace Data_Transceiver_Center
         // 在mainForm类中添加CheckHelper实例变量
         private CheckHelper _checkHelper;
         private readonly IniHelper _iniHelper = IniHelper.Instance; // 单例IniHelper实例
+        private readonly LogHelper _logHelper = LogHelper.Instance; // 日志助手(单例模式)
 
         // 自动流程 状态标签
         public enum ProcessStatus
@@ -60,15 +62,16 @@ namespace Data_Transceiver_Center
             Complete,   // 完成
             Exception   // 异常
         }
-
-        // 定义极简的PLC状态结构体（用于将PLC的状态打包）
-        private struct PlcState
+        // 自动流程 状态标签
+        public enum ProcessName
         {
-            public short Prt;       //
-            public short Cam;       //
-            public short Scn;       //
-            public bool ReadSuccess;//
+            VCR,        // 相机拍二维码
+            MES,        // MES通信
+            ZPL,        // 生成ZPL
+            Print,      // 发送打印
+            Check       // 校验
         }
+
 
         #region 自动流程触发的互斥锁和状态变量
         /// <summary>
@@ -139,7 +142,7 @@ namespace Data_Transceiver_Center
             this.FormClosing += mainForm_FormClosing;   // 窗口关闭
 
             // 默认显示工作流程窗体
-            ShowForm(_form1);
+            ShowForm(_form1); 
         }
 
         /// <summary>
@@ -148,13 +151,17 @@ namespace Data_Transceiver_Center
         private void MainForm_Load(object sender, EventArgs e)
         {
             this.Text = Application.ProductName + "  V" + Application.ProductVersion;
+            this.statusTime.Text = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
             // 可选：自定义日志配置
             LogHelper.Instance.SetLogConfig(
-                logFilePath: "AutoRun.log",
+                //logFilePath: "AutoRun.log",
                 maxLogSize: 5 * 1024 * 1024, // 5MB
                 maxHistoryLogs: 10
             );
+            // 启动信息
+            _logHelper.Log("\r\n##################", "\r\n##################", "\r\n##################");
+            _logHelper.Log("软件启动", "INFO", $"启动时间：{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}");
         }
 
         #region 子窗体管理
@@ -376,11 +383,11 @@ namespace Data_Transceiver_Center
         {
             if (_iniSaveForm is Form form && form.InvokeRequired)
             {
-                form.Invoke(new Action(() => _iniSaveForm.SaveIni(iniFile)));
+                form.Invoke(new Action(() => _iniSaveForm.SaveIniSettings(iniFile)));
             }
             else
             {
-                _iniSaveForm.SaveIni(iniFile);
+                _iniSaveForm.SaveIniSettings(iniFile);
             }
         }
 
@@ -446,22 +453,23 @@ namespace Data_Transceiver_Center
             string consoleInfo = "";
 
             // ========== 1. 读取PLC状态（调用拆分后的函数） ==========
-            LogHelper.Instance.Log("PLC", "INFO", "开始读取PLC状态");
+            _logHelper.Log("PLC", "INFO", "开始读取PLC状态");
+
             var plcResult = ReadPlcStatus();
             if (!plcResult.Success)
             {
                 // 读取失败时的处理（保持原逻辑：终止流程）
                 consoleInfo = "PLC读取失败，终止本次自动流程";
-                LogHelper.Instance.Log("PLC", "ERROR", consoleInfo);
-                LogHelper.Instance.Log("PLC", "ERROR", $"读取失败详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
+                _logHelper.Log("PLC", "ERROR", consoleInfo);
+                _logHelper.Log("PLC", "ERROR", $"读取失败详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
+                UpdateStatusBar("PLC", "ERROR", $"PLC连接失败，详情：cam={plcResult.Cam}, prt={plcResult.Prt}, scn={plcResult.Scn}");
                 return;
             }
             // 读取成功，赋值给变量
             cam = plcResult.Cam;
             prt = plcResult.Prt;
             scn = plcResult.Scn;
-            LogHelper.Instance.Log("PLC", "INFO", $"PLC状态读取成功：cam={cam}, prt={prt}, scn={scn}");
-
+            _logHelper.Log("PLC", "INFO", $"PLC状态读取成功：cam={cam}, prt={prt}, scn={scn}");
             // 若屏蔽PLC，已在ReadPlcStatus中返回(-1,-1,-1)，无需额外处理
 
             // ========== 2. 重构MES通信部分 ==========
@@ -473,14 +481,13 @@ namespace Data_Transceiver_Center
             try
             {
                 // 从Form3获取MES配置（保留原有配置来源，仅修改数据类型）
-                LogHelper.Instance.Log("MES", "INFO", "开始获取MES配置信息");
+                _logHelper.Log("MES", "INFO", "开始获取MES配置信息");
                 postUrl = _form3.MesPostRoot.MesUrl;
                 mesPostData = _form3.MesPostRoot.MesData; // 直接获取实体类，无需手动序列化
                 // 保留原有序列化逻辑，用于打印请求JSON
                 postJson = JsonConvert.SerializeObject(mesPostData, Formatting.Indented);
 
-                LogHelper.Instance.Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
-                LogHelper.Instance.Log("MES", "INFO", $"MES请求参数（JSON）：{Environment.NewLine}{postJson}");
+                _logHelper.Log("MES", "INFO", $"MES配置获取成功 - URL：{postUrl}");
 
                 // 新增：更新“发送消息”到Form1的txtBox_postData（线程安全）
                 BeginInvoke(new Action(() =>
@@ -491,17 +498,16 @@ namespace Data_Transceiver_Center
             catch (Exception ex)
             {
                 consoleInfo = $"Mes设置未导入: {ex.Message}";
-                LogHelper.Instance.Log("MES", "ERROR", consoleInfo);
-                LogHelper.Instance.Log("MES", "ERROR", $"异常堆栈：{ex.StackTrace}"); // 保留异常堆栈
+                _logHelper.Log("MES", "ERROR", $"异常堆栈：{ex.StackTrace}"); // 保留异常堆栈
                 // 配置错误直接终止流程
                 return;
             }
-            // 步骤2.2：调用MES通信助手类（替换原Task t1）
-            LogHelper.Instance.Log("MES", "INFO", "开始发送MES POST请求");
-            //var mesResult = await MesCommunicationHelper.Instance.SendMesRequestAsync(postUrl, mesPostData);
+            // 步骤2.2：调用MES通信助手类
+            _logHelper.Log("MES", "INFO", "开始发送MES POST请求");
+            UpdateStatusBar("MES", "INFO", "开始发送MES POST请求");
             var mesResult = await MesCommunicationHelper.Instance.SendMesRequestWithRawAsync(postUrl, mesPostData);
             // 调用后查看日志（定位问题）
-            Console.WriteLine($"最终结果：Success={mesResult.Success}，Message={mesResult.Message}");
+            Console.WriteLine($"最终结果：Success={mesResult.Success}，Info={mesResult.Info}");
             Console.WriteLine($"原始响应：{mesResult.RawResponse}");
 
             // 步骤2.3：处理MES响应结果（复用原有业务逻辑，仅适配新的返回值）
@@ -509,8 +515,8 @@ namespace Data_Transceiver_Center
             {
                 // MES通信成功（逻辑与原一致）
                 consoleInfo = $"已收到MES回复的数据：{mesResult.RawResponse}";
-                LogHelper.Instance.Log("MES", "INFO", consoleInfo);
-                LogHelper.Instance.Log("MES", "INFO", $"MES响应详情：{mesResult.Message}");
+                _logHelper.Log("MES", "INFO", consoleInfo);
+                _logHelper.Log("MES", "INFO", $"MES响应详情：{mesResult.Info}");
                 WritePLCReg(cam: CommunicationProtocol.camOK);
 
                 // 新增1：更新“接收消息”到Form1的txtBox_responseData（线程安全）
@@ -522,14 +528,12 @@ namespace Data_Transceiver_Center
                 // 新增：生成二维码并更新标签
 
                 // MES返回的是JSON对象，需先解析
-
-                //var mesDataObj = JsonConvert.DeserializeObject<MesData2>(mesResult.Data);
                 string qrCodeContent = mesResult.Data; // 需要显示panelId字段
 
                 BeginInvoke(new Action(() =>
                 {
                     _form1.SafeSetLbReadCode(CommunicationProtocol.readCodeOK);
-                    LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为OK");
+                    _logHelper.Log("UI", "INFO", "更新UI：条码读取状态设为OK");
 
                     // 1. 生成二维码并显示到pictureBox（假设使用pictureBox1显示）
                     _form1.pictureBox1.Image = Form1.SetBarCode128(qrCodeContent);
@@ -543,23 +547,28 @@ namespace Data_Transceiver_Center
                 }));
 
                 cam = CommunicationProtocol.camOK;
-                LogHelper.Instance.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camOK）");
+                _logHelper.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camOK）");
+                UpdateStatusBar("PLC", "INFO", $"MES通信OK，写入PLC状态：cam={cam}（camOK）");
             }
             else
             {
-                // MES通信失败（逻辑与原一致，仅替换错误信息来源）
-                consoleInfo = mesResult.Message;
-                LogHelper.Instance.Log("MES", "ERROR", $"MES通信失败：{consoleInfo}");
+                // MES通信失败（返回code不是200时）
+                consoleInfo = mesResult.Info;
+                _logHelper.Log("MES", "ERROR", $"MES通信失败：{consoleInfo}");
+                UpdateStatusBar("MES", "ERROR", $"MES通信失败{consoleInfo}");
                 WritePLCReg(cam: CommunicationProtocol.camNG);
                 BeginInvoke(new Action(() =>
                 {
                     _form1.SafeSetLbReadCode(CommunicationProtocol.readCodeNG);
-                    LogHelper.Instance.Log("UI", "INFO", "更新UI：条码读取状态设为NG");
+                    _form1.txtBox_responseData.Text = $"Mes响应:\r\n{mesResult.RawResponse}";
+
+                    _logHelper.Log("UI", "INFO", "更新UI：条码读取状态设为NG");
                 }));
 
                 cam = CommunicationProtocol.camNG;
-                LogHelper.Instance.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camNG）");
-                LogHelper.Instance.Log("AutoRun", "WARN", "MES通信失败，终止本次自动流程");
+                _logHelper.Log("PLC", "INFO", $"写入PLC状态：cam={cam}（camNG）");
+                UpdateStatusBar("PLC", "INFO", $"MES通信失败，写入PLC状态：cam={cam}（camNG）");
+                _logHelper.Log("AutoRun", "WARN", "MES通信失败，终止本次自动流程");
                 return; // 失败终止后续流程
             }
 
@@ -571,27 +580,28 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                LogHelper.Instance.Log("打印流程", "INFO", "已勾选忽略PLC，跳过阻挡气缸检查");
+                _logHelper.Log("打印流程", "INFO", "已勾选忽略PLC，跳过阻挡气缸检查");
             }
+
             // 如果等待成功（或被跳过），则执行打印模块
             if (camHolderReady)
             {
-                // 执行原打印模块逻辑
-                //await ExecutePrintProcessAsync(); // 假设打印模块也是异步方法
+                // 如果阻挡气缸放下了，则继续执行；如果没有，则结束打印流程
             }
             else
             {
-                LogHelper.Instance.Log("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
+                _logHelper.Log("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
+                UpdateStatusBar("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
                 return;
             }
 
             // ========== 打印模块 ==========
-            LogHelper.Instance.Log("打印", "INFO", "进入打印流程，开始前置检查");
+            _logHelper.Log("打印", "INFO", "进入打印流程，开始前置检查");
             // 标记是否需要等待PLC就绪（屏蔽PLC开关）
             bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
             if (needWaitPlcReady)
             {
-                LogHelper.Instance.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
+                _logHelper.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
                 prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
 
                 // 步骤1：等待打印机就绪（原有逻辑保留）
@@ -601,7 +611,7 @@ namespace Data_Transceiver_Center
                     var plcRefreshResult = ReadPlcStatus();
                     if (!plcRefreshResult.Success)
                     {
-                        LogHelper.Instance.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
+                        _logHelper.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
                         prt = CommunicationProtocol.prtNG;
                         WritePLCReg(prt: prt);
                         BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
@@ -611,73 +621,75 @@ namespace Data_Transceiver_Center
                     cam = plcRefreshResult.Cam;
                     scn = plcRefreshResult.Scn;
 
-                    LogHelper.Instance.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    _logHelper.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    UpdateStatusBar("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
                     await Task.Delay(500);
                 }
-                LogHelper.Instance.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
+                _logHelper.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
             }
             else
             {
                 // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
-                LogHelper.Instance.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
+                _logHelper.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
                 prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
             }
 
             // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
             try
             {
-                LogHelper.Instance.Log("打印", "INFO", "开始调用打印助手类执行打印");
+                _logHelper.Log("打印", "INFO", "开始调用打印助手类执行打印");
                 // 获取Form1的打印配置（已暴露属性）
                 string zplTemplatePath = _form1.ZplTemplatePath;
                 string printerPath = _form1.PrintName;
                 string printCode = mesResult.Data; // MES返回的打印内容
 
                 // 异步调用打印助手类
-                LogHelper.Instance.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
+                _logHelper.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
                 var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
                     printCode: printCode,
-                    zplTemplatePath: _form1.ZplTemplatePath,  // 直接使用Form1暴露的模板路径属性
+                    zplTemplatePath: zplTemplatePath,  // 直接使用Form1暴露的模板路径属性
                     printerPath: printerPath
                 );
 
                 // 步骤3：处理打印结果（统一逻辑+标准化日志）
                 if (printResult.Success)
                 {
-                    LogHelper.Instance.Log("打印", "INFO", $"打印成功：{printResult.Message}");
+                    _logHelper.Log("打印", "INFO", $"打印成功：{printResult.Message}");
                     prt = CommunicationProtocol.prtOK;
                     // 线程安全更新UI
                     BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
-                    LogHelper.Instance.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    _logHelper.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    UpdateStatusBar("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
                 }
                 else
                 {
-                    LogHelper.Instance.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
+                    _logHelper.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
                     prt = CommunicationProtocol.prtNG;
                     // 线程安全更新UI
                     BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
-                    LogHelper.Instance.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
-                    LogHelper.Instance.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
+                    _logHelper.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    _logHelper.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
                     return;
                 }
             }
             catch (Exception ex)
             {
                 // 捕获助手类未覆盖的异常（兜底）
-                LogHelper.Instance.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
-                LogHelper.Instance.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
+                _logHelper.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
+                _logHelper.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
                 prt = CommunicationProtocol.prtNG;
                 BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
                 WritePLCReg(prt: prt);
                 return;
             }
 
-            LogHelper.Instance.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+            _logHelper.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
 
@@ -701,18 +713,20 @@ namespace Data_Transceiver_Center
                 // 检查是否超时
                 if ((DateTime.Now - startTime).TotalMilliseconds > timeoutMs)
                 {
-                    LogHelper.Instance.Log("打印流程", "ERROR", $"等待camHolder超时（{timeoutMs}ms），当前值: {camHolder}");
+                    _logHelper.Log("打印流程", "ERROR", $"等待camHolder超时（{timeoutMs}ms），当前值: {camHolder}");
+                    UpdateStatusBar("打印流程", "ERROR", $"等待1#阻挡气缸降下超时（{timeoutMs}ms），当前值: {camHolder}");
                     return false;
                 }
 
-                LogHelper.Instance.Log("打印流程", "INFO", $"等待camHolder变为0，当前值: {camHolder}");
+                _logHelper.Log("打印流程", "INFO", $"等待camHolder变为0，当前值: {camHolder}，等待时间：{(DateTime.Now - startTime).Seconds}");
+                UpdateStatusBar("打印流程", "INFO", $"等待1#阻挡气缸降下，等待时间：{(DateTime.Now - startTime).Seconds}");
                 // 异步等待500ms（不阻塞线程）
                 await Task.Delay(500);
                 // 重新读取值
                 camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
             }
 
-            LogHelper.Instance.Log("打印流程", "INFO", "camHolder已变为0，继续执行打印");
+            _logHelper.Log("打印流程", "INFO", "camHolder已变为0，继续执行打印");
             return true;
         }
 
@@ -750,7 +764,7 @@ namespace Data_Transceiver_Center
                     // 场景1：勾选跳过相机 → 启动PLC监控（响应PLC触发），TCP服务器保持运行（仅过滤触发信号）
                     StartCamMonitor(); // 启动PLC cam寄存器监控线程
                                        // 不修改TCP服务器状态（保留连接，避免相机连错）
-                    LogHelper.Instance.Log("自动模式", "INFO", "【跳过相机模式】自动模式已开启，仅响应PLC触发信号，TCP服务器保持运行（过滤TCP触发）");
+                    _logHelper.Log("自动模式", "INFO", "【跳过相机模式】自动模式已开启，仅响应PLC触发信号，TCP服务器保持运行（过滤TCP触发）");
                 }
                 else
                 {
@@ -762,7 +776,7 @@ namespace Data_Transceiver_Center
                         checkBox_tcpServer.Checked = true;
                         StartTcpServer();
                     }
-                    LogHelper.Instance.Log("自动模式", "INFO", "【正常模式】自动模式已开启，仅响应TCP触发信号，TCP服务器保持运行");
+                    _logHelper.Log("自动模式", "INFO", "【正常模式】自动模式已开启，仅响应TCP触发信号，TCP服务器保持运行");
                 }
             }
             else
@@ -770,7 +784,7 @@ namespace Data_Transceiver_Center
                 // 关闭自动模式：停止PLC监控，TCP服务器由用户手动控制（不强制关闭）
                 StopCamMonitor();
                 ResetTriggerStatus(); // 重置触发状态标记
-                LogHelper.Instance.Log("自动模式", "INFO", "自动模式已关闭，停止PLC监控，TCP服务器状态保持不变");
+                _logHelper.Log("自动模式", "INFO", "自动模式已关闭，停止PLC监控，TCP服务器状态保持不变");
             }
         }
 
@@ -788,7 +802,7 @@ namespace Data_Transceiver_Center
             #region 第一步：校验自动模式（自动触发专属）
             if (!isManualTrigger && !_isAutoModeEnabled)
             {
-                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 自动模式未开启，忽略触发信号");
+                _logHelper.Log("触发控制", "INFO", $"[{triggerSource}] 自动模式未开启，忽略触发信号");
                 return;
             }
             #endregion
@@ -802,14 +816,14 @@ namespace Data_Transceiver_Center
                 // 规则1：跳过相机模式 → 仅允许PLC触发
                 if (checkBox_ignoreCam.Checked && !isPlcTrigger)
                 {
-                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 跳过相机模式下仅允许PLC触发，忽略本次非PLC触发");
+                    _logHelper.Log("触发控制", "WARN", $"[{triggerSource}] 跳过相机模式下仅允许PLC触发，忽略本次非PLC触发");
                     return;
                 }
 
                 // 规则2：正常模式（未跳过相机）→ 仅允许TCP触发
                 if (!checkBox_ignoreCam.Checked && !isTcpTrigger)
                 {
-                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 正常模式下仅允许TCP触发，忽略本次非TCP触发");
+                    _logHelper.Log("触发控制", "WARN", $"[{triggerSource}] 正常模式下仅允许TCP触发，忽略本次非TCP触发");
                     return;
                 }
             }
@@ -821,7 +835,7 @@ namespace Data_Transceiver_Center
             {
                 if (_isAutoProcessTriggered)
                 {
-                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 已有流程触发标记，忽略本次重复触发");
+                    _logHelper.Log("触发控制", "WARN", $"[{triggerSource}] 已有流程触发标记，忽略本次重复触发");
                     return;
                 }
                 _isAutoProcessTriggered = true; // 标记为已触发
@@ -832,7 +846,7 @@ namespace Data_Transceiver_Center
             {
                 if (_isAutoRunning)
                 {
-                    LogHelper.Instance.Log("触发控制", "WARN", $"[{triggerSource}] 已有自动流程在执行，忽略本次触发");
+                    _logHelper.Log("触发控制", "WARN", $"[{triggerSource}] 已有自动流程在执行，忽略本次触发");
                     ResetTriggerFlag(); // 重置触发标记
                     return;
                 }
@@ -843,12 +857,12 @@ namespace Data_Transceiver_Center
             #region 第四步：执行全流程（核心业务）
             try
             {
-                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 开始执行自动流程");
+                _logHelper.Log("触发控制", "INFO", $"[{triggerSource}] 开始执行自动流程");
                 ExecuteFullProcess(); // 执行AutoRun全流程（读PLC→MES→打印→校验→写结果）
             }
             catch (Exception ex)
             {
-                LogHelper.Instance.Log("触发控制", "ERROR", $"[{triggerSource}] 自动流程执行异常：{ex.Message}，堆栈：{ex.StackTrace}");
+                _logHelper.Log("触发控制", "ERROR", $"[{triggerSource}] 自动流程执行异常：{ex.Message}，堆栈：{ex.StackTrace}");
             }
             finally
             {
@@ -858,7 +872,7 @@ namespace Data_Transceiver_Center
                     _isAutoRunning = false; // 释放流程执行状态
                 }
                 ResetTriggerFlag(); // 重置触发标记
-                LogHelper.Instance.Log("触发控制", "INFO", $"[{triggerSource}] 自动流程执行完成，状态已释放");
+                _logHelper.Log("触发控制", "INFO", $"[{triggerSource}] 自动流程执行完成，状态已释放");
             }
             #endregion
         }
@@ -967,7 +981,7 @@ namespace Data_Transceiver_Center
                 _scnMonitorThread = new Thread(ScnMonitorLoop);
                 _scnMonitorThread.IsBackground = true;
                 _scnMonitorThread.Start();
-                LogHelper.Instance.Log("忽略校验", "INFO", "勾选忽略校验，启动PLC SCN监控（PLC触发校验）");
+                _logHelper.Log("忽略校验", "INFO", "勾选忽略校验，启动PLC SCN监控（PLC触发校验）");
             }
 
             else
@@ -976,7 +990,7 @@ namespace Data_Transceiver_Center
                 _checkMonitorThread = new Thread(CheckMonitorLoop);
                 _checkMonitorThread.IsBackground = true;
                 _checkMonitorThread.Start();
-                LogHelper.Instance.Log("忽略校验", "INFO", "取消忽略校验，启动串口校验监控（串口触发校验）");
+                _logHelper.Log("忽略校验", "INFO", "取消忽略校验，启动串口校验监控（串口触发校验）");
             }
         }
 
@@ -1023,7 +1037,7 @@ namespace Data_Transceiver_Center
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Instance.Log("SCN监控", "ERROR", ex.Message);
+                    _logHelper.Log("SCN监控", "ERROR", ex.Message);
                 }
                 Thread.Sleep(200); // 轮询间隔
             }
@@ -1061,8 +1075,8 @@ namespace Data_Transceiver_Center
             }
             catch (Exception ex)
             {
-                LogHelper.Instance.Log("串口校验", "ERROR", $"处理串口校验数据异常: {ex.Message}");
-                LogHelper.Instance.Log("串口校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                _logHelper.Log("串口校验", "ERROR", $"处理串口校验数据异常: {ex.Message}");
+                _logHelper.Log("串口校验", "ERROR", $"异常堆栈: {ex.StackTrace}");
             }
         }
         #endregion
@@ -1175,14 +1189,14 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                LogHelper.Instance.Log("手动验码", "INFO", "用户触发手动验码");
+                _logHelper.Log("手动验码", "INFO", "用户触发手动验码");
                 string checkResult = _checkHelper.ExecuteCheck();
                 _checkHelper.UpdatePlcByCheckResult(checkResult, checkBox_ignorePlc.Checked);
             }
             catch (Exception ex)
             {
-                LogHelper.Instance.Log("手动验码", "ERROR", $"手动验码执行失败: {ex.Message}");
-                LogHelper.Instance.Log("手动验码", "ERROR", $"异常堆栈: {ex.StackTrace}");
+                _logHelper.Log("手动验码", "ERROR", $"手动验码执行失败: {ex.Message}");
+                _logHelper.Log("手动验码", "ERROR", $"异常堆栈: {ex.StackTrace}");
             }
         }
         #endregion
@@ -1218,12 +1232,12 @@ namespace Data_Transceiver_Center
                 if (checkBox_ignoreCam.Checked)
                 {
                     StartCamMonitor();
-                    LogHelper.Instance.Log("跳过相机", "INFO", "非自动模式下，跳过相机已勾选，启动PLC监控（仅监听，不触发流程）");
+                    _logHelper.Log("跳过相机", "INFO", "非自动模式下，跳过相机已勾选，启动PLC监控（仅监听，不触发流程）");
                 }
                 else
                 {
                     StopCamMonitor();
-                    LogHelper.Instance.Log("跳过相机", "INFO", "非自动模式下，跳过相机已取消，停止PLC监控");
+                    _logHelper.Log("跳过相机", "INFO", "非自动模式下，跳过相机已取消，停止PLC监控");
                 }
             }
         }
@@ -1299,7 +1313,7 @@ namespace Data_Transceiver_Center
                     // 检测到触发条件
                     if (camValue.HasValue && camValue.Value == CommunicationProtocol.camAllow)
                     {
-                        LogHelper.Instance.Log("PLC监控", "INFO", $"检测到cam寄存器值为{camValue.Value}，符合触发条件");
+                        _logHelper.Log("PLC监控", "INFO", $"检测到cam寄存器值为{camValue.Value}，符合触发条件");
                         // 触发自动流程，标记触发源为「PLC监控」
                         BeginInvoke(new Action(() => TriggerAutoRun(isManualTrigger: false, "PLC监控")));
                         Thread.Sleep(2000); // 防抖动：避免短时间重复读取触发
@@ -1311,7 +1325,7 @@ namespace Data_Transceiver_Center
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Instance.Log("PLC监控", "ERROR", $"PLC监控线程异常：{ex.Message}");
+                    _logHelper.Log("PLC监控", "ERROR", $"PLC监控线程异常：{ex.Message}");
                     Thread.Sleep(1000);
                 }
             }
@@ -1354,11 +1368,11 @@ namespace Data_Transceiver_Center
                 string tcpIp = _localAddr.ToString(); // 监听所有网卡
                 int tcpPort = _localPortNum;       // 自定义端口
                 _tcpServer.Start(tcpIp, tcpPort);
-                LogHelper.Instance.Log("TCP服务器", "INFO", $"TCP服务器已启动，监听[{tcpIp}:{tcpPort}]");
+                _logHelper.Log("TCP服务器", "INFO", $"TCP服务器已启动，监听[{tcpIp}:{tcpPort}]");
             }
             catch (Exception ex)
             {
-                LogHelper.Instance.Log("TCP服务器", "ERROR", $"启动TCP服务器失败：{ex.Message}");
+                _logHelper.Log("TCP服务器", "ERROR", $"启动TCP服务器失败：{ex.Message}");
                 checkBox_tcpServer.Checked = false;
                 _tcpServer = null;
             }
@@ -1381,11 +1395,11 @@ namespace Data_Transceiver_Center
                     _tcpServer.ClientDisconnected -= OnClientDisconnected;
 
                     _tcpServer.Stop();
-                    LogHelper.Instance.Log("TCP服务器", "INFO", "TCP服务器已停止");
+                    _logHelper.Log("TCP服务器", "INFO", "TCP服务器已停止");
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Instance.Log("TCP服务器", "ERROR", $"停止TCP服务器异常：{ex.Message}");
+                    _logHelper.Log("TCP服务器", "ERROR", $"停止TCP服务器异常：{ex.Message}");
                 }
                 finally
                 {
@@ -1398,7 +1412,7 @@ namespace Data_Transceiver_Center
         // 添加客户端连接事件处理
         private void OnClientConnected(string clientInfo)
         {
-            LogHelper.Instance.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已连接");
+            _logHelper.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已连接");
             // 可以在这里添加UI更新代码
             BeginInvoke(new Action(() =>
             {
@@ -1409,7 +1423,7 @@ namespace Data_Transceiver_Center
         // 添加客户端断开事件处理
         private void OnClientDisconnected(string clientInfo)
         {
-            LogHelper.Instance.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已断开");
+            _logHelper.Log("TCP服务器", "INFO", $"客户端[{clientInfo}]已断开");
             // 可以在这里添加UI更新代码
             BeginInvoke(new Action(() =>
             {
@@ -1425,7 +1439,7 @@ namespace Data_Transceiver_Center
         private void OnTcpDataReceived(string clientInfo, string data)
         {
             // 1. 日志记录原始数据
-            LogHelper.Instance.Log("TCP服务器", "INFO", $"收到[{clientInfo}]数据：{data}");
+            _logHelper.Log("TCP服务器", "INFO", $"收到[{clientInfo}]数据：{data}");
 
             // 2. 更新UI（显示接收的数据）
             BeginInvoke(new Action(() =>
@@ -1438,7 +1452,7 @@ namespace Data_Transceiver_Center
             string productId = ParseProductIdFromTcpData(data);
             if (string.IsNullOrEmpty(productId))
             {
-                LogHelper.Instance.Log("TCP服务器", "ERROR", "未解析到有效产品ID，忽略触发");
+                _logHelper.Log("TCP服务器", "ERROR", "未解析到有效产品ID，忽略触发");
                 return;
             }
 
@@ -1458,7 +1472,7 @@ namespace Data_Transceiver_Center
         {
             if (string.IsNullOrWhiteSpace(tcpData))
             {
-                LogHelper.Instance.Log("TCP解析", "WARN", "TCP数据为空，无法解析产品ID");
+                _logHelper.Log("TCP解析", "WARN", "TCP数据为空，无法解析产品ID");
                 return string.Empty;
             }
 
@@ -1468,7 +1482,7 @@ namespace Data_Transceiver_Center
             // 简单校验（如果收到的为NoRead，则通知camNG）
             if (productId.StartsWith("NoRead"))
             {
-                LogHelper.Instance.Log("TCP解析", "ERROR", $"无效产品ID格式：{tcpData}");
+                _logHelper.Log("TCP解析", "ERROR", $"无效产品ID格式：{tcpData}");
                 return string.Empty;
             }
             else
@@ -1488,5 +1502,59 @@ namespace Data_Transceiver_Center
             StopAllCheckRelatedThreads(); // 停止校验相关线程
         }
 
+        /// <summary>
+        /// 定时器1，用于刷新状态栏中的时间显示
+        /// </summary>
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            this.statusTime.Text = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+        }
+
+        /// <summary>
+        /// 线程安全更新状态栏（分栏显示module/level/message/时间）
+        /// </summary>
+        /// <param name="module">模块名（如"触发控制"、"MES通信"）</param>
+        /// <param name="level">日志级别（INFO/WARN/ERROR）</param>
+        /// <param name="message">具体消息内容</param>
+        private void UpdateStatusBar(string module, string level, string message)
+        {
+            // 非UI线程时通过Invoke切换到UI线程
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action<string, string, string>(UpdateStatusBar), module, level, message);
+                return;
+            }
+
+            // 1. 更新模块
+            statusModule.Text = module;
+
+            // 2. 更新级别（带颜色区分）
+            statusLevel.Text = level;
+            Color levelColor = Color.Black; // 默认颜色
+            switch (level)
+            {
+                case "ERROR":
+                    levelColor = Color.Red;
+                    break;
+                case "WARN":
+                    levelColor = Color.Orange;
+                    break;
+                case "INFO":
+                    levelColor = Color.Green;
+                    break;
+                default:
+                    levelColor = Color.Black;
+                    break;
+            }
+            statusLevel.ForeColor = levelColor;
+
+            // 3. 更新消息（超长时自动截断，避免状态栏溢出）
+            const int maxMessageLength = 50; // 可根据界面调整
+            statusMessage.Text = message.Length > maxMessageLength
+                ? message.Substring(0, maxMessageLength) + "..."
+                : message;
+
+            statusStrip_mainForm.Refresh();
+        }
     }
 }

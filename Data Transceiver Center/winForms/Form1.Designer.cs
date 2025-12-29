@@ -36,7 +36,7 @@ namespace Data_Transceiver_Center
             this.btn_sendToPrt = new System.Windows.Forms.Button();
             this.label1_1 = new System.Windows.Forms.Label();
             this.label1_2 = new System.Windows.Forms.Label();
-            this.txtBox_zplPath = new System.Windows.Forms.TextBox();
+            this.txtBox_zplTemplatePath = new System.Windows.Forms.TextBox();
             this.label1_3 = new System.Windows.Forms.Label();
             this.txtBox_prtPath = new System.Windows.Forms.TextBox();
             this.txtBox_serialRead = new System.Windows.Forms.TextBox();
@@ -54,7 +54,6 @@ namespace Data_Transceiver_Center
             this.serialPort_label = new System.Windows.Forms.Label();
             this.btn_reloadPort = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.runStatus_lable = new System.Windows.Forms.Label();
             this.txtBox_veriCodeHistory = new System.Windows.Forms.TextBox();
             this.lockSettings_checkBox = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -136,18 +135,18 @@ namespace Data_Transceiver_Center
             this.label1_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label1_2.Location = new System.Drawing.Point(5, 8);
             this.label1_2.Name = "label1_2";
-            this.label1_2.Size = new System.Drawing.Size(109, 20);
+            this.label1_2.Size = new System.Drawing.Size(73, 20);
             this.label1_2.TabIndex = 11;
-            this.label1_2.Text = "ZPL文件路径";
+            this.label1_2.Text = "ZPL模板";
             // 
-            // txtBox_zplPath
+            // txtBox_zplTemplatePath
             // 
-            this.txtBox_zplPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_zplPath.Location = new System.Drawing.Point(117, 7);
-            this.txtBox_zplPath.Name = "txtBox_zplPath";
-            this.txtBox_zplPath.Size = new System.Drawing.Size(470, 24);
-            this.txtBox_zplPath.TabIndex = 12;
-            this.txtBox_zplPath.TextChanged += new System.EventHandler(this.txtBox_zplPath_TextChanged);
+            this.txtBox_zplTemplatePath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_zplTemplatePath.Location = new System.Drawing.Point(117, 7);
+            this.txtBox_zplTemplatePath.Name = "txtBox_zplTemplatePath";
+            this.txtBox_zplTemplatePath.Size = new System.Drawing.Size(470, 24);
+            this.txtBox_zplTemplatePath.TabIndex = 12;
+            this.txtBox_zplTemplatePath.TextChanged += new System.EventHandler(this.txtBox_zplTemplatePath_TextChanged);
             // 
             // label1_3
             // 
@@ -318,19 +317,6 @@ namespace Data_Transceiver_Center
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 59;
             this.pictureBox1.TabStop = false;
-            // 
-            // runStatus_lable
-            // 
-            this.runStatus_lable.AutoSize = true;
-            this.runStatus_lable.BackColor = System.Drawing.SystemColors.ControlText;
-            this.runStatus_lable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.runStatus_lable.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.runStatus_lable.ForeColor = System.Drawing.SystemColors.Control;
-            this.runStatus_lable.Location = new System.Drawing.Point(599, 1);
-            this.runStatus_lable.Name = "runStatus_lable";
-            this.runStatus_lable.Size = new System.Drawing.Size(140, 30);
-            this.runStatus_lable.TabIndex = 31;
-            this.runStatus_lable.Text = "自动运行状态";
             // 
             // txtBox_veriCodeHistory
             // 
@@ -628,10 +614,9 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.lockSettings_checkBox);
-            this.Controls.Add(this.runStatus_lable);
             this.Controls.Add(this.txtBox_prtPath);
             this.Controls.Add(this.label1_3);
-            this.Controls.Add(this.txtBox_zplPath);
+            this.Controls.Add(this.txtBox_zplTemplatePath);
             this.Controls.Add(this.label1_2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
@@ -675,7 +660,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label label1_6;
         private System.Windows.Forms.Label serialPort_label;
         private System.Windows.Forms.Button btn_reloadPort;
-        private System.Windows.Forms.Label runStatus_lable;
         private System.Windows.Forms.CheckBox lockSettings_checkBox;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel4;
@@ -693,7 +677,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.Label lb_ChkCode;
         private System.Windows.Forms.Timer timer1;
         public System.Windows.Forms.TextBox txtBox_veriCode;
-        public System.Windows.Forms.TextBox txtBox_zplPath;
+        public System.Windows.Forms.TextBox txtBox_zplTemplatePath;
         public System.Windows.Forms.TextBox txtBox_prtPath;
         private System.Windows.Forms.Label label_zplTemp;
         private System.Windows.Forms.Button btn_apiTest;

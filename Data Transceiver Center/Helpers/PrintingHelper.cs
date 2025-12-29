@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,15 +13,32 @@ namespace Data_Transceiver_Center
     /// </summary>
     public class PrintingHelper
     {
+        // 保存ZPL临时文件的目录
+        private readonly string _zplSaveDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "DTCdata",
+            "zplTempFiles"
+        );
+
+        // 最大保留文件数量（可根据需要调整）
+        private const int MaxFileCount = 2000;
+
         // 单例模式实现
         private static readonly Lazy<PrintingHelper> _instance = new Lazy<PrintingHelper>(() => new PrintingHelper());
         public static PrintingHelper Instance => _instance.Value;
 
         // 私有构造函数禁止外部实例化
-        private PrintingHelper() { }
+        private PrintingHelper()
+        {   // 确保保存目录存在
+            if (!Directory.Exists(_zplSaveDir))
+            {
+                Directory.CreateDirectory(_zplSaveDir);
+            }
+        }
 
+        #region 助手类公开方法，外部调用接口（新增异步接口）
         /// <summary>
-        /// 异步执行打印流程
+        /// 异步执行完整打印流程（模板加载→变量替换→文件生成→发送打印→清理文件）
         /// </summary>
         /// <param name="printCode">打印内容</param>
         /// <param name="zplTemplatePath">ZPL模板路径</param>
@@ -31,6 +49,11 @@ namespace Data_Transceiver_Center
             // 新增：记录调用信息，方便追踪是否被重复调用
             var callId = Guid.NewGuid().ToString().Substring(0, 8); // 生成唯一标识
             LogHelper.Instance.Log($"打印调用[{callId}]", "INFO", $"开始执行打印，内容：{printCode}"); // 假设存在Log方法
+            // 临时文件路径（用于打印）
+            string tempFilePath = null;
+            // 保存的文件路径（用于调试）
+            string saveFilePath = null;
+
             try
             {
                 // 输入参数校验
@@ -48,29 +71,176 @@ namespace Data_Transceiver_Center
                 if (!loadResult.Success)
                     return (false, loadResult.Message);
 
-                // 2. 生成ZPL指令
+                // 2. ZPL变量替换
                 var zplContent = ReplaceZplVariable(loadResult.Data, printCode);
                 if (string.IsNullOrEmpty(zplContent))
                     return (false, "生成ZPL指令指令失败");
 
-                // 3. 保存ZPL文件
-                // 生成唯一临时文件名，避免冲突
-                //string tempFilePath = Path.Combine(Path.GetTempPath(), "print_temp.zpl");
-                string tempFilePath = Path.Combine(Path.GetTempPath(), $"print_{Guid.NewGuid()}.zpl");
-                var saveResult = await SaveZplFileAsync(tempFilePath, zplContent);
-                if (!saveResult.Success)
-                    return (false, saveResult.Message);
+                // 3. 生成文件路径
+                // 用于打印的临时文件（打印完成后删除）
+                tempFilePath = Path.Combine(Path.GetTempPath(), $"print_{printCode}.zpl");
+                // 用于保存的文件（带时间戳便于追溯）
+                var fileName = $"{DateTime.Now:yyyy-MM-dd-HH_mm_ss}_{printCode}.zpl";
+                saveFilePath = Path.Combine(_zplSaveDir, fileName);
 
-                // 4. 发送到打印机
-                var printResult = await SendToPrinterAsync(tempFilePath, printerPath); 
+
+                // 4. 保存文件（同时保存到临时目录和调试目录）
+                // 生成唯一临时文件名，避免冲突
+                await SaveZplFileAsync(tempFilePath, zplContent);
+                var saveResult = await SaveZplFileAsync(saveFilePath, zplContent);
+                if (!saveResult.Success)
+                    LogHelper.Instance.Log($"打印调用[{callId}]", "WARN", $"调试文件保存失败: {saveResult.Message}");
+
+                // 5. 发送到打印机
+                var printResult = await SendToPrinterAsync(tempFilePath, printerPath);
                 if (!printResult.Success)
                     return (false, printResult.Message);
+
+                // 6. 清理过期文件（只保留最近的MaxFileCount个）
+                CleanupOldFiles();
 
                 return (true, $"打印成功: {printCode}");
             }
             catch (Exception ex)
             {
                 return (false, $"打印过程异常: {ex.Message}");
+            }
+            finally
+            {
+                // 确保打印用的临时文件被删除
+                if (!string.IsNullOrEmpty(tempFilePath) && File.Exists(tempFilePath))
+                {
+                    try
+                    {
+                        File.Delete(tempFilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogHelper.Instance.Log($"打印调用[{callId}]", "WARN", $"临时文件删除失败: {ex.Message}");
+                    }
+                }
+            }
+            }
+
+        /// <summary>
+        /// 【扩展接口】异步生成ZPL内容（加载模板+替换变量）
+        /// </summary>
+        /// <param name="zplTemplatePath">模板路径</param>
+        /// <param name="printCode">需要替换的内容</param>
+        /// <returns>生成的ZPL内容</returns>
+        public async Task<(bool Success, string ZplContent, string Message)> MakeZplContentAsync(string zplTemplatePath, string printCode)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(zplTemplatePath))
+                    return (false, null, "ZPL模板路径未设置");
+                if (string.IsNullOrEmpty(printCode))
+                    return (false, null, "打印内容不能为空");
+
+                var loadResult = await LoadZplTemplateAsync(zplTemplatePath);
+                if (!loadResult.Success)
+                    return (false, null, loadResult.Message);
+
+                var zplContent = ReplaceZplVariable(loadResult.Data, printCode);
+                return string.IsNullOrEmpty(zplContent)
+                    ? (false, null, "变量替换失败")
+                    : (true, zplContent, "ZPL内容生成成功");
+            }
+            catch (Exception ex)
+            {
+                return (false, null, $"生成ZPL内容异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 【扩展接口】异步保存ZPL内容到指定文件
+        /// </summary>
+        /// <param name="filePath">保存路径</param>
+        /// <param name="zplContent">ZPL内容</param>
+        public async Task<(bool Success, string Message)> SaveZplFileAsync(string filePath, string zplContent)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath))
+                    return (false, "文件路径不能为空");
+                if (string.IsNullOrEmpty(zplContent))
+                    return (false, "ZPL内容不能为空");
+
+                await Task.Run(() => File.WriteAllText(filePath, zplContent));
+                return (true, $"ZPL文件已保存: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"保存ZPL文件失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 【扩展接口】异步将ZPL文件发送到打印机
+        /// </summary>
+        /// <param name="filePath">ZPL文件路径</param>
+        /// <param name="printerPath">打印机路径</param>
+        public async Task<(bool Success, string Message)> SendZplFileToPrinterAsync(string filePath, string printerPath)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(filePath))
+                        return (false, "ZPL文件路径不能为空");
+                    if (string.IsNullOrEmpty(printerPath))
+                        return (false, "打印机路径不能为空");
+                    if (!File.Exists(filePath))
+                        return (false, $"ZPL文件不存在: {filePath}");
+
+                    LogHelper.Instance.Log($"发送打印文件", "INFO", $"复制文件到打印机：{filePath} -> {printerPath}");
+                    File.Copy(filePath, printerPath, true);
+                    return (true, $"已发送到打印机: {printerPath}");
+                }
+                catch (Exception ex)
+                {
+                    return (false, $"发送到打印机失败: {ex.Message}");
+                }
+            });
+        }
+
+        /// <summary>
+        /// 【扩展接口】手动触发旧文件清理
+        /// </summary>
+        public void CleanupOldFilesManually()
+        {
+            CleanupOldFiles();
+        }
+        #endregion
+
+        #region 助手类的私有函数，内部辅助方法
+        /// <summary>
+        /// 清理旧文件，只保留最近的指定数量文件
+        /// </summary>
+        private void CleanupOldFiles()
+        {
+            try
+            {
+                // 获取目录下所有ZPL文件并按创建时间排序
+                var files = Directory.GetFiles(_zplSaveDir, "*.zpl")
+                                    .Select(path => new FileInfo(path))
+                                    .OrderBy(fi => fi.CreationTime)
+                                    .ToList();
+
+                // 如果文件数量超过上限，删除最旧的
+                if (files.Count > MaxFileCount)
+                {
+                    var filesToDelete = files.Take(files.Count - MaxFileCount);
+                    foreach (var file in filesToDelete)
+                    {
+                        file.Delete();
+                        LogHelper.Instance.Log("文件清理", "INFO", $"已删除旧ZPL文件: {file.Name}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Instance.Log("文件清理", "WARN", $"清理旧文件失败: {ex.Message}");
             }
         }
 
@@ -144,22 +314,6 @@ namespace Data_Transceiver_Center
         }
 
         /// <summary>
-        /// 异步保存ZPL文件到临时目录
-        /// </summary>
-        private async Task<(bool Success, string Message)> SaveZplFileAsync(string filePath, string content)
-        {
-            try
-            {
-                await Task.Run(() => File.WriteAllText(filePath, content));
-                return (true, $"ZPL文件已保存: {filePath}");
-            }
-            catch (Exception ex)
-            {
-                return (false, $"保存ZPL文件失败: {ex.Message}");
-            }
-        }
-
-        /// <summary>
         /// 异步发送文件到打印机
         /// </summary>
         private async Task<(bool Success, string Message)> SendToPrinterAsync(string filePath, string printerPath)
@@ -181,5 +335,6 @@ namespace Data_Transceiver_Center
                 }
             });
         }
+        #endregion
     }
 }

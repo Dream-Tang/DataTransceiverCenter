@@ -18,7 +18,7 @@ namespace Data_Transceiver_Center
         // 日志配置参数
         private long _maxLogSize = 5 * 1024 * 1024; // 默认5MB
         private int _maxHistoryLogs = 10; // 默认保留10个历史日志
-        private string _logFilePath = "AutoRun.log"; // 默认日志路径
+        private string _logFilePath ; // 默认日志路径
 
         // 关键：添加文件操作锁（保证同一时间只有一个线程操作日志文件）
         private readonly object _fileLock = new object();
@@ -27,6 +27,35 @@ namespace Data_Transceiver_Center
         private LogHelper()
         {
             // 可从配置文件加载日志参数（预留扩展）
+            // 初始化日志路径到桌面/DTCdata目录
+            InitializeLogPath();
+        }
+
+        // 3. 添加初始化日志路径的方法
+        private void InitializeLogPath()
+        {
+            try
+            {
+                // 获取系统桌面路径（跨系统兼容）
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                // 拼接DTCdata目录路径
+                string dtcDataPath = Path.Combine(desktopPath, "DTCdata\\log");
+
+                // 确保目录存在，不存在则创建
+                if (!Directory.Exists(dtcDataPath))
+                {
+                    Directory.CreateDirectory(dtcDataPath);
+                }
+
+                // 设置完整日志文件路径
+                _logFilePath = Path.Combine(dtcDataPath, "AutoRun.log");
+            }
+            catch (Exception ex)
+            {
+                // 异常情况下使用默认路径（软件安装目录）
+                _logFilePath = "AutoRun.log";
+                Console.WriteLine($"初始化日志路径失败，使用默认路径: {ex.Message}");
+            }
         }
 
         /// <summary>

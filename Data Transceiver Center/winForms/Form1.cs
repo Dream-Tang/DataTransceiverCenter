@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Org.BouncyCastle.Tls.Crypto;
 using System;
 using System.Drawing;
 using System.IO;
@@ -34,8 +35,9 @@ namespace Data_Transceiver_Center
 
         // 1. 声明CheckHelper实例（在Form1构造函数中初始化）
         private CheckHelper _checkHelper;
-        private readonly IniHelper _iniHelper = IniHelper.Instance;  // INI助手单例
+        private readonly IniHelper _iniHelper = IniHelper.Instance;  // INI助手（单例模式）
         private readonly LogHelper _logHelper = LogHelper.Instance; // 日志助手(单例模式)
+        private readonly PrintingHelper _printingHelper = PrintingHelper.Instance; // 打印机助手(单例模式)
 
         private readonly IPLCService _plcService;                   // PLC服务接口
 
@@ -57,17 +59,18 @@ namespace Data_Transceiver_Center
             _checkHelper = new CheckHelper(this, _plcService);
         }
 
-        private StringBuilder cmd_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
+        private StringBuilder zpl_template = new StringBuilder("");     // 打印机指令内容，可变字符串类型
 
-        public string zplTemplatePath = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        public string zplTemplatePath = "";                             // zpl模板的文件路径
+        public string zplTemplateDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public bool ignoreCheck = false;
-        public bool ignoreCam = false;
+        public bool ignoreCam   = false;
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
         internal int mes1Status = STATUS_WAIT;
         internal int mes2Status = STATUS_WAIT;
         internal int mes3Status = STATUS_WAIT;
-        internal int prtStatus = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
+        internal int prtStatus  = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
         internal int trigSigner = STATUS_WAIT;      // 触发信号状态，当二维码输入时，表示有触发信号，可执行全流程操作
         internal int seriStatus = STATUS_WAIT;      // 串口状态，当串口传入数据时，ready；校验结束后，wait。
         internal string tcpNoReadStr = "NoRead";
@@ -92,19 +95,37 @@ namespace Data_Transceiver_Center
         //private uint veriHistoryLines;  // 扫码列表行数
 
         // 生成ZPL文档
-        public void makeZpl_btn_Click(object sender, EventArgs e)
+        public async void makeZpl_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.txtBox_zplPath.Text + "\\zpl.txt";
+            string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
+            string filePathZPL = filePathZPLDirectory + "\\zpl.txt";
             string str = txtBox_prtCode.Text;
-            MakeZpl(filePathZPL, str);
+            try
+            {
+                // 直接调用异步Helper方法（使用await关键字）
+                var zplMakeResult = await _printingHelper.MakeZplContentAsync(filePathZPL, str);// 生成ZPL指令
+                var zplSaveResult = await _printingHelper.SaveZplFileAsync(filePathZPL, zplMakeResult.ZplContent); // 保存ZPL指令到文件
+                // 更新UI
+            }
+            catch (Exception)
+            {
+            }
         }
 
         // 发送文件到打印机
-        public void sendToPrt_btn_Click(object sender, EventArgs e)
+        public async void sendToPrt_btn_Click(object sender, EventArgs e)
         {
-            string filePathZPL = this.txtBox_zplPath.Text + "\\zpl.txt";
+            string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
+            string filePathZPL = filePathZPLDirectory + "\\zpl.txt";
             string prtName = this.txtBox_prtPath.Text;
-            SendFileToPrinter(filePathZPL, prtName);
+            try
+            {   // 直接调用异步Helper方法（使用await关键字）
+                var zplPrintResult = await _printingHelper.SendZplFileToPrinterAsync(filePathZPL, prtName);
+                // 更新UI
+            }
+            catch (Exception)
+            {
+            }
         }
 
         // api test 按钮，直接发送mes api文本框中的内容
@@ -198,7 +219,6 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 新增串口数据缓存
         private StringBuilder serialDataBuffer = new StringBuilder();
 
@@ -270,122 +290,6 @@ namespace Data_Transceiver_Center
             pictureBox1.Image = SetBarCode128(txtBox_prtCode.Text);
         }
 
-
-        // 将ZPL指令输出到txt文档
-        // filePathZPL为ZPL指令文件路径，str为打印的条码字符串
-        public void MakeZpl(string filePathZPL, string str)
-        {
-            // ZPL文件生成，使用模板来生成，替换模板中 ^FD到^FS之间的文本
-            StringBuilder zpl_cmd_SB = cmd_template;
-
-            string zpl_cmd = zpl_cmd_SB.ToString();
-            if (zpl_cmd == "")
-            {
-                Console.WriteLine("还未加载有效的ZPL模板");
-                MessageBox.Show("还未加载有效的ZPL模板,请先选择模板文件");
-                return;
-            }
-            else
-            {
-                int index_FD = zpl_cmd.IndexOf("^FD")+3; // 找到模板中^FD到^FS之间的位置
-                int index_FS = zpl_cmd.IndexOf("^FS");
-                zpl_cmd_SB.Remove(index_FD, index_FS - index_FD);// 移出模板中^FD到^FS之间的内容
-                zpl_cmd_SB.Insert(index_FD, str);
-
-                zpl_cmd = zpl_cmd_SB.ToString();
-                int index_FDQA = zpl_cmd.IndexOf("^FDQA,")+6; // 找到模板中^FD到^FS之间的位置
-                int index_FS2 = zpl_cmd.IndexOf("^FS", index_FS+3);
-                zpl_cmd_SB.Remove(index_FDQA, index_FS2 - index_FDQA);
-                zpl_cmd_SB.Insert(index_FDQA, str);
-
-                // 利用正则表达式替换字符串中的值，此处替换为""，相当于提取字符串中的对应字符
-                //string strSplit1 = Regex.Replace(line, "[0-9]", "", RegexOptions.IgnoreCase);// 提取字母部分
-                //string strSplit2 = Regex.Replace(line, "[a-z]", "", RegexOptions.IgnoreCase);// 提取数字部分
-
-                //string prtLine = strSplit1 + ">;" + strSplit2; // 输入的打印码，已被处理
-
-                //cmd_template.Insert(index_FD, prtLine);
-
-            }
-
-            // ZPL文件保存
-            try
-            {
-                // 保存到本地文件，先清空文件
-                System.IO.File.WriteAllText(filePathZPL, string.Empty);
-                using (System.IO.StreamWriter sw = new System.IO.StreamWriter(filePathZPL, false, Encoding.UTF8))
-                {
-                    sw.Write(zpl_cmd_SB.ToString());
-                    sw.Close();
-                }
-                runStatus_lable.Text = "zpl文件生产成功";
-
-                pictureBox1.Image = SetBarCode128(str);
-                //MessageBox.Show("zpl文件生产成功，文件位置："+ filePathZPL);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Console.WriteLine($"权限不足：{ex.Message}");
-                // 处理逻辑：提示用户、切换路径、请求权限等
-            }
-
-            catch (Exception)
-            {
-                if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
-                {
-                    MessageBox.Show("zpl文件生成失败\r\n" + filePathZPL);
-                }
-                runStatus_lable.Text = "zpl文件生产出错";
-            }
-        }
-
-        // 给打印机发送文件
-        // filePathZPL为ZPL指令文件路径，mPrintName为打印机路径，例如：mPrintName = @"\\192.168.0.132\zt411"
-        public void SendFileToPrinter(string filePathZPL, string mPrintName)
-        {
-            try
-            {
-                // 将ZPL指令发送到打印机，filePathZPL为ZPL指令文件路径，mPrintName为打印机路径，例如：mPrintName = @"\\192.168.0.132\zt411"
-                File.Copy(filePathZPL, mPrintName, true);
-                runStatus_lable.Text = "发送打印机成功!";
-                prtStatus = STATUS_COMPLETE;
-            }
-            catch (Exception ex)
-            {
-                if (!this.lockSettings_checkBox.Checked) // 自动模式关闭才出弹窗
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                runStatus_lable.Text = "发送打印机失败";
-            }
-
-        }
-
-        // 打印条码功能：等待prtCode（打印码来自Mes2消息），有prtCode后，生成ZPL文件，发送给打印机
-        public void PrintCode(string printStr)
-        {
-            // 将读到的玻璃码直接传送到打印机进行打印
-            txtBox_prtCode.Text = printStr;
-
-            string prtCode = txtBox_prtCode.Text;
-
-
-            // 有打印码，才进行打印；
-            if (prtCode != "")
-            {
-                MakeZpl(this._zplFilePath, prtCode);
-
-                SendFileToPrinter(this._zplFilePath, this._mPrintName);
-
-                lastPrtCode_label.Text = prtCode;
-            }
-            else
-            {
-                runStatus_lable.Text = "wait prtCode";
-            }
-
-        }
-
         #region "C# 后台刷新UI的方法"
         // C# 中后台刷新UI的方法
         // 声明一个委托，以准备跨线程修改UI的属性
@@ -452,13 +356,13 @@ namespace Data_Transceiver_Center
         {
             if (status == "Lock")
             {
-                txtBox_zplPath.Enabled = false;
+                txtBox_zplTemplatePath.Enabled = false;
                 txtBox_prtPath.Enabled = false;
                 label_zplTemp.Enabled = false;
             }
             else if (status == "UnLock")
             {
-                txtBox_zplPath.Enabled = true;
+                txtBox_zplTemplatePath.Enabled = true;
                 txtBox_prtPath.Enabled = true;
                 label_zplTemp.Enabled = true;
             }
@@ -472,14 +376,13 @@ namespace Data_Transceiver_Center
         }
 
         // 实现IIni配置保存接口
-        public void SaveIni(string iniFilePath)
+        public void SaveIniSettings(string iniFilePath)
         {
             try
             {
                 // 保存文本框配置
-                _iniHelper.WriteString(iniFilePath, "filePathZPL", "Textbox", txtBox_zplPath.Text);
+                _iniHelper.WriteString(iniFilePath, "zplTemplate", "Textbox", txtBox_zplTemplatePath.Text);
                 _iniHelper.WriteString(iniFilePath, "prtName",     "Textbox", txtBox_prtPath.Text);
-                _iniHelper.WriteString(iniFilePath, "zplTemplate", "Textbox", zplTemplatePath);
                 _iniHelper.WriteString(iniFilePath, "seriPortNum", "Textbox", cobBox_SeriPortNum.Text);
 
                 // 保存复选框状态（与加载时对应）
@@ -495,32 +398,28 @@ namespace Data_Transceiver_Center
             }
         }
 
-
         // 从ini读出数据到页面
-        // static 静态类，不用创建实例，只需要通过(类名.方法名)即可进行调用
         public void LoadIniSettings(string iniFilePath)
         {
             // string Read(string Key,string Section = null)
-            string filePathZPL = _iniHelper.ReadString(iniFilePath, "filePathZPL", "Textbox");
-            string prtName     = _iniHelper.ReadString(iniFilePath, "prtName",     "Textbox");
-            string zplTemplate = _iniHelper.ReadString(iniFilePath, "zplTemplate", "Textbox");
-            string seriPortNum = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
+            string prtName         = _iniHelper.ReadString(iniFilePath, "prtName",     "Textbox");
+            string zplTemplatePath = _iniHelper.ReadString(iniFilePath, "zplTemplate", "Textbox");
+            string seriPortNum     = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
 
-            txtBox_zplPath.Text = filePathZPL;
+            txtBox_zplTemplatePath.Text = zplTemplatePath;
             txtBox_prtPath.Text = prtName;
             cobBox_SeriPortNum.Text = seriPortNum;
-            zplTemplatePath = zplTemplate;
-            label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
+            label_zplTemp.Text = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
 
             // 加载ZPL模板
             try
             {
-                cmd_template = new StringBuilder();
-                cmd_template.Clear();
-                cmd_template.Append(LoadZplTemplate(zplTemplate));
-                if (!(cmd_template.ToString() == ""))
+                zpl_template = new StringBuilder();
+                zpl_template.Clear();
+                zpl_template.Append(LoadZplTemplate(zplTemplatePath));
+                if (!(zpl_template.ToString() == ""))
                 {
-                    label_zplTemp.Text = zplTemplate.Substring(zplTemplate.LastIndexOf("\\") + 1);
+                    label_zplTemp.Text = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
                 }
                 else
                 {
@@ -541,12 +440,6 @@ namespace Data_Transceiver_Center
             {
                 return;
             }
-        }
-
-        // 将页面的数据写入ini保存
-        public void SaveIniSettings(string iniFile)
-        {
-            SaveIni(iniFile);
         }
 
         // 刷新端口号
@@ -693,12 +586,6 @@ namespace Data_Transceiver_Center
         }
         #endregion
 
-        // 给打印文本框传入str，用于跳过相机的情况
-        public void SetPrtCode()
-        {
-            txtBox_prtCode.Text = txtBox_veriCode.Text;
-        }
-
         public void ClearSerial()
         {
             txtBox_serialRead.Text = "";
@@ -809,7 +696,7 @@ namespace Data_Transceiver_Center
                 // 显示数据到文本框（使用MesRoot的ToString方法）
                 if (_receivedMesRoot != null)
                 {
-                    txtBox_postData.Text = $"发送给MES的数据：\n{_receivedMesRoot}";
+                    txtBox_postData.Text = $"与MES通信中：\n{_receivedMesRoot.MesUrl}";
                 }
                 else
                 {
@@ -843,10 +730,10 @@ namespace Data_Transceiver_Center
 
             try
             {
-                cmd_template = new StringBuilder();
-                cmd_template.Clear();
+                zpl_template = new StringBuilder();
+                zpl_template.Clear();
                 string templateContent = LoadZplTemplate(file);
-                cmd_template.Append(templateContent);
+                zpl_template.Append(templateContent);
                 // 确保路径同步更新
                 if (!string.IsNullOrEmpty(templateContent))
                 {
@@ -953,18 +840,6 @@ namespace Data_Transceiver_Center
             btn_RetryChk.BackColor = System.Drawing.SystemColors.Control;
         }
 
-        // ZPL文件路径
-        private void txtBox_zplPath_TextChanged(object sender, EventArgs e)
-        {
-            _zplFilePath = txtBox_zplPath.Text + "\\zpl.txt";
-        }
-
-        // 打印机位置路径
-        private void txtBox_prtPath_TextChanged(object sender, EventArgs e)
-        {
-            _mPrintName = txtBox_prtPath.Text;
-        }
-
         #region IDataProvider接口实现
         public string GetScnCode() // 获取scn
         {
@@ -991,5 +866,15 @@ namespace Data_Transceiver_Center
         }
 
         #endregion
+
+        private void txtBox_zplTemplatePath_TextChanged(object sender, EventArgs e)
+        {
+            this.zplTemplatePath = txtBox_zplTemplatePath.Text;
+        }
+
+        private void txtBox_prtPath_TextChanged(object sender, EventArgs e)
+        {
+            this._mPrintName = txtBox_prtPath.Text;
+        }
     }
 }
