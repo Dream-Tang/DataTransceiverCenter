@@ -539,7 +539,7 @@ namespace Data_Transceiver_Center
                     _form1.pictureBox1.Image = Form1.SetBarCode128(qrCodeContent);
 
                     // 2. 将数值显示到lastPrtCode_label
-                    _form1.lastPrtCode_label.Text = qrCodeContent;
+                    //_form1.lastPrtCode_label.Text = qrCodeContent;
 
                     // 3. 可选：同步更新打印码文本框
                     _form1.txtBox_prtCode.Text = qrCodeContent;
@@ -657,7 +657,12 @@ namespace Data_Transceiver_Center
                     _logHelper.Log("打印", "INFO", $"打印成功：{printResult.Message}");
                     prt = CommunicationProtocol.prtOK;
                     // 线程安全更新UI
-                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK)));
+                    BeginInvoke(new Action(() =>
+                    {
+                        _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK);
+                        _form1.lastPrtCode_label.Text = printCode;
+                    }
+                    ));
 
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
@@ -674,6 +679,7 @@ namespace Data_Transceiver_Center
                     // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
                     WritePLCReg(prt: prt);
                     _logHelper.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    UpdateStatusBar("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
                     _logHelper.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
                     return;
                 }

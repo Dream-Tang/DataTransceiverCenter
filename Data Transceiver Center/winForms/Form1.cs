@@ -115,16 +115,48 @@ namespace Data_Transceiver_Center
         // 发送文件到打印机
         public async void sendToPrt_btn_Click(object sender, EventArgs e)
         {
+            string zplTemplatePath = txtBox_zplTemplatePath.Text;
+            if (string.IsNullOrEmpty(zplTemplatePath))
+            {
+                MessageBox.Show("ZPL模板路径不能为空");
+                return;
+            }
             string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
-            string filePathZPL = filePathZPLDirectory + "\\zpl.txt";
-            string prtName = this.txtBox_prtPath.Text;
+            string zplFilePath  = filePathZPLDirectory + "\\zpl.txt";
+            string prtCode = lastPrtCode_label.Text;
+            string prtName = txtBox_prtPath.Text;
             try
             {   // 直接调用异步Helper方法（使用await关键字）
-                var zplPrintResult = await _printingHelper.SendZplFileToPrinterAsync(filePathZPL, prtName);
+                var zplMakeResult = await _printingHelper.MakeZplContentAsync(zplTemplatePath, prtCode);// 生成ZPL指令
+                var zplSaveResult = await _printingHelper.SaveZplFileAsync(zplFilePath, zplMakeResult.ZplContent); // 保存ZPL指令到文件
+
+                // 直接调用异步Helper方法（使用await关键字）
+                var zplPrintResult = await _printingHelper.SendZplFileToPrinterAsync(zplFilePath, prtName);
                 // 更新UI
+                if (zplMakeResult.Success)
+                {
+                    lb_PrtCode.Text = "生成ZPL成功";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                }
+                else
+                {
+                    lb_PrtCode.Text = $"生成ZPL失败{zplMakeResult.Message}";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                }
+                if (zplPrintResult.Success)
+                {
+                    lb_PrtCodeNote.Text = "发送打印机成功";
+                    lb_PrtCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                }
+                else
+                {
+                    lb_PrtCodeNote.Text = $"发送打印机失败{zplPrintResult.Message}";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                }
             }
             catch (Exception)
             {
+
             }
         }
 
@@ -359,12 +391,16 @@ namespace Data_Transceiver_Center
                 txtBox_zplTemplatePath.Enabled = false;
                 txtBox_prtPath.Enabled = false;
                 label_zplTemp.Enabled = false;
+                txtBox_prtCode.Enabled = false;
+                txtBox_camCode.Enabled = false;
             }
             else if (status == "UnLock")
             {
                 txtBox_zplTemplatePath.Enabled = true;
                 txtBox_prtPath.Enabled = true;
                 label_zplTemp.Enabled = true;
+                txtBox_prtCode.Enabled = true;
+                txtBox_camCode.Enabled = true;
             }
         }
 
@@ -452,7 +488,7 @@ namespace Data_Transceiver_Center
 
         #region "设置三个模块的头尾提示标签" UI页面更新功能
         // 三个模块的头尾提示标签
-        private void SetLbChkCode(string str) // str = "验码OK" 或 "验码NG"，"手动验码","屏蔽校验"
+        private void SetLbChkCode(string str) // prtCode = "验码OK" 或 "验码NG"，"手动验码","屏蔽校验"
         {
             switch (str)
             {
@@ -495,7 +531,7 @@ namespace Data_Transceiver_Center
             }
         }
 
-        private void SetLbReadCode(string str) // str = "读码OK" 或 "读码NG", "手动读码"
+        private void SetLbReadCode(string str) // prtCode = "读码OK" 或 "读码NG", "手动读码"
         {
             switch (str)
             {
@@ -526,7 +562,7 @@ namespace Data_Transceiver_Center
 
         }
 
-        private void SetLbPrtCode(string str) // str = "打印OK" 或 "打印NG"
+        private void SetLbPrtCode(string str) // prtCode = "打印OK" 或 "打印NG"
         {
             switch (str)
             {
@@ -593,7 +629,7 @@ namespace Data_Transceiver_Center
 
         public void ClearVericode()
         {
-            txtBox_veriCode.Text = "";
+            txtBox_camCode.Text = "";
             txtBox_prtCode.Text = "";
         }
         /// <summary>
@@ -649,7 +685,7 @@ namespace Data_Transceiver_Center
                     {
                         return;
                     }
-                    txtBox_veriCode.Text = tcpReceive;
+                    txtBox_camCode.Text = tcpReceive;
                     txtBox_prtCode.Text = tcpReceive;
                 }
                 catch (Exception)
@@ -666,7 +702,7 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                txtBox_veriCode.Text = "";
+                txtBox_camCode.Text = "";
             }
         }
 
@@ -793,7 +829,7 @@ namespace Data_Transceiver_Center
         // 手动读码
         private void btn_RetryRead_Click(object sender, EventArgs e)
         {
-            txtBox_veriCode.Text = "";
+            txtBox_camCode.Text = "";
             SafeSetLbReadCode("手动读码");
             btn_RetryRead.Enabled = false;
             btn_RetryRead.BackColor = System.Drawing.SystemColors.ControlDark;

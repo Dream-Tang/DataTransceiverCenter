@@ -31,7 +31,7 @@ namespace Data_Transceiver_Center
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.txtBox_veriCode = new System.Windows.Forms.TextBox();
+            this.txtBox_camCode = new System.Windows.Forms.TextBox();
             this.btn_makeZpl = new System.Windows.Forms.Button();
             this.btn_sendToPrt = new System.Windows.Forms.Button();
             this.label1_1 = new System.Windows.Forms.Label();
@@ -86,24 +86,25 @@ namespace Data_Transceiver_Center
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // txtBox_veriCode
+            // txtBox_camCode
             // 
-            this.txtBox_veriCode.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.txtBox_veriCode.Location = new System.Drawing.Point(3, 57);
-            this.txtBox_veriCode.Name = "txtBox_veriCode";
-            this.txtBox_veriCode.Size = new System.Drawing.Size(194, 39);
-            this.txtBox_veriCode.TabIndex = 0;
+            this.txtBox_camCode.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.txtBox_camCode.Location = new System.Drawing.Point(3, 57);
+            this.txtBox_camCode.Name = "txtBox_camCode";
+            this.txtBox_camCode.Size = new System.Drawing.Size(194, 39);
+            this.txtBox_camCode.TabIndex = 0;
             // 
             // btn_makeZpl
             // 
             this.btn_makeZpl.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_makeZpl.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btn_makeZpl.Location = new System.Drawing.Point(104, 219);
+            this.btn_makeZpl.Location = new System.Drawing.Point(504, 80);
             this.btn_makeZpl.Name = "btn_makeZpl";
             this.btn_makeZpl.Size = new System.Drawing.Size(89, 45);
             this.btn_makeZpl.TabIndex = 2;
             this.btn_makeZpl.Text = "生成ZPL";
             this.btn_makeZpl.UseVisualStyleBackColor = true;
+            this.btn_makeZpl.Visible = false;
             this.btn_makeZpl.Click += new System.EventHandler(this.makeZpl_btn_Click);
             // 
             // btn_sendToPrt
@@ -135,16 +136,16 @@ namespace Data_Transceiver_Center
             this.label1_2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label1_2.Location = new System.Drawing.Point(5, 8);
             this.label1_2.Name = "label1_2";
-            this.label1_2.Size = new System.Drawing.Size(73, 20);
+            this.label1_2.Size = new System.Drawing.Size(109, 20);
             this.label1_2.TabIndex = 11;
-            this.label1_2.Text = "ZPL模板";
+            this.label1_2.Text = "ZPL模板文件";
             // 
             // txtBox_zplTemplatePath
             // 
             this.txtBox_zplTemplatePath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBox_zplTemplatePath.Location = new System.Drawing.Point(117, 7);
             this.txtBox_zplTemplatePath.Name = "txtBox_zplTemplatePath";
-            this.txtBox_zplTemplatePath.Size = new System.Drawing.Size(470, 24);
+            this.txtBox_zplTemplatePath.Size = new System.Drawing.Size(516, 24);
             this.txtBox_zplTemplatePath.TabIndex = 12;
             this.txtBox_zplTemplatePath.TextChanged += new System.EventHandler(this.txtBox_zplTemplatePath_TextChanged);
             // 
@@ -163,7 +164,7 @@ namespace Data_Transceiver_Center
             this.txtBox_prtPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.txtBox_prtPath.Location = new System.Drawing.Point(117, 37);
             this.txtBox_prtPath.Name = "txtBox_prtPath";
-            this.txtBox_prtPath.Size = new System.Drawing.Size(470, 24);
+            this.txtBox_prtPath.Size = new System.Drawing.Size(516, 24);
             this.txtBox_prtPath.TabIndex = 14;
             this.txtBox_prtPath.TextChanged += new System.EventHandler(this.txtBox_prtPath_TextChanged);
             // 
@@ -256,7 +257,7 @@ namespace Data_Transceiver_Center
             // 
             this.lastPrtCode_label.BackColor = System.Drawing.SystemColors.Window;
             this.lastPrtCode_label.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lastPrtCode_label.Location = new System.Drawing.Point(3, 176);
+            this.lastPrtCode_label.Location = new System.Drawing.Point(3, 188);
             this.lastPrtCode_label.Name = "lastPrtCode_label";
             this.lastPrtCode_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lastPrtCode_label.Size = new System.Drawing.Size(190, 27);
@@ -335,7 +336,7 @@ namespace Data_Transceiver_Center
             this.lockSettings_checkBox.AutoSize = true;
             this.lockSettings_checkBox.Checked = true;
             this.lockSettings_checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.lockSettings_checkBox.Location = new System.Drawing.Point(633, 39);
+            this.lockSettings_checkBox.Location = new System.Drawing.Point(662, 30);
             this.lockSettings_checkBox.Name = "lockSettings_checkBox";
             this.lockSettings_checkBox.Size = new System.Drawing.Size(106, 22);
             this.lockSettings_checkBox.TabIndex = 61;
@@ -350,7 +351,7 @@ namespace Data_Transceiver_Center
             this.panel3.Controls.Add(this.lb_ReadCode);
             this.panel3.Controls.Add(this.btn_RetryRead);
             this.panel3.Controls.Add(this.label1_1);
-            this.panel3.Controls.Add(this.txtBox_veriCode);
+            this.panel3.Controls.Add(this.txtBox_camCode);
             this.panel3.Controls.Add(this.txtBox_veriCodeHistory);
             this.panel3.Location = new System.Drawing.Point(10, 80);
             this.panel3.Name = "panel3";
@@ -399,7 +400,6 @@ namespace Data_Transceiver_Center
             this.panel4.Controls.Add(this.label1_5);
             this.panel4.Controls.Add(this.lastPrtCode_label);
             this.panel4.Controls.Add(this.pictureBox1);
-            this.panel4.Controls.Add(this.btn_makeZpl);
             this.panel4.Controls.Add(this.btn_sendToPrt);
             this.panel4.Location = new System.Drawing.Point(300, 80);
             this.panel4.Name = "panel4";
@@ -433,9 +433,9 @@ namespace Data_Transceiver_Center
             this.label_zplTemp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label_zplTemp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label_zplTemp.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label_zplTemp.Location = new System.Drawing.Point(6, 219);
+            this.label_zplTemp.Location = new System.Drawing.Point(3, 237);
             this.label_zplTemp.Name = "label_zplTemp";
-            this.label_zplTemp.Size = new System.Drawing.Size(92, 45);
+            this.label_zplTemp.Size = new System.Drawing.Size(193, 39);
             this.label_zplTemp.TabIndex = 61;
             this.label_zplTemp.Text = "加载模板";
             this.label_zplTemp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -613,6 +613,7 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel3);
+            this.Controls.Add(this.btn_makeZpl);
             this.Controls.Add(this.lockSettings_checkBox);
             this.Controls.Add(this.txtBox_prtPath);
             this.Controls.Add(this.label1_3);
@@ -676,7 +677,7 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Label lb_ChkCode;
         private System.Windows.Forms.Timer timer1;
-        public System.Windows.Forms.TextBox txtBox_veriCode;
+        public System.Windows.Forms.TextBox txtBox_camCode;
         public System.Windows.Forms.TextBox txtBox_zplTemplatePath;
         public System.Windows.Forms.TextBox txtBox_prtPath;
         private System.Windows.Forms.Label label_zplTemp;
