@@ -33,7 +33,7 @@ namespace Data_Transceiver_Center
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.txtBox_camCode = new System.Windows.Forms.TextBox();
             this.btn_makeZpl = new System.Windows.Forms.Button();
-            this.btn_sendToPrt = new System.Windows.Forms.Button();
+            this.btn_prtLastCode = new System.Windows.Forms.Button();
             this.label1_1 = new System.Windows.Forms.Label();
             this.label1_2 = new System.Windows.Forms.Label();
             this.txtBox_zplTemplatePath = new System.Windows.Forms.TextBox();
@@ -61,6 +61,9 @@ namespace Data_Transceiver_Center
             this.lb_ReadCode = new System.Windows.Forms.Label();
             this.btn_RetryRead = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtBox_timeOut = new System.Windows.Forms.TextBox();
+            this.btn_prtNowCode = new System.Windows.Forms.Button();
             this.lb_PrtCodeNote = new System.Windows.Forms.Label();
             this.lb_PrtCode = new System.Windows.Forms.Label();
             this.label_zplTemp = new System.Windows.Forms.Label();
@@ -107,16 +110,16 @@ namespace Data_Transceiver_Center
             this.btn_makeZpl.Visible = false;
             this.btn_makeZpl.Click += new System.EventHandler(this.makeZpl_btn_Click);
             // 
-            // btn_sendToPrt
+            // btn_prtLastCode
             // 
-            this.btn_sendToPrt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_sendToPrt.Location = new System.Drawing.Point(3, 282);
-            this.btn_sendToPrt.Name = "btn_sendToPrt";
-            this.btn_sendToPrt.Size = new System.Drawing.Size(193, 27);
-            this.btn_sendToPrt.TabIndex = 3;
-            this.btn_sendToPrt.Text = "打印条码";
-            this.btn_sendToPrt.UseVisualStyleBackColor = true;
-            this.btn_sendToPrt.Click += new System.EventHandler(this.sendToPrt_btn_Click);
+            this.btn_prtLastCode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_prtLastCode.Location = new System.Drawing.Point(3, 282);
+            this.btn_prtLastCode.Name = "btn_prtLastCode";
+            this.btn_prtLastCode.Size = new System.Drawing.Size(193, 27);
+            this.btn_prtLastCode.TabIndex = 3;
+            this.btn_prtLastCode.Text = "补打已发码";
+            this.btn_prtLastCode.UseVisualStyleBackColor = true;
+            this.btn_prtLastCode.Click += new System.EventHandler(this.btn_prtLastCode_Click);
             // 
             // label1_1
             // 
@@ -251,18 +254,19 @@ namespace Data_Transceiver_Center
             this.txtBox_prtCode.Name = "txtBox_prtCode";
             this.txtBox_prtCode.Size = new System.Drawing.Size(194, 39);
             this.txtBox_prtCode.TabIndex = 45;
+            this.txtBox_prtCode.Text = "收到的MES码";
             this.txtBox_prtCode.TextChanged += new System.EventHandler(this.prtCode_txtBox_TextChanged);
             // 
             // lastPrtCode_label
             // 
             this.lastPrtCode_label.BackColor = System.Drawing.SystemColors.Window;
             this.lastPrtCode_label.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lastPrtCode_label.Location = new System.Drawing.Point(3, 188);
+            this.lastPrtCode_label.Location = new System.Drawing.Point(2, 237);
             this.lastPrtCode_label.Name = "lastPrtCode_label";
             this.lastPrtCode_label.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.lastPrtCode_label.Size = new System.Drawing.Size(190, 27);
+            this.lastPrtCode_label.Size = new System.Drawing.Size(195, 39);
             this.lastPrtCode_label.TabIndex = 47;
-            this.lastPrtCode_label.Text = "上次打印码";
+            this.lastPrtCode_label.Text = "已发的打印码";
             this.lastPrtCode_label.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // txtBox_scnCode
@@ -393,18 +397,47 @@ namespace Data_Transceiver_Center
             // panel4
             // 
             this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel4.Controls.Add(this.label1);
+            this.panel4.Controls.Add(this.txtBox_timeOut);
+            this.panel4.Controls.Add(this.btn_prtNowCode);
             this.panel4.Controls.Add(this.lb_PrtCodeNote);
             this.panel4.Controls.Add(this.lb_PrtCode);
-            this.panel4.Controls.Add(this.label_zplTemp);
             this.panel4.Controls.Add(this.txtBox_prtCode);
             this.panel4.Controls.Add(this.label1_5);
             this.panel4.Controls.Add(this.lastPrtCode_label);
             this.panel4.Controls.Add(this.pictureBox1);
-            this.panel4.Controls.Add(this.btn_sendToPrt);
+            this.panel4.Controls.Add(this.btn_prtLastCode);
             this.panel4.Location = new System.Drawing.Point(300, 80);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(200, 350);
             this.panel4.TabIndex = 66;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(-1, 210);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(107, 18);
+            this.label1.TabIndex = 74;
+            this.label1.Text = "超时时间(s)";
+            // 
+            // txtBox_timeOut
+            // 
+            this.txtBox_timeOut.Location = new System.Drawing.Point(106, 207);
+            this.txtBox_timeOut.Name = "txtBox_timeOut";
+            this.txtBox_timeOut.Size = new System.Drawing.Size(87, 28);
+            this.txtBox_timeOut.TabIndex = 73;
+            // 
+            // btn_prtNowCode
+            // 
+            this.btn_prtNowCode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_prtNowCode.Location = new System.Drawing.Point(2, 174);
+            this.btn_prtNowCode.Name = "btn_prtNowCode";
+            this.btn_prtNowCode.Size = new System.Drawing.Size(193, 27);
+            this.btn_prtNowCode.TabIndex = 72;
+            this.btn_prtNowCode.Text = "打印MES码";
+            this.btn_prtNowCode.UseVisualStyleBackColor = true;
+            this.btn_prtNowCode.Click += new System.EventHandler(this.btn_prtThisCode_Click);
             // 
             // lb_PrtCodeNote
             // 
@@ -433,12 +466,13 @@ namespace Data_Transceiver_Center
             this.label_zplTemp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label_zplTemp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label_zplTemp.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label_zplTemp.Location = new System.Drawing.Point(3, 237);
+            this.label_zplTemp.Location = new System.Drawing.Point(504, 128);
             this.label_zplTemp.Name = "label_zplTemp";
-            this.label_zplTemp.Size = new System.Drawing.Size(193, 39);
+            this.label_zplTemp.Size = new System.Drawing.Size(84, 39);
             this.label_zplTemp.TabIndex = 61;
             this.label_zplTemp.Text = "加载模板";
             this.label_zplTemp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label_zplTemp.Visible = false;
             this.label_zplTemp.Click += new System.EventHandler(this.btn_loadZpl_Click);
             // 
             // panel5
@@ -608,6 +642,7 @@ namespace Data_Transceiver_Center
             this.ControlBox = false;
             this.Controls.Add(this.btn_apiTest);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.label_zplTemp);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.panel5);
@@ -646,7 +681,7 @@ namespace Data_Transceiver_Center
 
         #endregion
         private System.Windows.Forms.Button btn_makeZpl;
-        private System.Windows.Forms.Button btn_sendToPrt;
+        private System.Windows.Forms.Button btn_prtLastCode;
         private System.Windows.Forms.Label label1_1;
         private System.Windows.Forms.Label label1_2;
         private System.Windows.Forms.Label label1_3;
@@ -691,6 +726,9 @@ namespace Data_Transceiver_Center
         public System.Windows.Forms.TextBox txtBox_postData;
         public System.Windows.Forms.TextBox txtBox_responseData;
         public System.Windows.Forms.TextBox txtBox_scnCode;
+        private System.Windows.Forms.Button btn_prtNowCode;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtBox_timeOut;
         //private System.Windows.Forms.Label veriCount_label;
         //private System.Windows.Forms.Label label6;
     }

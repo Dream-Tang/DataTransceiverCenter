@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZXing.Aztec.Internal;
 
 namespace Data_Transceiver_Center
 {
@@ -46,6 +47,16 @@ namespace Data_Transceiver_Center
         private IIniSavable _iniSaveForm;        // Form1配置保存接口
         private IJsonSavable _jsonSaveForm;      // Form3配置保存接口
         private IPLCService _plcService;
+        #endregion
+
+        #region 打印流程相关配置
+        // 打印步骤 超时设置
+        private uint _timeoutMs = 60; // 60秒
+        // 1. 定义类级别的取消令牌源和任务字段（放在mainForm类中）
+        private CancellationTokenSource _camHolderZeroCts;  // 取消令牌源
+        private Task<bool> _camHolderZeroTask;              // 记录当前执行的任务
+        private readonly object _taskLock = new object(); // 线程安全锁（防止并发触发）
+
         #endregion
 
         // 在mainForm类中添加CheckHelper实例变量
@@ -367,6 +378,8 @@ namespace Data_Transceiver_Center
                 checkBox_connectPlc.Checked  = _iniHelper.ReadBoolean(iniFilePath, "connectPlc",  "Checkbox", false);
                 checkBox_autoMode.Checked    = _iniHelper.ReadBoolean(iniFilePath, "autoRun",     "Checkbox", false);
                 checkBox_tcpServer.Checked   = _iniHelper.ReadBoolean(iniFilePath, "tcpServer",   "Checkbox", false);
+                // 读取超时时间设置
+                _timeoutMs                   = Convert.ToUInt32(_iniHelper.ReadString(iniFilePath, "timeoutS", "Textbox"));
 
                 Console.WriteLine("mainForm CheckBox状态加载完成");
             }
@@ -576,7 +589,7 @@ namespace Data_Transceiver_Center
             bool camHolderReady = true;
             if (!checkBox_ignorePlc.Checked) // 如果未勾选"忽略PLC"，则执行等待
             {
-                camHolderReady = await WaitForCamHolderZeroAsync(); // 调用等待函数
+                camHolderReady = await WaitForCamHolderZeroAsync(_timeoutMs); // 等待阻挡气缸放下，成功或者超时后返回，传入参数为毫秒
             }
             else
             {
@@ -590,12 +603,12 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                _logHelper.Log("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
-                UpdateStatusBar("打印流程", "ERROR", "等待camHolder失败，终止打印流程");
+                _logHelper.Log("打印流程", "ERROR", "等待1#气缸降下失败，终止本次自动打印流程");
+                UpdateStatusBar("打印流程", "ERROR", "等待1#气缸降下失败，终止本次自动打印流程");
                 return;
             }
 
-            // ========== 打印模块 ==========
+            // ========== 3.打印模块 ==========
             _logHelper.Log("打印", "INFO", "进入打印流程，开始前置检查");
             // 标记是否需要等待PLC就绪（屏蔽PLC开关）
             bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
@@ -699,43 +712,7 @@ namespace Data_Transceiver_Center
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
 
-       
-
-        /// <summary>
-        /// 等待camHolder变为0（异步方式，不阻塞UI线程）
-        /// </summary>
-        /// <returns>是否成功等待到camHolder=0（true=成功，false=超时或被跳过）</returns>
-        private async Task<bool> WaitForCamHolderZeroAsync()
-        {
-            // 读取初始值
-            short? camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
-
-            // 超时计时器（可选，避免无限等待，单位：毫秒）
-            int timeoutMs = 30000; // 30秒超时
-            DateTime startTime = DateTime.Now;
-
-            while (camHolder != 0)
-            {
-                // 检查是否超时
-                if ((DateTime.Now - startTime).TotalMilliseconds > timeoutMs)
-                {
-                    _logHelper.Log("打印流程", "ERROR", $"等待camHolder超时（{timeoutMs}ms），当前值: {camHolder}");
-                    UpdateStatusBar("打印流程", "ERROR", $"等待1#阻挡气缸降下超时（{timeoutMs}ms），当前值: {camHolder}");
-                    return false;
-                }
-
-                _logHelper.Log("打印流程", "INFO", $"等待camHolder变为0，当前值: {camHolder}，等待时间：{(DateTime.Now - startTime).Seconds}");
-                UpdateStatusBar("打印流程", "INFO", $"等待1#阻挡气缸降下，等待时间：{(DateTime.Now - startTime).Seconds}");
-                // 异步等待500ms（不阻塞线程）
-                await Task.Delay(500);
-                // 重新读取值
-                camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
-            }
-
-            _logHelper.Log("打印流程", "INFO", "camHolder已变为0，继续执行打印");
-            return true;
-        }
-
+        // 异步等待500ms（不阻塞线程）
         // 新增线程终止方法
         private void StopAutoRunThread()
         {
@@ -955,6 +932,120 @@ namespace Data_Transceiver_Center
             {
                 Console.WriteLine($"ReadPlcStatus：读取异常 - {ex.Message}");
                 return (false, -1, -1, -1);
+            }
+        }
+
+        /// <summary>
+        /// 等待camHolder变为0（异步方式，不阻塞UI线程）
+        /// </summary>
+        /// <param name="timeoutS">超时时间（秒）</param>
+        /// <returns>是否成功等待到camHolder=0（true=成功，false=超时或被跳过）</returns>
+        private async Task<bool> WaitForCamHolderZeroAsync(uint timeoutS)
+        {   // 步骤1：加锁，防止并发创建任务
+            lock (_taskLock)
+            {
+                // 步骤2：取消正在执行的旧任务（如果有）
+                if (_camHolderZeroCts != null && !_camHolderZeroCts.Token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        _camHolderZeroCts.Cancel(); // 触发第一次任务的取消信号
+                        _camHolderZeroCts?.Dispose();// 释放旧CTS资源（避免资源泄漏）
+                        _logHelper.Log("气缸检测", "INFO", "已取消上一次未完成的等待任务");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logHelper.Log("气缸检测", "ERROR", $"取消旧任务失败：{ex.Message}");
+                    }
+                    _camHolderZeroCts = null;
+                }
+
+                // 步骤3：创建新的取消令牌源和任务
+                _camHolderZeroCts = new CancellationTokenSource();
+                CancellationToken cancelToken = _camHolderZeroCts.Token;
+                _camHolderZeroTask = ExecuteWaitForZeroLogicAsync(timeoutS, cancelToken);
+            }
+            // 步骤4：等待新任务完成并处理结果
+            try
+            {
+                bool result = await _camHolderZeroTask;
+                return result;
+            }
+            catch (OperationCanceledException)
+            {
+                // 第一次任务被取消时触发此异常，返回false表示任务终止
+                _logHelper.Log("气缸检测", "INFO", "上一次等待任务被终止（新调用触发）");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logHelper.Log("气缸检测", "ERROR", $"等待打印信号任务执行失败：{ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 实际的等待归零逻辑（抽离出来便于取消）
+        /// </summary>
+        /// <param name="timeoutS">超时时间</param>
+        /// <param name="token">取消令牌</param>
+        /// <returns>是否成功</returns>
+        private async Task<bool> ExecuteWaitForZeroLogicAsync(uint timeoutS, CancellationToken token)
+        {
+            var timeout = TimeSpan.FromSeconds(timeoutS);
+            var startTime = DateTime.Now;
+
+            // 循环等待
+            while (true)
+            {
+                // 关键：每次循环检测取消信号，触发则抛出取消异常
+                token.ThrowIfCancellationRequested();
+
+                // 勾选打印超时选项，才进行超时停止
+                if (chkBox_allowTimeOut.Checked)
+                {
+                    // 检查是否超时
+                    if ((DateTime.Now - startTime).TotalSeconds > timeoutS)
+                    {
+                        _logHelper.Log("打印流程", "ERROR", "等待打印信号超时，终止流程");
+                        return false;
+                    }
+                }
+
+            // 核心逻辑：检查阻挡气缸是否归零（替换为你的实际检测代码）
+            bool isZero = CheckCamHolderZeroStatus();
+            _logHelper.Log("打印流程", "INFO", $"等待camHolder变为0，等待时间：{(DateTime.Now - startTime).Seconds}");
+            UpdateStatusBar("打印流程", "INFO", $"等待1#阻挡气缸降下，等待时间：{(DateTime.Now - startTime).Seconds}");
+
+            if (isZero)
+            {
+                _logHelper.Log("打印流程", "INFO", "拍照位气缸已经降下 Y016 = 0");
+                return true;
+            }
+
+            // 短暂等待后重试（避免CPU空转，同时保证取消响应速度）
+            await Task.Delay(100, token); // 传入token，Delay也能响应取消
+        }
+        }
+
+        /// <summary>
+        /// 模拟：检查相机阻挡气缸降下状态（替换为你的实际逻辑）
+        /// </summary>
+        /// <returns>是否归零</returns>
+        private bool CheckCamHolderZeroStatus() 
+        {
+            try
+            {
+                // 读取拍照位气缸camPstHolder(Y016)
+                short? camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
+                // 你的判断逻辑（比如寄存器值为1表示归零）
+                bool isZero = camHolder.HasValue && camHolder.Value == CommunicationProtocol.dataFlow;
+                return isZero;
+            }
+            catch (Exception ex)
+            {
+                _logHelper.Log("打印流程", "ERROR", $"读取PLC归零状态失败：{ex.Message}");
+                return false;
             }
         }
 
@@ -1506,6 +1597,8 @@ namespace Data_Transceiver_Center
         {
             StopCamMonitor(); // 确保相机监控线程停止
             StopAllCheckRelatedThreads(); // 停止校验相关线程
+            _camHolderZeroCts?.Cancel();   // 停止打印等待任务线程
+            _camHolderZeroCts?.Dispose();  // 释放资源
         }
 
         /// <summary>

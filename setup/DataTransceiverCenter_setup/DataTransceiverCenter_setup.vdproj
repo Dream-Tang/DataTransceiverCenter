@@ -225,12 +225,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4E2D42225AB14C6FA9495F4911C29527"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4F8F9F9646CA75192703281C3CEE79FE"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
         "MsmSig" = "8:_UNDEFINED"
@@ -299,12 +293,6 @@
         {
         "MsmKey" = "8:_63E79513FFB8F7BD96843910C36F6249"
         "OwnerKey" = "8:_21B2AF1C7D4A4815B69E59B7C6A24A4B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6ACA2AEBFDD7438AA659710B840E2C39"
-        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2080,26 +2068,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E2D42225AB14C6FA9495F4911C29527"
-            {
-            "SourcePath" = "8:..\\..\\DTCdata\\zpl.txt"
-            "TargetName" = "8:zpl.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4F8F9F9646CA75192703281C3CEE79FE"
             {
             "AssemblyRegister" = "3:1"
@@ -2439,26 +2407,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6ACA2AEBFDD7438AA659710B840E2C39"
-            {
-            "SourcePath" = "8:..\\..\\DTCdata\\123.txt"
-            "TargetName" = "8:123.txt"
-            "Tag" = "8:"
-            "Folder" = "8:_617E6BAE972343C4AE2F3067F6B026BE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6EFABBE16BE809FA7896EAEC5648DAF7"

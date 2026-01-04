@@ -17,6 +17,8 @@ namespace Data_Transceiver_Center
             if (disposing && (components != null))
             {
                 components.Dispose();
+                _camHolderZeroCts?.Cancel();
+                _camHolderZeroCts?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -33,6 +35,7 @@ namespace Data_Transceiver_Center
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
             this.panelContainer = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.checkBox_ignorePlc = new System.Windows.Forms.CheckBox();
             this.checkBox_ignoreCheck = new System.Windows.Forms.CheckBox();
             this.btn_openForm3 = new System.Windows.Forms.Button();
             this.btn_openForm1 = new System.Windows.Forms.Button();
@@ -42,16 +45,16 @@ namespace Data_Transceiver_Center
             this.btn_autoRun = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.checkBox_autoMode = new System.Windows.Forms.CheckBox();
-            this.checkBox_ignorePlc = new System.Windows.Forms.CheckBox();
             this.checkBox_tcpServer = new System.Windows.Forms.CheckBox();
             this.checkBox_connectPlc = new System.Windows.Forms.CheckBox();
             this.lable_PlcConnectStatus = new System.Windows.Forms.Label();
             this.checkBox_ignoreCam = new System.Windows.Forms.CheckBox();
             this.statusStrip_mainForm = new System.Windows.Forms.StatusStrip();
+            this.statusTime = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusModule = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLevel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.statusTime = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusMessage = new System.Windows.Forms.ToolStripStatusLabel();
+            this.chkBox_allowTimeOut = new System.Windows.Forms.CheckBox();
             this.panelContainer.SuspendLayout();
             this.statusStrip_mainForm.SuspendLayout();
             this.SuspendLayout();
@@ -61,6 +64,7 @@ namespace Data_Transceiver_Center
             this.panelContainer.AutoSize = true;
             this.panelContainer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelContainer.Controls.Add(this.label1);
+            this.panelContainer.Controls.Add(this.checkBox_ignorePlc);
             this.panelContainer.Location = new System.Drawing.Point(128, 12);
             this.panelContainer.Name = "panelContainer";
             this.panelContainer.Size = new System.Drawing.Size(800, 650);
@@ -75,6 +79,17 @@ namespace Data_Transceiver_Center
             this.label1.Size = new System.Drawing.Size(238, 41);
             this.label1.TabIndex = 0;
             this.label1.Text = "公司LOGO图片";
+            // 
+            // checkBox_ignorePlc
+            // 
+            this.checkBox_ignorePlc.AutoSize = true;
+            this.checkBox_ignorePlc.Location = new System.Drawing.Point(92, 481);
+            this.checkBox_ignorePlc.Name = "checkBox_ignorePlc";
+            this.checkBox_ignorePlc.Size = new System.Drawing.Size(97, 22);
+            this.checkBox_ignorePlc.TabIndex = 8;
+            this.checkBox_ignorePlc.Text = "屏蔽PLC";
+            this.checkBox_ignorePlc.UseVisualStyleBackColor = true;
+            this.checkBox_ignorePlc.Visible = false;
             // 
             // checkBox_ignoreCheck
             // 
@@ -164,17 +179,6 @@ namespace Data_Transceiver_Center
             this.checkBox_autoMode.UseVisualStyleBackColor = true;
             this.checkBox_autoMode.CheckedChanged += new System.EventHandler(this.chkBox_autoMode_CheckedChanged);
             // 
-            // checkBox_ignorePlc
-            // 
-            this.checkBox_ignorePlc.AutoSize = true;
-            this.checkBox_ignorePlc.Location = new System.Drawing.Point(12, 365);
-            this.checkBox_ignorePlc.Name = "checkBox_ignorePlc";
-            this.checkBox_ignorePlc.Size = new System.Drawing.Size(97, 22);
-            this.checkBox_ignorePlc.TabIndex = 8;
-            this.checkBox_ignorePlc.Text = "屏蔽PLC";
-            this.checkBox_ignorePlc.UseVisualStyleBackColor = true;
-            this.checkBox_ignorePlc.Visible = false;
-            // 
             // checkBox_tcpServer
             // 
             this.checkBox_tcpServer.AutoSize = true;
@@ -237,6 +241,14 @@ namespace Data_Transceiver_Center
             this.statusStrip_mainForm.TabIndex = 16;
             this.statusStrip_mainForm.Text = "statusStrip1";
             // 
+            // statusTime
+            // 
+            this.statusTime.BackColor = System.Drawing.SystemColors.ControlText;
+            this.statusTime.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.statusTime.ForeColor = System.Drawing.SystemColors.Control;
+            this.statusTime.Name = "statusTime";
+            this.statusTime.Size = new System.Drawing.Size(0, 32);
+            // 
             // statusModule
             // 
             this.statusModule.Name = "statusModule";
@@ -250,25 +262,28 @@ namespace Data_Transceiver_Center
             this.statusLevel.Size = new System.Drawing.Size(77, 32);
             this.statusLevel.Text = "[level]";
             // 
-            // statusTime
-            // 
-            this.statusTime.BackColor = System.Drawing.SystemColors.ControlText;
-            this.statusTime.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.statusTime.ForeColor = System.Drawing.SystemColors.Control;
-            this.statusTime.Name = "statusTime";
-            this.statusTime.Size = new System.Drawing.Size(0, 32);
-            // 
             // statusMessage
             // 
             this.statusMessage.Name = "statusMessage";
-            this.statusMessage.Size = new System.Drawing.Size(697, 32);
+            this.statusMessage.Size = new System.Drawing.Size(743, 32);
             this.statusMessage.Spring = true;
             this.statusMessage.Text = "[message]";
+            // 
+            // chkBox_allowTimeOut
+            // 
+            this.chkBox_allowTimeOut.AutoSize = true;
+            this.chkBox_allowTimeOut.Location = new System.Drawing.Point(12, 421);
+            this.chkBox_allowTimeOut.Name = "chkBox_allowTimeOut";
+            this.chkBox_allowTimeOut.Size = new System.Drawing.Size(106, 22);
+            this.chkBox_allowTimeOut.TabIndex = 17;
+            this.chkBox_allowTimeOut.Text = "打印超时";
+            this.chkBox_allowTimeOut.UseVisualStyleBackColor = true;
             // 
             // mainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(938, 704);
+            this.Controls.Add(this.chkBox_allowTimeOut);
             this.Controls.Add(this.statusStrip_mainForm);
             this.Controls.Add(this.checkBox_ignoreCam);
             this.Controls.Add(this.checkBox_ignoreCheck);
@@ -276,7 +291,6 @@ namespace Data_Transceiver_Center
             this.Controls.Add(this.btn_openForm3);
             this.Controls.Add(this.checkBox_connectPlc);
             this.Controls.Add(this.checkBox_tcpServer);
-            this.Controls.Add(this.checkBox_ignorePlc);
             this.Controls.Add(this.checkBox_autoMode);
             this.Controls.Add(this.btn_autoRun);
             this.Controls.Add(this.btn_LoadConfig);
@@ -322,5 +336,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.ToolStripStatusLabel statusLevel;
         private System.Windows.Forms.ToolStripStatusLabel statusTime;
         private System.Windows.Forms.ToolStripStatusLabel statusMessage;
+        private System.Windows.Forms.CheckBox chkBox_allowTimeOut;
     }
 }

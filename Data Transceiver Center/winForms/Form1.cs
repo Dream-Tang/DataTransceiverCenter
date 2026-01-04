@@ -112,8 +112,8 @@ namespace Data_Transceiver_Center
             }
         }
 
-        // 发送文件到打印机
-        public async void sendToPrt_btn_Click(object sender, EventArgs e)
+        // 发送上次码到打印机
+        public async void btn_prtLastCode_Click(object sender, EventArgs e)
         {
             string zplTemplatePath = txtBox_zplTemplatePath.Text;
             if (string.IsNullOrEmpty(zplTemplatePath))
@@ -122,8 +122,56 @@ namespace Data_Transceiver_Center
                 return;
             }
             string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
-            string zplFilePath  = filePathZPLDirectory + "\\zpl.txt";
+            string zplFilePath  = filePathZPLDirectory + "\\Lastzpl.txt";
             string prtCode = lastPrtCode_label.Text;
+            string prtName = txtBox_prtPath.Text;
+            try
+            {   // 直接调用异步Helper方法（使用await关键字）
+                var zplMakeResult = await _printingHelper.MakeZplContentAsync(zplTemplatePath, prtCode);// 生成ZPL指令
+                var zplSaveResult = await _printingHelper.SaveZplFileAsync(zplFilePath, zplMakeResult.ZplContent); // 保存ZPL指令到文件
+
+                // 直接调用异步Helper方法（使用await关键字）
+                var zplPrintResult = await _printingHelper.SendZplFileToPrinterAsync(zplFilePath, prtName);
+                // 更新UI
+                if (zplMakeResult.Success)
+                {
+                    lb_PrtCode.Text = "生成ZPL成功";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                }
+                else
+                {
+                    lb_PrtCode.Text = $"生成ZPL失败{zplMakeResult.Message}";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                }
+                if (zplPrintResult.Success)
+                {
+                    lb_PrtCodeNote.Text = "发送打印机成功";
+                    lb_PrtCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                }
+                else
+                {
+                    lb_PrtCodeNote.Text = $"发送打印机失败{zplPrintResult.Message}";
+                    lb_PrtCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(111)))), ((int)(((byte)(81)))));
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        // 发送本次码到打印机
+        public async void btn_prtThisCode_Click(object sender, EventArgs e)
+        {
+            string zplTemplatePath = txtBox_zplTemplatePath.Text;
+            if (string.IsNullOrEmpty(zplTemplatePath))
+            {
+                MessageBox.Show("ZPL模板路径不能为空");
+                return;
+            }
+            string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
+            string zplFilePath = filePathZPLDirectory + "\\Thiszpl.txt";
+            string prtCode = txtBox_prtCode.Text;
             string prtName = txtBox_prtPath.Text;
             try
             {   // 直接调用异步Helper方法（使用await关键字）
@@ -420,6 +468,7 @@ namespace Data_Transceiver_Center
                 _iniHelper.WriteString(iniFilePath, "zplTemplate", "Textbox", txtBox_zplTemplatePath.Text);
                 _iniHelper.WriteString(iniFilePath, "prtName",     "Textbox", txtBox_prtPath.Text);
                 _iniHelper.WriteString(iniFilePath, "seriPortNum", "Textbox", cobBox_SeriPortNum.Text);
+                _iniHelper.WriteString(iniFilePath, "timeoutS", "Textbox", txtBox_timeOut.Text);
 
                 // 保存复选框状态（与加载时对应）
                 _iniHelper.WriteBoolean(iniFilePath,"lockSettings", "Checkbox", lockSettings_checkBox.Checked);
@@ -441,11 +490,13 @@ namespace Data_Transceiver_Center
             string prtName         = _iniHelper.ReadString(iniFilePath, "prtName",     "Textbox");
             string zplTemplatePath = _iniHelper.ReadString(iniFilePath, "zplTemplate", "Textbox");
             string seriPortNum     = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
+            string timeOutS        = _iniHelper.ReadString(iniFilePath, "timeoutS",    "Textbox");
 
             txtBox_zplTemplatePath.Text = zplTemplatePath;
-            txtBox_prtPath.Text = prtName;
-            cobBox_SeriPortNum.Text = seriPortNum;
-            label_zplTemp.Text = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
+            txtBox_prtPath.Text         = prtName;
+            cobBox_SeriPortNum.Text     = seriPortNum;
+            label_zplTemp.Text          = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
+            txtBox_timeOut.Text         = timeOutS;
 
             // 加载ZPL模板
             try
