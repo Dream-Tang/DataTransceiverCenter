@@ -47,8 +47,8 @@
         // 阻挡放下， = 0
         // 阻挡抬起， = 1
         // 当阻挡放下之后，产品往下走，MES的数据才往下走，生成ZPL，发给打印机
-        public const short dataFlow = 0;
-        public const short dataHold = 1;
+        public const short HolderDown = 0;
+        public const short HolderUp   = 1;
         #endregion
 
         #region "Form1调用信号"

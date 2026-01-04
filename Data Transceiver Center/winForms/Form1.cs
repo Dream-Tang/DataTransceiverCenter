@@ -169,6 +169,12 @@ namespace Data_Transceiver_Center
                 MessageBox.Show("ZPL模板路径不能为空");
                 return;
             }
+            if (txtBox_prtCode.Text=="已发送")
+            {
+                MessageBox.Show("还没有获取到新的打印码");
+                return;
+            }
+
             string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
             string zplFilePath = filePathZPLDirectory + "\\Thiszpl.txt";
             string prtCode = txtBox_prtCode.Text;
@@ -195,6 +201,8 @@ namespace Data_Transceiver_Center
                 {
                     lb_PrtCodeNote.Text = "发送打印机成功";
                     lb_PrtCodeNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(233)))), ((int)(((byte)(186)))));
+                    lastPrtCode_label.Text = txtBox_prtCode.Text;
+                    txtBox_prtCode.Text = "已发送";
                 }
                 else
                 {

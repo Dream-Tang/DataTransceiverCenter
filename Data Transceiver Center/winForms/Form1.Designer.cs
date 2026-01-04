@@ -420,6 +420,7 @@ namespace Data_Transceiver_Center
             this.label1.Size = new System.Drawing.Size(107, 18);
             this.label1.TabIndex = 74;
             this.label1.Text = "超时时间(s)";
+            this.label1.Visible = false;
             // 
             // txtBox_timeOut
             // 
@@ -427,6 +428,7 @@ namespace Data_Transceiver_Center
             this.txtBox_timeOut.Name = "txtBox_timeOut";
             this.txtBox_timeOut.Size = new System.Drawing.Size(87, 28);
             this.txtBox_timeOut.TabIndex = 73;
+            this.txtBox_timeOut.Visible = false;
             // 
             // btn_prtNowCode
             // 
@@ -435,7 +437,7 @@ namespace Data_Transceiver_Center
             this.btn_prtNowCode.Name = "btn_prtNowCode";
             this.btn_prtNowCode.Size = new System.Drawing.Size(193, 27);
             this.btn_prtNowCode.TabIndex = 72;
-            this.btn_prtNowCode.Text = "打印MES码";
+            this.btn_prtNowCode.Text = "发送打印码";
             this.btn_prtNowCode.UseVisualStyleBackColor = true;
             this.btn_prtNowCode.Click += new System.EventHandler(this.btn_prtThisCode_Click);
             // 

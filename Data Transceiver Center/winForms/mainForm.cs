@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls.WebParts;
 using System.Windows.Forms;
 using ZXing.Aztec.Internal;
 
@@ -52,11 +53,18 @@ namespace Data_Transceiver_Center
         #region 打印流程相关配置
         // 打印步骤 超时设置
         private uint _timeoutMs = 60; // 60秒
+        private DateTime startTime1 = DateTime.Now;
         // 1. 定义类级别的取消令牌源和任务字段（放在mainForm类中）
         private CancellationTokenSource _camHolderZeroCts;  // 取消令牌源
         private Task<bool> _camHolderZeroTask;              // 记录当前执行的任务
         private readonly object _taskLock = new object(); // 线程安全锁（防止并发触发）
 
+        #endregion
+
+        #region 打印监控线程相关
+        private Thread _prtMonitorThread;                       // 打印监控线程
+        private bool _isPrtMonitorRunning;                      // 打印监控线程运行状态
+        private readonly object _prtMonitorLock = new object(); // 线程同步锁
         #endregion
 
         // 在mainForm类中添加CheckHelper实例变量
@@ -378,6 +386,7 @@ namespace Data_Transceiver_Center
                 checkBox_connectPlc.Checked  = _iniHelper.ReadBoolean(iniFilePath, "connectPlc",  "Checkbox", false);
                 checkBox_autoMode.Checked    = _iniHelper.ReadBoolean(iniFilePath, "autoRun",     "Checkbox", false);
                 checkBox_tcpServer.Checked   = _iniHelper.ReadBoolean(iniFilePath, "tcpServer",   "Checkbox", false);
+                checkBox_allowHolder.Checked  = _iniHelper.ReadBoolean(iniFilePath, "allowHolder", "Checkbox", false);
                 // 读取超时时间设置
                 _timeoutMs                   = Convert.ToUInt32(_iniHelper.ReadString(iniFilePath, "timeoutS", "Textbox"));
 
@@ -433,6 +442,7 @@ namespace Data_Transceiver_Center
                 _iniHelper.WriteBoolean(iniFilePath, "connectPlc",  "Checkbox", checkBox_connectPlc.Checked);
                 _iniHelper.WriteBoolean(iniFilePath, "autoRun",     "Checkbox", checkBox_autoMode.Checked);
                 _iniHelper.WriteBoolean(iniFilePath, "tcpServer",   "Checkbox", checkBox_tcpServer.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "allowHolder", "Checkbox", checkBox_allowHolder.Checked);
 
                 Console.WriteLine("MainForm配置保存完成");
             }
@@ -585,130 +595,117 @@ namespace Data_Transceiver_Center
                 return; // 失败终止后续流程
             }
 
-            // 新增一个判断，拍照位的阻挡气缸是否放下，放下才开始打印流程
-            bool camHolderReady = true;
-            if (!checkBox_ignorePlc.Checked) // 如果未勾选"忽略PLC"，则执行等待
-            {
-                camHolderReady = await WaitForCamHolderZeroAsync(_timeoutMs); // 等待阻挡气缸放下，成功或者超时后返回，传入参数为毫秒
-            }
-            else
-            {
-                _logHelper.Log("打印流程", "INFO", "已勾选忽略PLC，跳过阻挡气缸检查");
-            }
-
-            // 如果等待成功（或被跳过），则执行打印模块
-            if (camHolderReady)
-            {
-                // 如果阻挡气缸放下了，则继续执行；如果没有，则结束打印流程
-            }
-            else
-            {
-                _logHelper.Log("打印流程", "ERROR", "等待1#气缸降下失败，终止本次自动打印流程");
-                UpdateStatusBar("打印流程", "ERROR", "等待1#气缸降下失败，终止本次自动打印流程");
-                return;
-            }
-
+            startTime1 = DateTime.Now;
             // ========== 3.打印模块 ==========
-            _logHelper.Log("打印", "INFO", "进入打印流程，开始前置检查");
-            // 标记是否需要等待PLC就绪（屏蔽PLC开关）
-            bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
-            if (needWaitPlcReady)
+            if (!checkBox_allowHolder.Checked)   // 是否等待气缸
             {
-                _logHelper.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
-                prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
-
-                // 步骤1：等待打印机就绪（原有逻辑保留）
-                while (prt != CommunicationProtocol.prtReady)
+                // ========== 3.打印模块 ==========
+                _logHelper.Log("打印", "INFO", "进入打印流程，开始前置检查");
+                // 标记是否需要等待PLC就绪（屏蔽PLC开关）
+                bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
+                if (needWaitPlcReady)
                 {
-                    // 刷新PLC状态（复用ReadPlcStatus，保持逻辑统一）
-                    var plcRefreshResult = ReadPlcStatus();
-                    if (!plcRefreshResult.Success)
+                    _logHelper.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
+                    prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
+
+                    // 步骤1：等待打印机就绪（原有逻辑保留）
+                    while (prt != CommunicationProtocol.prtReady)
                     {
-                        _logHelper.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
-                        prt = CommunicationProtocol.prtNG;
-                        WritePLCReg(prt: prt);
-                        BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
-                        return;
+                        // 刷新PLC状态（复用ReadPlcStatus，保持逻辑统一）
+                        var plcRefreshResult = ReadPlcStatus();
+                        if (!plcRefreshResult.Success)
+                        {
+                            _logHelper.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
+                            prt = CommunicationProtocol.prtNG;
+                            WritePLCReg(prt: prt);
+                            BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                            return;
+                        }
+                        prt = plcRefreshResult.Prt;
+                        cam = plcRefreshResult.Cam;
+                        scn = plcRefreshResult.Scn;
+
+                        _logHelper.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                        UpdateStatusBar("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                        await Task.Delay(500);
                     }
-                    prt = plcRefreshResult.Prt;
-                    cam = plcRefreshResult.Cam;
-                    scn = plcRefreshResult.Scn;
-
-                    _logHelper.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
-                    UpdateStatusBar("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
-                    await Task.Delay(500);
-                }
-                _logHelper.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
-            }
-            else
-            {
-                // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
-                _logHelper.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
-                prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
-            }
-
-            // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
-            try
-            {
-                _logHelper.Log("打印", "INFO", "开始调用打印助手类执行打印");
-                // 获取Form1的打印配置（已暴露属性）
-                string zplTemplatePath = _form1.ZplTemplatePath;
-                string printerPath = _form1.PrintName;
-                string printCode = mesResult.Data; // MES返回的打印内容
-
-                // 异步调用打印助手类
-                _logHelper.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
-                var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
-                    printCode: printCode,
-                    zplTemplatePath: zplTemplatePath,  // 直接使用Form1暴露的模板路径属性
-                    printerPath: printerPath
-                );
-
-                // 步骤3：处理打印结果（统一逻辑+标准化日志）
-                if (printResult.Success)
-                {
-                    _logHelper.Log("打印", "INFO", $"打印成功：{printResult.Message}");
-                    prt = CommunicationProtocol.prtOK;
-                    // 线程安全更新UI
-                    BeginInvoke(new Action(() =>
-                    {
-                        _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK);
-                        _form1.lastPrtCode_label.Text = printCode;
-                    }
-                    ));
-
-                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
-                    WritePLCReg(prt: prt);
-                    _logHelper.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
-                    UpdateStatusBar("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    _logHelper.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
                 }
                 else
                 {
-                    _logHelper.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
-                    prt = CommunicationProtocol.prtNG;
-                    // 线程安全更新UI
-                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                    // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
+                    _logHelper.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
+                    prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
+                }
 
-                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
+                try
+                {
+                    _logHelper.Log("打印", "INFO", "开始调用打印助手类执行打印");
+                    // 获取Form1的打印配置（已暴露属性）
+                    string zplTemplatePath = _form1.ZplTemplatePath;
+                    string printerPath = _form1.PrintName;
+                    string printCode = mesResult.Data; // MES返回的打印内容
+
+                    // 异步调用打印助手类
+                    _logHelper.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
+                    var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
+                        printCode: printCode,
+                        zplTemplatePath: zplTemplatePath,  // 直接使用Form1暴露的模板路径属性
+                        printerPath: printerPath
+                    );
+
+                    // 步骤3：处理打印结果（统一逻辑+标准化日志）
+                    if (printResult.Success)
+                    {
+                        _logHelper.Log("打印", "INFO", $"打印成功：{printResult.Message}");
+                        prt = CommunicationProtocol.prtOK;
+                        // 线程安全更新UI
+                        BeginInvoke(new Action(() =>
+                        {
+                            _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK);
+                            _form1.lastPrtCode_label.Text = printCode;
+                            _form1.txtBox_prtCode.Text = "已发送";
+                        }
+                        ));
+
+                        // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                        WritePLCReg(prt: prt);
+                        _logHelper.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                        UpdateStatusBar("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    }
+                    else
+                    {
+                        _logHelper.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
+                        prt = CommunicationProtocol.prtNG;
+                        // 线程安全更新UI
+                        BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+
+                        // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                        WritePLCReg(prt: prt);
+                        _logHelper.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                        UpdateStatusBar("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                        _logHelper.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // 捕获助手类未覆盖的异常（兜底）
+                    _logHelper.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
+                    _logHelper.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
+                    prt = CommunicationProtocol.prtNG;
+                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
                     WritePLCReg(prt: prt);
-                    _logHelper.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
-                    UpdateStatusBar("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
-                    _logHelper.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
                     return;
                 }
-            }
-            catch (Exception ex)
-            {
-                // 捕获助手类未覆盖的异常（兜底）
-                _logHelper.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
-                _logHelper.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
-                prt = CommunicationProtocol.prtNG;
-                BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
-                WritePLCReg(prt: prt);
-                return;
-            }
 
-            _logHelper.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+                _logHelper.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+            }
+            else
+            {
+                UpdateStatusBar("打印等待","INFO", "等待1#阻挡气缸降下，触发打印流程");
+            }
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
 
@@ -1002,7 +999,7 @@ namespace Data_Transceiver_Center
                 token.ThrowIfCancellationRequested();
 
                 // 勾选打印超时选项，才进行超时停止
-                if (chkBox_allowTimeOut.Checked)
+                if (checkBox_allowHolder.Checked)
                 {
                     // 检查是否超时
                     if ((DateTime.Now - startTime).TotalSeconds > timeoutS)
@@ -1039,7 +1036,7 @@ namespace Data_Transceiver_Center
                 // 读取拍照位气缸camPstHolder(Y016)
                 short? camHolder = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
                 // 你的判断逻辑（比如寄存器值为1表示归零）
-                bool isZero = camHolder.HasValue && camHolder.Value == CommunicationProtocol.dataFlow;
+                bool isZero = camHolder.HasValue && camHolder.Value == CommunicationProtocol.HolderDown;
                 return isZero;
             }
             catch (Exception ex)
@@ -1050,6 +1047,232 @@ namespace Data_Transceiver_Center
         }
 
         #endregion
+
+        #region 监控camHolder(Y016),当值=0，触发ZPL生成和发送打印
+        /// <summary>
+        /// 打印监控复选框状态变更事件
+        /// 若不勾选，则取消后台监控线程，在自动流程中直接发打印码，不用等待Y016；若勾选，则由监控线程来发打印码
+        /// </summary>
+        /// <param name="sender">触发控件</param>
+        /// <param name="e">事件参数</param>
+        private void checkBox_allowHolder_CheckedChanged(object sender, EventArgs e)
+        {
+            // 勾选开启监控，取消关闭监控线程
+            if (checkBox_allowHolder.Checked)
+            {
+                StartPrtMonitor();
+                _logHelper.Log("气缸监控", "INFO", "已开启气缸监控，当监控到Y016气缸降下时，将会触发发送打印码流程");
+            }
+            else
+            {
+                StopPrtMonitor();
+                _logHelper.Log("气缸监控", "INFO", "已关闭气缸监控，自动流程中，收到MES数据之后会触发发送打印码流程");
+            }
+        }
+
+        /// <summary>
+        /// 启动打印监控线程
+        /// 监控PLC寄存器，当camHolder值为0时触发打印的流程
+        /// </summary>
+        private void StartPrtMonitor()
+        {
+            lock (_prtMonitorLock)
+            {
+                if (_isPrtMonitorRunning)
+                    return;
+
+                _isPrtMonitorRunning = true;
+                _prtMonitorThread = new Thread(PrtMonitorLoop);
+                _prtMonitorThread.IsBackground = true;
+                _prtMonitorThread.Start();
+                Console.WriteLine("打印监控线程已启动");
+            }
+        }
+
+        /// <summary>
+        /// 停止打印监控线程
+        /// </summary>
+        private void StopPrtMonitor()
+        {
+            lock (_prtMonitorLock)
+            {
+                if (!_isPrtMonitorRunning)
+                    return;
+
+                _isPrtMonitorRunning = false;
+            }
+
+            // 等待线程终止
+            if (_prtMonitorThread != null && _prtMonitorThread.IsAlive)
+            {
+                _prtMonitorThread.Join(1000);// 等待线程退出
+                if (_prtMonitorThread.IsAlive)
+                {
+                    Console.WriteLine("打印监控线程未能正常终止");
+                }
+                else
+                {
+                    Console.WriteLine("打印监控线程已停止");
+                }
+                _prtMonitorThread = null;
+            }
+        }
+
+        /// <summary>
+        /// 打印监控循环
+        /// 持续检测PLC的camHolder值，满足条件时触发打印流程
+        /// </summary>
+        private void PrtMonitorLoop()
+        {
+            while (_isPrtMonitorRunning)
+            {
+                try
+                {
+                    // 检查PLC连接状态
+                    if (!checkBox_connectPlc.Checked)
+                    {
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+
+                    // 使用新方法读取指定寄存器（相机允许信号）
+                    var camHolderValue = ReadPlcSpecificRegister(CommunicationProtocol.camPstHolder);
+
+                    // 检测到触发条件
+                    if (camHolderValue.HasValue && camHolderValue.Value == CommunicationProtocol.HolderDown && _form1.txtBox_prtCode.Text != "已发送")
+                    {
+                        _logHelper.Log("打印等待", "INFO", $"检测到Y016寄存器值为{camHolderValue.Value}，符合触发条件");
+                        // 触发自动流程，标记触发源为「PLC监控」
+                        //BeginInvoke(new Action(() => TriggerAutoRun(isManualTrigger: false, "PLC监控")));
+
+                        PrtCode(); // 直接调用打印方法
+                        startTime1 = DateTime.Now;
+
+                        Thread.Sleep(2000); // 防抖动：避免短时间重复读取触发
+                    }
+                    else
+                    {
+                        UpdateStatusBar("打印等待", "INFO", $"等待1#阻挡气缸降下触发打印，当前等待时间：{Convert.ToUInt64((DateTime.Now - startTime1).TotalSeconds)}秒");
+                        Thread.Sleep(500); // 非触发状态，降低轮询频率
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logHelper.Log("打印等待", "ERROR", $"气缸监控线程异常：{ex.Message}");
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        private async void PrtCode()
+        {
+            short prt;
+            var plcResult = ReadPlcStatus();
+
+            // ========== 3.打印模块 ==========
+            _logHelper.Log("打印", "INFO", "进入打印流程，开始前置检查");
+            // 标记是否需要等待PLC就绪（屏蔽PLC开关）
+            bool needWaitPlcReady = !checkBox_ignorePlc.Checked;
+            if (needWaitPlcReady)
+            {
+                _logHelper.Log("打印", "INFO", "屏蔽PLC未勾选，开始等待打印机就绪信号（PLC prtReady）");
+                prt = plcResult.Prt; // 复用之前读取的PLC状态，避免重复调用
+
+                // 步骤1：等待打印机就绪（原有逻辑保留）
+                while (prt != CommunicationProtocol.prtReady)
+                {
+                    // 刷新PLC状态（复用ReadPlcStatus，保持逻辑统一）
+                    var plcRefreshResult = ReadPlcStatus();
+                    if (!plcRefreshResult.Success)
+                    {
+                        _logHelper.Log("打印", "ERROR", "等待打印机就绪时PLC读取失败，终止打印流程");
+                        prt = CommunicationProtocol.prtNG;
+                        WritePLCReg(prt: prt);
+                        BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                        return;
+                    }
+                    prt = plcRefreshResult.Prt;
+
+                    _logHelper.Log("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    UpdateStatusBar("打印", "WARN", $"打印机未就绪，当前PLC状态：prt={prt}，等待500ms后重试");
+                    await Task.Delay(500);
+                }
+                _logHelper.Log("打印", "INFO", "打印机就绪信号已获取（prt=prtReady）");
+            }
+            else
+            {
+                // 步骤1（屏蔽PLC）：跳过等待，直接标记为“逻辑就绪”
+                _logHelper.Log("打印", "WARN", "屏蔽PLC已勾选，跳过打印机就绪信号校验");
+                prt = CommunicationProtocol.prtReady; // 强制设为就绪，推进流程
+            }
+
+            // 步骤2：调用PrintingHelper执行打印（无论是否屏蔽PLC，都执行打印）
+            try
+            {
+                _logHelper.Log("打印", "INFO", "开始调用打印助手类执行打印");
+                // 获取Form1的打印配置（已暴露属性）
+                string zplTemplatePath = _form1.ZplTemplatePath;
+                string printerPath     = _form1.PrintName;
+                string printCode       = _form1.txtBox_prtCode.Text; 
+
+                // 异步调用打印助手类
+                _logHelper.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");
+                var printResult = await PrintingHelper.Instance.ExecutePrintAsync(
+                    printCode: printCode,
+                    zplTemplatePath: zplTemplatePath,  // 直接使用Form1暴露的模板路径属性
+                    printerPath: printerPath
+                );
+
+                // 步骤3：处理打印结果（统一逻辑+标准化日志）
+                if (printResult.Success)
+                {
+                    _logHelper.Log("打印", "INFO", $"打印成功：{printResult.Message}");
+                    prt = CommunicationProtocol.prtOK;
+                    // 线程安全更新UI
+                    BeginInvoke(new Action(() =>
+                    {
+                        _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeOK);
+                        _form1.lastPrtCode_label.Text = printCode;
+                        _form1.txtBox_prtCode.Text = "已发送";
+                    }
+                    ));
+
+                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                    WritePLCReg(prt: prt);
+                    _logHelper.Log("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                    UpdateStatusBar("PLC", "INFO", $"打印成功，写入PLC状态：prt={prt}（prtOK）");
+                }
+                else
+                {
+                    _logHelper.Log("打印", "ERROR", $"打印失败：{printResult.Message}");
+                    prt = CommunicationProtocol.prtNG;
+                    // 线程安全更新UI
+                    BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+
+                    // 即使屏蔽PLC，仍写入PLC状态（若不需要可加判断：if(!ignorePlc_checkBox.Checked)）
+                    WritePLCReg(prt: prt);
+                    _logHelper.Log("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    UpdateStatusBar("PLC", "INFO", $"打印失败，写入PLC状态：prt={prt}（prtNG）");
+                    _logHelper.Log("AutoRun", "WARN", "打印失败，终止本次自动流程");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 捕获助手类未覆盖的异常（兜底）
+                _logHelper.Log("打印", "ERROR", $"打印流程未预期异常：{ex.Message}");
+                _logHelper.Log("打印", "ERROR", $"异常堆栈：{ex.StackTrace}");
+                prt = CommunicationProtocol.prtNG;
+                BeginInvoke(new Action(() => _form1.SafeSetLbPrtCode(CommunicationProtocol.prtCodeNG)));
+                WritePLCReg(prt: prt);
+                return;
+            }
+
+            _logHelper.Log("打印", "INFO", "打印流程完成，进入后续校验/收尾环节");
+        }
+
+        #endregion
+
 
         #region 校验相关
         /// <summary>

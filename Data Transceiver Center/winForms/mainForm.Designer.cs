@@ -54,7 +54,7 @@ namespace Data_Transceiver_Center
             this.statusModule = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusLevel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusMessage = new System.Windows.Forms.ToolStripStatusLabel();
-            this.chkBox_allowTimeOut = new System.Windows.Forms.CheckBox();
+            this.checkBox_allowHolder = new System.Windows.Forms.CheckBox();
             this.panelContainer.SuspendLayout();
             this.statusStrip_mainForm.SuspendLayout();
             this.SuspendLayout();
@@ -269,21 +269,22 @@ namespace Data_Transceiver_Center
             this.statusMessage.Spring = true;
             this.statusMessage.Text = "[message]";
             // 
-            // chkBox_allowTimeOut
+            // checkBox_allowHolder
             // 
-            this.chkBox_allowTimeOut.AutoSize = true;
-            this.chkBox_allowTimeOut.Location = new System.Drawing.Point(12, 421);
-            this.chkBox_allowTimeOut.Name = "chkBox_allowTimeOut";
-            this.chkBox_allowTimeOut.Size = new System.Drawing.Size(106, 22);
-            this.chkBox_allowTimeOut.TabIndex = 17;
-            this.chkBox_allowTimeOut.Text = "打印超时";
-            this.chkBox_allowTimeOut.UseVisualStyleBackColor = true;
+            this.checkBox_allowHolder.AutoSize = true;
+            this.checkBox_allowHolder.Location = new System.Drawing.Point(12, 421);
+            this.checkBox_allowHolder.Name = "checkBox_allowHolder";
+            this.checkBox_allowHolder.Size = new System.Drawing.Size(106, 22);
+            this.checkBox_allowHolder.TabIndex = 17;
+            this.checkBox_allowHolder.Text = "气缸监控";
+            this.checkBox_allowHolder.UseVisualStyleBackColor = true;
+            this.checkBox_allowHolder.CheckedChanged += new System.EventHandler(this.checkBox_allowHolder_CheckedChanged);
             // 
             // mainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(938, 704);
-            this.Controls.Add(this.chkBox_allowTimeOut);
+            this.Controls.Add(this.checkBox_allowHolder);
             this.Controls.Add(this.statusStrip_mainForm);
             this.Controls.Add(this.checkBox_ignoreCam);
             this.Controls.Add(this.checkBox_ignoreCheck);
@@ -336,6 +337,6 @@ namespace Data_Transceiver_Center
         private System.Windows.Forms.ToolStripStatusLabel statusLevel;
         private System.Windows.Forms.ToolStripStatusLabel statusTime;
         private System.Windows.Forms.ToolStripStatusLabel statusMessage;
-        private System.Windows.Forms.CheckBox chkBox_allowTimeOut;
+        private System.Windows.Forms.CheckBox checkBox_allowHolder;
     }
 }
