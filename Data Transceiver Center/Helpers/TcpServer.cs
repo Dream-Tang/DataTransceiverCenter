@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     class TCPServer
     {

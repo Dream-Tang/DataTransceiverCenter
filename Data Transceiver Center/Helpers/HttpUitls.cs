@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     // http通信类，通过API获得JSON返回数据
     public class HttpUitls

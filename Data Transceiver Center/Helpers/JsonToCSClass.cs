@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-
-namespace Data_Transceiver_Center
+﻿
+namespace Data_Transceiver_Center.Helpers
 {
     /// <summary>
     /// 返回JSON包：{"message":"ok","nu":"367847964498","ischeck":"1","com":"shunfeng","status":"200","condition":"F00","state":"3","data":[{"time":"2023-07-20 13:19:55","context":"查无结果","ftime":"2023-07-20 13:19:55"}]}

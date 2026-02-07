@@ -160,6 +160,7 @@
     <Compile Include="ActDefine.cs" />
     <Compile Include="Helpers\CheckHelper.cs" />
     <Compile Include="Helpers\IniHelper.cs" />
+    <Compile Include="Helpers\MitsubishiPlcHelper.cs" />
     <Compile Include="Interfaces\IConfigurable.cs" />
     <Compile Include="Helpers\LogHelper.cs" />
     <Compile Include="Helpers\MesCommunicationHelper.cs" />

@@ -1,17 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using Data_Transceiver_Center.Helpers;
+using Data_Transceiver_Center.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.IO;
-using System.IO.Ports;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls.WebParts;
 using System.Windows.Forms;
-using ZXing.Aztec.Internal;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
     /// <summary>
     /// 主窗体类，负责协调各子窗体交互及核心业务流程
@@ -145,7 +143,7 @@ namespace Data_Transceiver_Center
             _jsonLoadForm = _form3;
             _iniSaveForm = _form1;
             _jsonSaveForm = _form3;
-           
+
             // 初始化子窗体嵌入属性
             InitChildForm(_form1);
             InitChildForm(_form2);
@@ -161,7 +159,7 @@ namespace Data_Transceiver_Center
             this.FormClosing += mainForm_FormClosing;   // 窗口关闭
 
             // 默认显示工作流程窗体
-            ShowForm(_form1); 
+            ShowForm(_form1);
         }
 
         /// <summary>
@@ -380,15 +378,15 @@ namespace Data_Transceiver_Center
             try
             {
                 // 加载复选框状态
-                checkBox_ignoreCam.Checked   = _iniHelper.ReadBoolean(iniFilePath, "ignoreCam",   "Checkbox", false);
+                checkBox_ignoreCam.Checked = _iniHelper.ReadBoolean(iniFilePath, "ignoreCam", "Checkbox", false);
                 checkBox_ignoreCheck.Checked = _iniHelper.ReadBoolean(iniFilePath, "ignoreCheck", "Checkbox", false);
-                checkBox_ignorePlc.Checked   = _iniHelper.ReadBoolean(iniFilePath, "ignorePlc",   "Checkbox", false);
-                checkBox_connectPlc.Checked  = _iniHelper.ReadBoolean(iniFilePath, "connectPlc",  "Checkbox", false);
-                checkBox_autoMode.Checked    = _iniHelper.ReadBoolean(iniFilePath, "autoRun",     "Checkbox", false);
-                checkBox_tcpServer.Checked   = _iniHelper.ReadBoolean(iniFilePath, "tcpServer",   "Checkbox", false);
-                checkBox_allowHolder.Checked  = _iniHelper.ReadBoolean(iniFilePath, "allowHolder", "Checkbox", false);
+                checkBox_ignorePlc.Checked = _iniHelper.ReadBoolean(iniFilePath, "ignorePlc", "Checkbox", false);
+                checkBox_connectPlc.Checked = _iniHelper.ReadBoolean(iniFilePath, "connectPlc", "Checkbox", false);
+                checkBox_autoMode.Checked = _iniHelper.ReadBoolean(iniFilePath, "autoRun", "Checkbox", false);
+                checkBox_tcpServer.Checked = _iniHelper.ReadBoolean(iniFilePath, "tcpServer", "Checkbox", false);
+                checkBox_allowHolder.Checked = _iniHelper.ReadBoolean(iniFilePath, "allowHolder", "Checkbox", false);
                 // 读取超时时间设置
-                _timeoutMs                   = Convert.ToUInt32(_iniHelper.ReadString(iniFilePath, "timeoutS", "Textbox"));
+                _timeoutMs = Convert.ToUInt32(_iniHelper.ReadString(iniFilePath, "timeoutS", "Textbox"));
 
                 Console.WriteLine("mainForm CheckBox状态加载完成");
             }
@@ -436,12 +434,12 @@ namespace Data_Transceiver_Center
             try
             {
                 // 保存复选框状态
-                _iniHelper.WriteBoolean(iniFilePath, "ignoreCam",   "Checkbox", checkBox_ignoreCam.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "ignoreCam", "Checkbox", checkBox_ignoreCam.Checked);
                 _iniHelper.WriteBoolean(iniFilePath, "ignoreCheck", "Checkbox", checkBox_ignoreCheck.Checked);
-                _iniHelper.WriteBoolean(iniFilePath, "ignorePlc",   "Checkbox", checkBox_ignorePlc.Checked);
-                _iniHelper.WriteBoolean(iniFilePath, "connectPlc",  "Checkbox", checkBox_connectPlc.Checked);
-                _iniHelper.WriteBoolean(iniFilePath, "autoRun",     "Checkbox", checkBox_autoMode.Checked);
-                _iniHelper.WriteBoolean(iniFilePath, "tcpServer",   "Checkbox", checkBox_tcpServer.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "ignorePlc", "Checkbox", checkBox_ignorePlc.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "connectPlc", "Checkbox", checkBox_connectPlc.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "autoRun", "Checkbox", checkBox_autoMode.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "tcpServer", "Checkbox", checkBox_tcpServer.Checked);
                 _iniHelper.WriteBoolean(iniFilePath, "allowHolder", "Checkbox", checkBox_allowHolder.Checked);
 
                 Console.WriteLine("MainForm配置保存完成");
@@ -469,7 +467,7 @@ namespace Data_Transceiver_Center
         /// 全流程执行逻辑（仅负责按顺序执行操作，不处理触发判断）
         /// 流程：读PLC -> MES通信 -> 生成打印指令 -> 发送打印 -> 校验 -> 写PLC结果
         /// </summary>
-        
+
         private async void ExecuteFullProcess()
         {
             short cam = -1, prt = -1, scn = -1;
@@ -704,7 +702,7 @@ namespace Data_Transceiver_Center
             }
             else
             {
-                UpdateStatusBar("打印等待","INFO", "等待1#阻挡气缸降下，触发打印流程");
+                UpdateStatusBar("打印等待", "INFO", "等待1#阻挡气缸降下，触发打印流程");
             }
             // ... 后续逻辑（如扫描状态处理、流程结束） ...
         }
@@ -1009,27 +1007,27 @@ namespace Data_Transceiver_Center
                     }
                 }
 
-            // 核心逻辑：检查阻挡气缸是否归零（替换为你的实际检测代码）
-            bool isZero = CheckCamHolderZeroStatus();
-            _logHelper.Log("打印流程", "INFO", $"等待camHolder变为0，等待时间：{(DateTime.Now - startTime).Seconds}");
-            UpdateStatusBar("打印流程", "INFO", $"等待1#阻挡气缸降下，等待时间：{(DateTime.Now - startTime).Seconds}");
+                // 核心逻辑：检查阻挡气缸是否归零（替换为你的实际检测代码）
+                bool isZero = CheckCamHolderZeroStatus();
+                _logHelper.Log("打印流程", "INFO", $"等待camHolder变为0，等待时间：{(DateTime.Now - startTime).Seconds}");
+                UpdateStatusBar("打印流程", "INFO", $"等待1#阻挡气缸降下，等待时间：{(DateTime.Now - startTime).Seconds}");
 
-            if (isZero)
-            {
-                _logHelper.Log("打印流程", "INFO", "拍照位气缸已经降下 Y016 = 0");
-                return true;
+                if (isZero)
+                {
+                    _logHelper.Log("打印流程", "INFO", "拍照位气缸已经降下 Y016 = 0");
+                    return true;
+                }
+
+                // 短暂等待后重试（避免CPU空转，同时保证取消响应速度）
+                await Task.Delay(100, token); // 传入token，Delay也能响应取消
             }
-
-            // 短暂等待后重试（避免CPU空转，同时保证取消响应速度）
-            await Task.Delay(100, token); // 传入token，Delay也能响应取消
-        }
         }
 
         /// <summary>
         /// 模拟：检查相机阻挡气缸降下状态（替换为你的实际逻辑）
         /// </summary>
         /// <returns>是否归零</returns>
-        private bool CheckCamHolderZeroStatus() 
+        private bool CheckCamHolderZeroStatus()
         {
             try
             {
@@ -1212,8 +1210,8 @@ namespace Data_Transceiver_Center
                 _logHelper.Log("打印", "INFO", "开始调用打印助手类执行打印");
                 // 获取Form1的打印配置（已暴露属性）
                 string zplTemplatePath = _form1.ZplTemplatePath;
-                string printerPath     = _form1.PrintName;
-                string printCode       = _form1.txtBox_prtCode.Text; 
+                string printerPath = _form1.PrintName;
+                string printCode = _form1.txtBox_prtCode.Text;
 
                 // 异步调用打印助手类
                 _logHelper.Log("打印触发", "INFO", "准备调用PrintingHelper.ExecutePrintAsync");

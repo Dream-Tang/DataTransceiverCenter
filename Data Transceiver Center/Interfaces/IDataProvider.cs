@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Data_Transceiver_Center
+﻿namespace Data_Transceiver_Center.Interfaces
 {
     /// <summary>
     /// 抽象数据提供器，定义CheckHelper需要的数据获取方法

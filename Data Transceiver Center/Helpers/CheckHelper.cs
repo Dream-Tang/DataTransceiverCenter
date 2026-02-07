@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Data_Transceiver_Center.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     /// <summary>
     /// 校验功能辅助类，统一处理校验逻辑
@@ -92,11 +92,11 @@ namespace Data_Transceiver_Center
                 // 通过接口操作PLC，而非直接依赖Form2
                 if (_plcService.InvokeRequired)
                 {
-                    _plcService.Invoke(new Action(() => _plcService.SafeWritePlc(scn:scnValue)));
+                    _plcService.Invoke(new Action(() => _plcService.SafeWritePlc(scn: scnValue)));
                 }
                 else
                 {
-                    _plcService.SafeWritePlc(scn:scnValue);
+                    _plcService.SafeWritePlc(scn: scnValue);
                 }
                 _logHelper.Log("校验->PLC", "INFO", $"已发送校验结果到PLC: {scnValue}");
             }

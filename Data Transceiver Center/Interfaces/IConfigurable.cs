@@ -1,4 +1,4 @@
-﻿namespace Data_Transceiver_Center
+﻿namespace Data_Transceiver_Center.Interfaces
 {
     // 处理ini配置的接口
     public interface IIniConfigurable

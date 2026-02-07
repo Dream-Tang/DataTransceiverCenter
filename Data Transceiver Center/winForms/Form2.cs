@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Data_Transceiver_Center.Interfaces;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
 
     public partial class Form2 : Form, IPLCService

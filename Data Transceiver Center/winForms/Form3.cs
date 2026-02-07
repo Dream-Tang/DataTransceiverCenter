@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Data_Transceiver_Center.Helpers;
+using Data_Transceiver_Center.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
     public partial class Form3 : Form, IJsonConfigurable, IJsonSavable
     {

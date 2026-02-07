@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     // ========== 必须配套的实体类（确保和原有代码一致） ==========
     // MesResult（新增RawResponse字段，其他不变）
@@ -230,4 +230,4 @@ namespace Data_Transceiver_Center
             return result;
         }
     }
-    }
+}

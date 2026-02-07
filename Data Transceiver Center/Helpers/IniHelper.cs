@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     /// <summary>
     /// INI配置文件助手类（单例模式）

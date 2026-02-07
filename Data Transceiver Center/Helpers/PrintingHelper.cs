@@ -3,9 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     /// <summary>
     /// 打印助手类（单例模式）
@@ -120,7 +119,7 @@ namespace Data_Transceiver_Center
                     }
                 }
             }
-            }
+        }
 
         /// <summary>
         /// 【扩展接口】异步生成ZPL内容（加载模板+替换变量）
@@ -302,9 +301,6 @@ namespace Data_Transceiver_Center
                         zplBuilder.Insert(index_FDQA, printCode);
                     }
                 }
-
-
-
                 return zplBuilder.ToString();
             }
             catch

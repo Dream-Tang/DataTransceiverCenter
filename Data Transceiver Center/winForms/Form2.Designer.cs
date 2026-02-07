@@ -1,5 +1,5 @@
 ﻿
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
     partial class Form2
     {
@@ -529,6 +529,7 @@ namespace Data_Transceiver_Center
             this.axActUtlType1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axActUtlType1.OcxState")));
             this.axActUtlType1.Size = new System.Drawing.Size(32, 32);
             this.axActUtlType1.TabIndex = 0;
+            this.axActUtlType1.Visible = false;
             // 
             // Form2
             // 

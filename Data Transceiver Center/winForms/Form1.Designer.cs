@@ -1,5 +1,5 @@
 ﻿
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
     partial class Form1
     {

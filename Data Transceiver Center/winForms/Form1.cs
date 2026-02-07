@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
-using Org.BouncyCastle.Tls.Crypto;
+﻿using Data_Transceiver_Center.Helpers;
+using Data_Transceiver_Center.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.IO;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing.Common;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.winForms
 {
     public partial class Form1 : Form, IIniConfigurable, IIniSavable, IDataProvider
     {
@@ -64,13 +65,13 @@ namespace Data_Transceiver_Center
         public string zplTemplatePath = "";                             // zpl模板的文件路径
         public string zplTemplateDirectory = System.Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
         public bool ignoreCheck = false;
-        public bool ignoreCam   = false;
+        public bool ignoreCam = false;
 
         // 通信和流程标志位状态机，0初始化，1进行中，2完成，3异常
         internal int mes1Status = STATUS_WAIT;
         internal int mes2Status = STATUS_WAIT;
         internal int mes3Status = STATUS_WAIT;
-        internal int prtStatus  = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
+        internal int prtStatus = STATUS_WAIT;        // 打印机状态，当发送完之后，打印机状态清除，只有打印后，才可清除prtCode
         internal int trigSigner = STATUS_WAIT;      // 触发信号状态，当二维码输入时，表示有触发信号，可执行全流程操作
         internal int seriStatus = STATUS_WAIT;      // 串口状态，当串口传入数据时，ready；校验结束后，wait。
         internal string tcpNoReadStr = "NoRead";
@@ -122,14 +123,14 @@ namespace Data_Transceiver_Center
                 return;
             }
             string filePathZPLDirectory = Path.GetDirectoryName(this.txtBox_zplTemplatePath.Text);
-            string zplFilePath  = filePathZPLDirectory + "\\Lastzpl.txt";
+            string zplFilePath = filePathZPLDirectory + "\\Lastzpl.txt";
             string prtCode = lastPrtCode_label.Text;
             string prtName = txtBox_prtPath.Text;
             try
             {   // 直接调用异步Helper方法（使用await关键字）
                 var zplMakeResult = await _printingHelper.MakeZplContentAsync(zplTemplatePath, prtCode);// 生成ZPL指令
                 var zplSaveResult = await _printingHelper.SaveZplFileAsync(zplFilePath, zplMakeResult.ZplContent); // 保存ZPL指令到文件
-
+                _logHelper.Log("手动补打上次", "info", $"手动补打条码{prtCode}");
                 // 直接调用异步Helper方法（使用await关键字）
                 var zplPrintResult = await _printingHelper.SendZplFileToPrinterAsync(zplFilePath, prtName);
                 // 更新UI
@@ -169,7 +170,7 @@ namespace Data_Transceiver_Center
                 MessageBox.Show("ZPL模板路径不能为空");
                 return;
             }
-            if (txtBox_prtCode.Text=="已发送")
+            if (txtBox_prtCode.Text == "已发送")
             {
                 MessageBox.Show("还没有获取到新的打印码");
                 return;
@@ -181,6 +182,7 @@ namespace Data_Transceiver_Center
             string prtName = txtBox_prtPath.Text;
             try
             {   // 直接调用异步Helper方法（使用await关键字）
+                _logHelper.Log("手动打印本次条码", "info", $"手动打印本次条码{prtCode}");
                 var zplMakeResult = await _printingHelper.MakeZplContentAsync(zplTemplatePath, prtCode);// 生成ZPL指令
                 var zplSaveResult = await _printingHelper.SaveZplFileAsync(zplFilePath, zplMakeResult.ZplContent); // 保存ZPL指令到文件
 
@@ -315,11 +317,11 @@ namespace Data_Transceiver_Center
         {
             try
             {
-                
+
                 if (!serialPort1.IsOpen) return;
 
                 // 读取所有可用数据（非阻塞）
-                string newData = serialPort1.ReadExisting(); 
+                string newData = serialPort1.ReadExisting();
                 _logHelper.Log("[串口]", "[INFO]", $"收到新数据：{newData}");
 
                 if (string.IsNullOrEmpty(newData)) return;
@@ -474,12 +476,12 @@ namespace Data_Transceiver_Center
             {
                 // 保存文本框配置
                 _iniHelper.WriteString(iniFilePath, "zplTemplate", "Textbox", txtBox_zplTemplatePath.Text);
-                _iniHelper.WriteString(iniFilePath, "prtName",     "Textbox", txtBox_prtPath.Text);
+                _iniHelper.WriteString(iniFilePath, "prtName", "Textbox", txtBox_prtPath.Text);
                 _iniHelper.WriteString(iniFilePath, "seriPortNum", "Textbox", cobBox_SeriPortNum.Text);
                 _iniHelper.WriteString(iniFilePath, "timeoutS", "Textbox", txtBox_timeOut.Text);
 
                 // 保存复选框状态（与加载时对应）
-                _iniHelper.WriteBoolean(iniFilePath,"lockSettings", "Checkbox", lockSettings_checkBox.Checked);
+                _iniHelper.WriteBoolean(iniFilePath, "lockSettings", "Checkbox", lockSettings_checkBox.Checked);
 
                 Console.WriteLine("Form1配置保存成功");
             }
@@ -495,16 +497,16 @@ namespace Data_Transceiver_Center
         public void LoadIniSettings(string iniFilePath)
         {
             // string Read(string Key,string Section = null)
-            string prtName         = _iniHelper.ReadString(iniFilePath, "prtName",     "Textbox");
+            string prtName = _iniHelper.ReadString(iniFilePath, "prtName", "Textbox");
             string zplTemplatePath = _iniHelper.ReadString(iniFilePath, "zplTemplate", "Textbox");
-            string seriPortNum     = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
-            string timeOutS        = _iniHelper.ReadString(iniFilePath, "timeoutS",    "Textbox");
+            string seriPortNum = _iniHelper.ReadString(iniFilePath, "seriPortNum", "Textbox");
+            string timeOutS = _iniHelper.ReadString(iniFilePath, "timeoutS", "Textbox");
 
             txtBox_zplTemplatePath.Text = zplTemplatePath;
-            txtBox_prtPath.Text         = prtName;
-            cobBox_SeriPortNum.Text     = seriPortNum;
-            label_zplTemp.Text          = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
-            txtBox_timeOut.Text         = timeOutS;
+            txtBox_prtPath.Text = prtName;
+            cobBox_SeriPortNum.Text = seriPortNum;
+            label_zplTemp.Text = zplTemplatePath.Substring(zplTemplatePath.LastIndexOf("\\") + 1);
+            txtBox_timeOut.Text = timeOutS;
 
             // 加载ZPL模板
             try
@@ -901,7 +903,7 @@ namespace Data_Transceiver_Center
         // 手动验码
         private void btn_RetryChk_Click(object sender, EventArgs e)
         {
-            if(ignoreCheck)
+            if (ignoreCheck)
             {
                 SafeSetLbChkCode("忽略校验");
                 _logHelper.Log("[手动验码]", "[INFO]", "Form1已设置为忽略校验状态");

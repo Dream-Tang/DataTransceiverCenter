@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Data_Transceiver_Center
+namespace Data_Transceiver_Center.Helpers
 {
     /// <summary>
     /// 日志助手类（单例模式 + 线程安全）
@@ -18,7 +18,7 @@ namespace Data_Transceiver_Center
         // 日志配置参数
         private long _maxLogSize = 5 * 1024 * 1024; // 默认5MB
         private int _maxHistoryLogs = 10; // 默认保留10个历史日志
-        private string _logFilePath ; // 默认日志路径
+        private string _logFilePath; // 默认日志路径
 
         // 关键：添加文件操作锁（保证同一时间只有一个线程操作日志文件）
         private readonly object _fileLock = new object();
